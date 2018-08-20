@@ -27,8 +27,7 @@
     (if (param "IMPORT_DIR")
         (list (param "IMPORT_DIR"))
         (list "/System/Library/Sandbox/Profiles"
-              "/usr/share/sandbox"
-              "/Library/Sandbox/Profiles")))
+              "/usr/share/sandbox")))
   (if (or (= 0 (string-length path))
           (eqv? #\/ (string-ref path 0)))
       ;; Absolute path, load it directly.
@@ -60,6 +59,64 @@
        (set! *trace* path))))
 
 ;;; Utilities
+
+;;;
+;;; Apply a SBPL filter to actions.
+;;; The first argument is the filter to apply.  Any actions emitted as a result
+;;; of evaluating the additional arguments are modified to be contingent on
+;;; the specified filter.
+;;;
+(macro (with-filter form)
+  (let* ((ps (cdr form))
+         (extra-filter (car ps))
+         (rules (cdr ps)))
+    `(letrec
+       ((inject-filter
+          (lambda args
+            (let* ((collected (partition sbpl-filter? args))
+                   (filters (car collected))
+                   (non-filters (cadr collected)))
+              (if (null? filters)
+                  (cons ,extra-filter non-filters)
+                  ;; The order of the filters shouldn't matter, but we put the extra filter last
+                  ;; since we frequently call this function with require-entitlement in the extra
+                  ;; filter and that is still fairly slow (<rdar://problem/11578372>).
+                  (cons (require-all (apply require-any filters) ,extra-filter) non-filters)))))
+        (orig-allow allow)
+        (orig-deny deny)
+        (wrapper
+          (lambda (action)
+            (lambda args (apply action (apply inject-filter args))))))
+       (set! allow (wrapper orig-allow))
+       (set! deny (wrapper orig-deny))
+       ,@rules
+       (set! deny orig-deny)
+       (set! allow orig-allow))))
+
+;;;
+;;; Apply a SBPL modifier to actions.
+;;; The first argument is the modifier to apply.  Any actions emitted as a
+;;; result of evaluating the additional arguments are modified to include
+;;; the specified modifier.
+;;;
+(macro (with-modifier form)
+  (let* ((ps (cdr form))
+         (extra-modifier (car ps))
+         (rules (cdr ps)))
+    `(letrec
+       ((inject-modifier
+          (lambda args
+	    (cons ,extra-modifier args)))
+        (orig-allow allow)
+        (orig-deny deny)
+        (wrapper
+          (lambda (action)
+            (lambda args (apply action (apply inject-modifier args))))))
+       (set! allow (wrapper orig-allow))
+       (set! deny (wrapper orig-deny))
+       ,@rules
+       (set! deny orig-deny)
+       (set! allow orig-allow))))
 
 ;; The %finalize function is called after a profile has been evaluated.
 (set! %finalize (lambda ()))
@@ -114,6 +171,7 @@
 (define mount-relative-regex mount-relative-path-regex)
 (define getenv param)
 (define file-fsctl system-fsctl)
+(define ipc-posix-sem ipc-posix-sem*)
 (define ipc-posix-shm ipc-posix-shm*)
 (define sysctl-write sysctl*)
 (define system-misc system*)
@@ -142,6 +200,8 @@
 (define process-exec process-exec*)
 (define rootless-modifier rootless)
 (define (debug-mode) (system-attribute sandbox-debug-mode))
+(define iokit-user-client-class iokit-registry-entry-class)
+(define iokit-user-client-class-regex iokit-registry-entry-class-regex)
 
 ;;; Support for old syntax for unix domain sockets
 ;;; e.g. (allow network-outbound

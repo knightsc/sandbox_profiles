@@ -1,94 +1,172 @@
 (version 1)
 (allow default)
+(deny boot-arg-set
+	(require-not (33 00f1 00ec 00ed)))
 (deny file-ioctl
-	(require-all
-		(process-name "OS X Installer")
-		(29 0000 0085 007e))
 	(require-all
 		(require-not (ioctl-command (_IO "d" 24)))
 		(require-not (ioctl-command (_IO "d" 25)))
 		(require-not (ioctl-command (_IO "d" 64)))
 		(require-not (ioctl-command (_IO "d" 65)))
 		(require-any
-			(2a 0000 0084 0083)
-			(29 0000 0084 0086))))
+			(29 0000 00ec 00ed)
+			(2a 0000 00ec 00e7)
+			(require-all
+				(29 0000 00e8 00e9)
+				(process-name-regex #"os x installer" #".+os x installer")))))
 (deny file-map-executable
-	(regex #"[.]app/contents/_masreceipt/" #"[.]app/contents/_masreceipt$" #".+[.]app/contents/_masreceipt/" #".+[.]app/contents/_masreceipt$")
-	(regex #"[.]app/contents/resources/[^/]+[.]lproj/" #"[.]app/contents/resources/[^/]+[.]lproj$" #".+[.]app/contents/resources/[^/]+[.]lproj/" #".+[.]app/contents/resources/[^/]+[.]lproj$")
 	(regex #"[.]app/contents/pkginfo/" #"[.]app/contents/pkginfo$" #".+[.]app/contents/pkginfo/" #".+[.]app/contents/pkginfo$")
 	(regex #"[.]app/[.]ds_store/" #"[.]app/[.]ds_store$" #"[.]app/.+/[.]ds_store/" #"[.]app/.+/[.]ds_store$" #".+[.]app/(.+/)?[.]ds_store/" #".+[.]app/(.+/)?[.]ds_store$")
-	(regex #"[.]app/contents/_codesignature/" #"[.]app/contents/_codesignature$" #".+[.]app/contents/_codesignature/" #".+[.]app/contents/_codesignature$"))
+	(regex #"[.]app/contents/_codesignature/" #"[.]app/contents/_codesignature$" #".+[.]app/contents/_codesignature/" #".+[.]app/contents/_codesignature$")
+	(regex #"[.]app/contents/_masreceipt/" #"[.]app/contents/_masreceipt$" #".+[.]app/contents/_masreceipt/" #".+[.]app/contents/_masreceipt$")
+	(regex #"[.]app/contents/resources/[^/]+[.]lproj/" #"[.]app/contents/resources/[^/]+[.]lproj$" #".+[.]app/contents/resources/[^/]+[.]lproj/" #".+[.]app/contents/resources/[^/]+[.]lproj$"))
 (deny file-mknod
-	(29 0000 0084 0086)
+	(29 0000 00ec 00ed)
+	(subpath "/dev")
 	(require-all
-		(process-name "OS X Installer")
-		(29 0000 0085 0075)))
+		(29 0000 00e8 00e9)
+		(process-name-regex #"os x installer" #".+os x installer")))
 (deny file-mount
-	(literal "/")
-	(29 0000 0084 0086)
+	(29 0000 00ec 00ed)
+	(require-any (literal "/")
+(subpath "/dev"))
 	(require-all
-		(process-name "OS X Installer")
-		(29 0000 0085 0071)))
+		(29 0000 00e8 00e9)
+		(process-name-regex #"os x installer" #".+os x installer")))
+(deny file-revoke
+	(29 0000 00ec 00ed)
+	(require-all
+		(29 0000 00e8 00e9)
+		(process-name-regex #"os x installer" #".+os x installer")))
+(deny file-write-create
+	(subpath "/dev")
+	(require-all
+		(subpath "/volumes")
+		(regex #"^/volumes$" #"^/volumes/[^/]+$")))
 (deny file-write-data
-	(2a 0000 0084 0073))
+	(2a 0000 00ec 00e7))
+(deny file-write-unlink
+	(subpath "/dev"))
 (deny mach-host*
 	(require-not (process-attribute is-initproc)))
 (deny mach-priv-task-port
-	(2b 0000 0084 0086))
+	(2b 0000 00ec 00ed))
 (deny nvram-delete
 	(require-all
-		(af 000b 005c 005d)
+		(nvram-variable "csr-")
 		(require-not (csr "CSR_ALLOW_DEVICE_CONFIGURATION")))
 	(require-all
-		(require-not (nvram-variable "boot-args"))
+		(require-all (require-not (nvram-variable "4d1ede05-38c7-4a6a-9cc6-4bcca8b38c14:blackmode"))
+(require-not (nvram-variable "4d1ede05-38c7-4a6a-9cc6-4bcca8b38c14:defaultbackgroundcolor"))
+(require-not (nvram-variable "4d1ede05-38c7-4a6a-9cc6-4bcca8b38c14:iascurrentinstallphase"))
+(require-not (nvram-variable "4d1ede05-38c7-4a6a-9cc6-4bcca8b38c14:iasinstallphaselist")))
 		(require-not (nvram-variable "boot-note"))
-		(require-any
-			(require-all
-				(af 0009 0063 0061)
-				(require-not (process-attribute is-installer))
-				(28 0000 0084 0086))
-			(require-all
-				(af 0008 0063 0062)
-				(require-not (process-attribute is-installer))
-				(28 0000 0084 0086))
-			(require-all
-				(af 0007 0063 0086)
-				(require-not (process-attribute is-installer))
-				(28 0000 0084 0086))
-			(require-all
-				(af 000a 0063 0060)
-				(require-not (process-attribute is-installer))
-				(28 0000 0084 0086)))))
+		(require-any (nvram-variable "boot-")
+(nvram-variable "efi-boot-")
+(nvram-variable "efi-legacy-")
+(nvram-variable "eb704011-1402-11d3-8e77-00a0c969723b")
+(nvram-variable "d8944553-c4dd-41f4-9b30-e1397cfb267b")
+(nvram-variable "c94f8c4d-9b9a-45fe-8a55-238b67302643")
+(nvram-variable "c020489e-6db2-4ef2-9aa5-ca06fc11d36a")
+(nvram-variable "af9ffd67-ec10-488a-09fc-6cbf5ee22c2e")
+(nvram-variable "973218b9-1697-432a-8b34-4884b5dfb359")
+(nvram-variable "8be4df61-93ca-11d2-aa0d-00e098032b8c")
+(nvram-variable "60b5e939-0fcf-4227-ba83-6bbed45bc0e3")
+(nvram-variable "4d1ede05-38c7-4a6a-9cc6-4bcca8b38c14")
+(nvram-variable "4c19049f-4137-4dd3-9c10-8b97a83ffdfa")
+(nvram-variable "43eeffe8-a978-41dc-9db6-54c427f27e2a"))
+		(require-not (process-attribute is-installer))
+		(28 0000 00ec 00ed))
+	(require-all
+		(nvram-variable "dz-")
+		(require-not (require-entitlement "com.apple.private.iokit.nvram-dz"))))
 (deny nvram-set
 	(require-all
-		(af 000b 0058 005d)
+		(require-any (nvram-variable "4d1ede05-38c7-4a6a-9cc6-4bcca8b38c14:blackmode")
+(nvram-variable "4d1ede05-38c7-4a6a-9cc6-4bcca8b38c14:defaultbackgroundcolor")
+(nvram-variable "4d1ede05-38c7-4a6a-9cc6-4bcca8b38c14:iascurrentinstallphase")
+(nvram-variable "4d1ede05-38c7-4a6a-9cc6-4bcca8b38c14:iasinstallphaselist"))
+		(nvram-variable "boot-note")
+		(require-any (nvram-variable "boot-")
+(nvram-variable "efi-boot-")
+(nvram-variable "efi-legacy-")
+(nvram-variable "eb704011-1402-11d3-8e77-00a0c969723b")
+(nvram-variable "d8944553-c4dd-41f4-9b30-e1397cfb267b")
+(nvram-variable "c94f8c4d-9b9a-45fe-8a55-238b67302643")
+(nvram-variable "c020489e-6db2-4ef2-9aa5-ca06fc11d36a")
+(nvram-variable "af9ffd67-ec10-488a-09fc-6cbf5ee22c2e")
+(nvram-variable "973218b9-1697-432a-8b34-4884b5dfb359")
+(nvram-variable "8be4df61-93ca-11d2-aa0d-00e098032b8c")
+(nvram-variable "60b5e939-0fcf-4227-ba83-6bbed45bc0e3")
+(nvram-variable "4d1ede05-38c7-4a6a-9cc6-4bcca8b38c14")
+(nvram-variable "4c19049f-4137-4dd3-9c10-8b97a83ffdfa")
+(nvram-variable "43eeffe8-a978-41dc-9db6-54c427f27e2a"))
+		(process-attribute is-installer)
+		(28 0000 00ec 00ed))
+	(require-all
+		(nvram-variable "dz-")
 		(require-any
 			(require-not (csr "CSR_ALLOW_DEVICE_CONFIGURATION"))
-			(require-not (require-entitlement "com.apple.private.iokit.nvram-csr"))))
+			(require-not (require-entitlement "com.apple.private.iokit.nvram-dz"))))
 	(require-all
-		(nvram-variable "boot-args")
-		(nvram-variable "boot-note")
+		(nvram-variable "csr-")
 		(require-any
-			(require-all
-				(af 0009 0063 0061)
-				(process-attribute is-installer)
-				(28 0000 0084 0086))
-			(require-all
-				(af 0008 0063 0062)
-				(process-attribute is-installer)
-				(28 0000 0084 0086))
-			(require-all
-				(af 0007 0063 0086)
-				(process-attribute is-installer)
-				(28 0000 0084 0086))
-			(require-all
-				(af 000a 0063 0060)
-				(process-attribute is-installer)
-				(28 0000 0084 0086)))))
+			(require-not (csr "CSR_ALLOW_DEVICE_CONFIGURATION"))
+			(require-not (require-entitlement "com.apple.private.iokit.nvram-csr")))))
+(deny sysctl*
+	(require-any (sysctl-name "kern.nx")
+(sysctl-name "vm.allow_data_exec")
+(sysctl-name "vm.allow_stack_exec")
+(sysctl-name "vm.enforce_shared_cache_dir")))
 (deny system-privilege
+	(require-all
+		(privilege-id 10008)
+		(require-not (require-entitlement "com.apple.private.network.intcoproc.restricted")))
+	(require-all
+		(privilege-id 1010)
+		(require-not (require-entitlement "com.apple.private.kernel.audio_latency")))
+	(require-all
+		(privilege-id 1014)
+		(require-not (require-entitlement "com.apple.private.apfs.trim-active-file")))
+	(require-all
+		(privilege-id 14003)
+		(require-not (require-entitlement "com.apple.private.apfs.revert-to-snapshot")))
+	(require-all
+		(privilege-id 14002)
+		(require-not (require-entitlement "com.apple.private.vfs.snapshot")))
 	(require-all
 		(privilege-id 14001)
 		(require-not (require-entitlement "com.apple.private.vfs.move-data-extents")))
+	(require-all
+		(privilege-id 12011)
+		(require-not (require-entitlement "com.apple.private.skywalk.observe-stats")))
+	(require-all
+		(privilege-id 12010)
+		(require-not (require-entitlement "com.apple.private.skywalk.observe-all")))
+	(require-all
+		(privilege-id 12003)
+		(require-not (require-entitlement "com.apple.private.skywalk.register-flow-switch")))
+	(require-all
+		(privilege-id 12002)
+		(require-not (require-entitlement "com.apple.private.skywalk.register-net-if")))
+	(require-all
+		(privilege-id 12001)
+		(require-not (require-entitlement "com.apple.private.skywalk.register-kernel-pipe")))
+	(require-all
+		(privilege-id 12000)
+		(require-not (require-entitlement "com.apple.private.skywalk.register-user-pipe")))
+	(require-all
+		(privilege-id 1012)
+		(require-not (require-entitlement "com.apple.private.kernel.setpriority-darwin-role")))
+	(require-all
+		(privilege-id 1013)
+		(require-not (require-entitlement "com.apple.private.kernel.set-package-extensions")))
+	(require-all
+		(privilege-id 1011)
+		(require-not (require-entitlement "com.apple.private.kernel.ktrace-background")))
+	(require-all
+		(privilege-id 1009)
+		(require-not (require-entitlement "com.apple.private.smb.timemachine-control")))
 	(require-all
 		(privilege-id "PRIV_KERNEL_WORK_INTERNAL")
 		(require-not (require-entitlement "com.apple.private.kernel.work-interval")))

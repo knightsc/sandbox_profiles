@@ -13,6 +13,9 @@
 (debug deny)
 (import "system.sb")
 
+(if (defined? 'system-package-check)
+    (allow system-package-check))
+
 ;; Suppress log noise from Carbon / frameworks.
 (deny process-exec (with no-log))
 (deny file-write*
@@ -32,6 +35,7 @@
 
 (allow mach-lookup (global-name "com.apple.DiskArbitration.diskarbitrationd"))
 (allow mach-lookup (global-name "com.apple.PowerManagement.control"))
+(allow mach-lookup (global-name "com.apple.metadata.mds.legacy"))
 (allow mach-lookup (global-name "com.apple.metadata.mds"))
 (allow mach-lookup (global-name "com.apple.FSEvents"))
 

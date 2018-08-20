@@ -22,7 +22,7 @@
 (allow process-fork)
 
 (allow lsopen)
-;
+
 (define entitlement-legacy-names
 '(("com.apple.security.device.microphone" "com.apple.security.microphone")
 ("com.apple.security.device.camera" "com.apple.security.camera")
@@ -37,38 +37,7 @@
 "com.apple.security.files.user-selected.read")
 ("com.apple.security.files.user-selected.read-write"
 "com.apple.security.documents.user-selected.read-write")))
-(macro (with-filter form)
-(let* ((ps (cdr form)) (extra-filter (car ps)) (rules (cdr ps)))
-`(letrec ((collect
-(lambda (l filters non-filters)
-(if (null? l)
-(list filters non-filters)
-(let* ((x (car l)) (rest (cdr l)))
-(if (and (list? x) (eq? (car x) 'filter))
-(collect rest (cons x filters) non-filters)
-(collect rest filters (cons x non-filters)))))))
-(inject-filter
-(lambda args
-(let* ((collected (collect args '() '()))
-(filters (car collected))
-(non-filters (cadr collected)))
-(if (null? filters)
-(cons ,extra-filter non-filters)
-(cons (require-all
-(apply require-any filters)
-,extra-filter)
-non-filters)))))
-(orig-allow allow)
-(orig-deny deny)
-(wrapper
-(lambda (action)
-(lambda args
-(apply action (apply inject-filter args))))))
-(set! allow (wrapper orig-allow))
-(set! deny (wrapper orig-deny))
-,@rules
-(set! deny orig-deny)
-(set! allow orig-allow))))
+
 (define (%string-split separator str)
 (let split-loop ((unprocessed (reverse (string->list str)))
 (processing (list))
@@ -156,27 +125,6 @@ container-relative-subpath)))
 container-relative-literal)))
 ;
 
-(begin
-(allow distributed-notification-post)
-(with-filter
-(extension "com.apple.tcc.kTCCServiceAddressBook")
-(allow mach-lookup
-(global-name
-"com.apple.AddressBook.AddressBookApplicationFrameworkIPC")
-(global-name "com.apple.AddressBook.SourceSync")
-(global-name "com.apple.AddressBook.AssistantService")
-(global-name "com.apple.AddressBook.abd"))
-(allow file-read*
-file-write*
-(home-subpath "/Library/Application Support/AddressBook"))
-(allow-read-write-directory-contents
-(param "application_addressbook_lock_dir"))
-(read-write-and-issue-extensions (home-subpath "/Library/Images/People"))
-(read-only-and-issue-extensions
-(require-any
-(subpath "/Library/Images/People")
-(subpath "/System/Library/Images/People")
-(subpath "/Network/Library/Images/People")))))
 (allow file-read*
 (home-literal "/Library/Preferences/.GlobalPreferences.plist")
 (home-literal "/Library/Preferences/com.apple.GEO.plist")
@@ -218,7 +166,8 @@ file-write*
 (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsDirectory\.db$")
 (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsObject\.db$")
 (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mds\.lock$")
-(regex #"^/private/var/folders/[^/]+/[^/]+/T/\.AddressBookLocks.*"))
+(regex #"^/private/var/folders/[^/]+/[^/]+/T/\.AddressBookLocks.*")
+(regex #"/.*"))
 
 (allow file-read-metadata)
 
@@ -228,13 +177,16 @@ file-write*
 (home-literal "/Library/Logs/com.apple.icloud.fmfd.log")
 (home-literal "/Library/Preferences/com.apple.icloud.fmfd.plist")
 (home-literal "/Library/Caches/com.apple.icloud.fmfd")
+(home-regex "/Library/Application Support/AddressBook/.*")
+(home-regex #"/Library/Keychains/\.[\w]*")
 (regex (string-append "^" (param "_HOME") #"/Library/Keychains/login\.keychain\.sb-[-\w]*"))
 (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsDirectory\.db$")
 (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsDirectory\.db_$")
 (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsObject\.db$")
 (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsObject\.db_$")
 (regex #"^/private/var/folders/[^/]+/[^/]+/T/com.apple.scheduler.lock")
-(regex #"^/private/var/folders/[^/]+/[^/]+/T/\.AddressBookLocks.*"))
+(regex #"^/private/var/folders/[^/]+/[^/]+/T/\.AddressBookLocks.*")
+(regex #"^/private/var/.*"))
 
 (allow file-write-data
 (home-literal "/Library/Caches/com.apple.icloud.fmfd/Cache.db")
@@ -271,6 +223,10 @@ file-write*
 (global-name "com.apple.ak.anisette.xpc")
 (global-name "com.apple.AddressBook.SourceSync")
 (global-name "com.apple.AddressBook.AddressBookApplicationFrameworkIPC")
+(global-name "com.apple.AddressBook.AssistantService")
+(global-name "com.apple.AddressBook.abd")
+(global-name "com.apple.ContactsAgent.addressbook")
+(global-name "com.apple.accountsd.accountmanager")
 (global-name "com.apple.lsd.mapdb"))
 
 (allow iokit-open

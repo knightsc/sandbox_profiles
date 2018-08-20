@@ -12,7 +12,7 @@
 (corefoundation)
 
 (allow file-read* (extension "com.apple.app-sandbox.read"))
-(allow file-read* file-write* (extension "com.apple.app-sandbox.read-write"))
+(allow file-read* (extension "com.apple.app-sandbox.read-write"))
 (allow file-read-metadata (extension "com.apple.app-sandbox.read"))
 
 (allow file-read*

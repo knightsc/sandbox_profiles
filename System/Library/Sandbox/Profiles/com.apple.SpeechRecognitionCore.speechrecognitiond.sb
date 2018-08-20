@@ -65,8 +65,9 @@
 
 (allow iokit-open
         (iokit-user-client-class "IOAudioControlUserClient")
-        (iokit-user-client-class "IOAudioEngineUserClient"))
-        
+        (iokit-user-client-class "IOAudioEngineUserClient")
+        (iokit-user-client-class "RootDomainUserClient"))
+
 (allow file-read* (home-subpath "/Library/Audio"))
 (allow file-read* (subpath "/Library/Audio"))
 

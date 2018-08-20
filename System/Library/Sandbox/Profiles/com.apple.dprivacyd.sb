@@ -1,0 +1,44 @@
+(version 1)
+(deny default)
+;;(allow default (with report))
+
+(import "system.sb")
+(import "com.apple.corefoundation.sb")
+
+;;; initialize CF sandbox actions
+(corefoundation)
+
+(allow file*
+    (subpath (param "DARWIN_TEMP_DIR"))
+    (subpath (param "DARWIN_CACHE_DIR"))
+    (subpath "/private/var/db/DifferentialPrivacy")
+    (subpath "/Library/Application\ Support/CrashReporter"))
+
+(allow file-read*
+    (subpath "/usr/libexec")
+    (subpath "/AppleInternal")
+    (subpath "/private/var/root")
+    (subpath "/Library/Preferences")
+    (subpath "/Library/Logs/DiagnosticReports"))
+
+(allow file-read-metadata
+    (subpath "/private/var/root")
+    (subpath "/Library/Preferences")
+    (subpath "/Library")
+    (subpath "/Library/Application\ Support"))
+
+(allow file-write*
+    (subpath "/Library/Logs/DiagnosticReports"))
+
+(allow file-write-create
+    (subpath "/Library/Logs/DiagnosticReport"))
+
+(allow user-preference*
+    (preference-domain "com.apple.DifferentialPrivacy"))
+
+(allow mach-lookup
+    (global-name "com.apple.dprivacyd")
+    (global-name "com.apple.CrashReporterSupportHelper")
+    (global-name "com.apple.SubmitDiagInfo")
+    (global-name "com.apple.SystemConfiguration.configd")
+    (global-name "com.apple.parsecd"))

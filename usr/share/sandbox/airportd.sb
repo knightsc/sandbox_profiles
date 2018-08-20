@@ -57,6 +57,7 @@
     (literal "/usr/libexec/InternetSharing")
     (literal "/private/tmp")
     (literal "/private/var/db/DetachedSignatures")
+    (literal "/dev/random")
 )
 
 (allow file-read-metadata
@@ -66,6 +67,7 @@
     (literal "/private/var")
     (literal "/private/var/db")
     (literal "/private/var/root")
+    (literal "/private/var/root/Library")
     (literal "/private/var/run/systemkeychaincheck.done")
 )
 
@@ -89,6 +91,8 @@
 
 (allow iokit-open
     (iokit-user-client-class "IOUSBDeviceUserClientV2")
+    (iokit-user-client-class "RootDomainUserClient")
+    (iokit-user-client-class "IOReportUserClient")
 )
 
 (allow ipc-posix-shm
@@ -116,6 +120,9 @@
     (global-name "com.apple.coreservices.quarantine-resolver")
     (global-name "com.apple.lsd.mapdb")
     (global-name "com.apple.awdd")
+    (global-name "com.apple.corecaptured")
+    (global-name "com.apple.locationd.desktop.registration")
+    (global-name "com.apple.locationd.desktop.synchronous")
 )
 
 (allow mach-per-user-lookup)

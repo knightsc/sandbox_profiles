@@ -19,22 +19,33 @@
 
 (allow file-read-metadata)
 
+(allow file-read*)
+
+(allow lsopen)
+
 (allow device-microphone)
 
-(allow file* (subpath (param "_TEMPDIR")))
+(allow distributed-notification-post)
+
+(deny file-write-setugid)
+
 (allow file* (subpath (param "_CACHEDIR")))
 
 (allow file-read* file-write* (extension "com.apple.app-sandbox.read-write"))
 (allow file-read* (extension "com.apple.app-sandbox.read"))
 
-(allow file-read* file-write* 
-    (home-subpath "/Library/Caches/com.apple.Assistant")
-    (home-subpath "/Library/Caches/com.apple.AssistantServices")
-    (home-subpath "/Library/Caches/GeoServices")
-    (home-subpath "/Library/Caches/com.apple.assistant.bundleservicecache.plist"))
-    
-(allow file-issue-extension
-    (require-all (extension-class "com.apple.app-sandbox.read-write") (home-subpath "/Library/Caches/com.apple.AssistantServices")))
+(allow file-read* file-write*
+    (home-regex (regex-quote "/Library/Caches/com.apple.siri.bundleservicecache.plist")))
+
+(allow file-read* (home-subpath "/Library/Caches/GeoServices"))
+
+(allow file-issue-extension (require-all
+    (extension-class "com.apple.app-sandbox.read-write")
+    (home-subpath "/Library/Caches/com.apple.AssistantServices")))
+
+(allow file-issue-extension (require-all
+    (extension-class "com.apple.app-sandbox.read-write")
+    (home-subpath "/Library/Caches/com.apple.assistantd")))
 
 (allow user-preference*
        (preference-domain "com.apple.assistant")
@@ -48,42 +59,45 @@
 (allow file-read* file-write* 
        (home-subpath "/Library/Keychains")
        (home-subpath "/Library/Security"))
+
 (allow file-read*
        (subpath "/private/var/db/mds")
        (literal "/private/var/db/DetachedSignatures")
-       (subpath "/Library/Keychains"))
-
-(allow file-read*
+       (subpath "/Library/Keychains")
        (subpath "/System/Library/Audio")
        (subpath "/Library/Audio")
-       (home-subpath "/Library/Audio"))
+       (home-subpath "/Library/Audio")
+       (subpath "/System/Library/Components/CoreAudio.component/Contents/SharedSupport/SystemSounds/siri")
+       (subpath "/System/Library/Components/AudioCodecs.component/Contents/MacOS")
+       (subpath "/System/Library/Components/AudioDSP.component/Contents/Resources/Tunings/Generic/AU"))
 
 (allow network-outbound (literal "/private/var/run/mDNSResponder"))
-(allow network-outbound)
-(allow system-socket)
+(allow network-outbound (remote tcp))
 
 (allow system-socket)
 
 (system-network)
 
-(allow file-read* file-write* (mount-relative-regex #"^/\.TemporaryItems(/|$)"))
+(allow file-read* file-write*
+       (mount-relative-regex #"^/\.TemporaryItems(/|$)")
+       (regex #"^/private/var/folders/[^/]+/[^/]+/[A-Z]/assistantd/TemporaryItems(/|$)"))
        
 (allow file-read* file-write*
        (home-subpath "/Library/Assistant")
        (home-subpath "/Library/Logs/Assistant")
-       (home-subpath "/Library/Caches/com.apple.AssistantServices")
-       (home-subpath "/Library/Preferences/com.apple.assistant.backedup.plist")
-       (home-subpath "/Library/Preferences/com.apple.assistant.backedup.encrypted.plist")
-       (subpath "/private/var/tmp")
+       (home-subpath "/Library/Caches/com.apple.assistantd")
+       (home-literal "/Library/Preferences/com.apple.assistant.backedup.plist")
+       (home-literal "/Library/Preferences/com.apple.assistant.backedup.encrypted.plist")
        (literal "/Library/Caches/com.apple.DiagnosticReporting.HasBeenAppleInternal"))
 
 (allow file-read* file-read-metadata
-       (home-subpath "/Library/Preferences/.GlobalPreferences.plist")
+       (home-literal "/Library/Preferences/.GlobalPreferences.plist")
        (home-regex "/Library/Preferences/ByHost/\.GlobalPreferences\.")
        (literal "/Library/Preferences/.GlobalPreferences.plist")
        (literal "/Library/Caches/com.apple.DiagnosticReporting.Networks.plist"))
 
-(allow file-read* (subpath "/private/var/db/mds")
+(allow file-read*
+        (subpath "/private/var/db/mds")
         (literal "/Library/Preferences/com.apple.security.plist")
         (literal "/Library/Preferences/com.apple.security.common.plist")
         (literal "/Library/Preferences/com.apple.security.revocation.plist")
@@ -92,9 +106,24 @@
 
 (allow file-read*
        (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
-       (home-literal "/Library/Preferences/com.apple.LaunchServices.plist"))
+       (home-literal "/Library/Preferences/com.apple.LaunchServices.plist")
+       (home-literal "/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist"))
+
+(allow file-read* file-write*
+       (subpath "/private/var/tmp")
+       (regex #"^/private/var/folders/[^/]+/[^/]+/T/(assistantd/)?\.AddressBookLocks.*")
+       (home-subpath "/Library/Application Support/AddressBook"))
 
 (allow mach-lookup
+       (global-name "com.apple.AddressBook.abd")
+       (global-name "com.apple.AddressBook.SourceSync")
+       (global-name "com.apple.AddressBook.AddressBookApplicationFrameworkIPC")
+       (global-name "com.apple.AddressBook.ContactsAccountsService")
+       (global-name "com.apple.ContactsAgent.addressbook")
+       (global-name "com.apple.accountsd.accountmanager")
+       (global-name "com.apple.accountsd.oauthsigner")
+       (global-name "com.apple.tccd")
+       (global-name "com.apple.coreduetd")
        (global-name "com.apple.geod.defaults")
        (global-name "com.apple.CoreLocation.agent")
        (global-name "com.apple.locationd.desktop.spi")
@@ -112,13 +141,41 @@
        (global-name "com.apple.ocspd")
        (global-name "com.apple.SecurityServer")
        (global-name "com.apple.ls.boxd")
+       (global-name "com.apple.lsd.modifydb")
+       (global-name "com.apple.lsd.mapdb")
+       (global-name "com.apple.lsd.open")
+       (global-name "com.apple.lsd.openurl")
        (global-name "com.apple.windowserver.active")
        (global-name "com.apple.assistant_service")
+       (global-name "com.apple.assistant.analytics")
+       (global-name "com.apple.assistant.settings")
        (global-name "com.apple.coreservices.launchservicesd")
+       (global-name "com.apple.coreservices.lsuseractivitymanager.xpc")
        (global-name "com.apple.coreservices.quarantine-resolver")
        (global-name "com.apple.secd")
-       (global-name "com.apple.CrashReporterSupportHelper"))
-             
+       (global-name "com.apple.CrashReporterSupportHelper")
+       (global-name "com.apple.identityservicesd.idquery.desktop.auth")
+       (global-name "com.apple.identityservicesd.desktop.auth")
+       (global-name "com.apple.pluginkit.pkd")
+       (global-name "com.apple.telephonyutilities.callservicesdaemon.callcapabilities")
+       (global-name "com.apple.awdd")
+       (global-name "com.apple.logind")
+       (global-name "com.apple.pluginkit.pkd")
+       (global-name "com.apple.marco")
+       (global-name "com.apple.mediaremoted.xpc")
+       (global-name "com.apple.securityd.xpc")
+       (global-name "com.apple.imdpersistence.IMDPersistenceAgent")
+       (global-name "com.apple.logd.events")
+       (global-name "com.apple.CalendarAgent.proxy")
+       (global-name "com.apple.CalendarAgent.database")
+       (global-name "com.apple.airportd")
+       (global-name "com.apple.system.opendirectoryd.api")
+       (global-name "com.apple.metadata.mds")
+       (global-name "com.apple.metadata.mds.legacy")
+       (global-name "com.apple.spotlight.IndexAgent")
+       (global-name "com.apple.coreservices.appleevents")
+       (global-name "com.apple.networkserviceproxy"))
+
 (allow ipc-posix-shm
        (ipc-posix-name-regex #"^AudioIO")
        (ipc-posix-name "apple.shm.notification_center")
@@ -128,7 +185,9 @@
        (ipc-posix-name-regex #"^ls\."))
 
 (allow iokit-open
+       (iokit-user-client-class "AppleSMCClient")
        (iokit-user-client-class "IOAudioEngineUserClient")
        (iokit-user-client-class "IOAudioControlUserClient")
        (iokit-user-client-class "RootDomainUserClient"))
-       
+
+

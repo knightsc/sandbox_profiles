@@ -15,6 +15,7 @@
 ;; Allow files to be written/deleted, and attributes to be read
 (allow file-write*
     (regex #"^(/private)?/var/db/diagnostics(/|$)")
+    (regex #"^(/private)?/var/db/uuidtext(/|$)")
 )
 
 (allow file-read*
@@ -22,8 +23,14 @@
     (regex #"^/private/var/db/timezone(/|$)")
 )
 
+(allow file-issue-extension
+    (require-all
+        (extension-class "com.apple.logd.read-only")
+        (require-any
+            (subpath "/private/var/db/diagnostics")
+            (subpath "/private/var/db/uuidtext"))))
+
 ;; Allow writes to syslogd
 (allow network-outbound
     (remote unix-socket (path-literal "/private/var/run/syslog"))
 )
-

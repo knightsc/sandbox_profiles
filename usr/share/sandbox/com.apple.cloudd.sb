@@ -180,6 +180,9 @@
        (global-name "com.apple.lsd.mapdb")
        (global-name "com.apple.lsd.modifydb")
        (global-name "com.apple.ak.anisette.xpc")
+       (global-name "com.apple.duetactivityscheduler")
+       (global-name "com.apple.ak.auth.xpc")
+       (global-name "com.apple.protectedcloudstorage.protectedcloudkeysyncing")
 )
 (allow file-issue-extension
        (require-all

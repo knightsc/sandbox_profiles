@@ -1,5 +1,7 @@
 (version 1)
 
+;;(trace "/tmp/useractivityd.sandbox.sb")
+
 (deny default)
 
 (import "system.sb")
@@ -10,9 +12,15 @@
 (allow file-write*
        (subpath (param "LOG_DIR")))
 
+(if (param "TMP_DIR")
+    (allow file-write*
+           (regex (string-append "^" (param "TMP_DIR") "/*"))))
+
+(allow system-fsctl)
+
 (allow user-preference*
       (preference-domain-regex #"^com\.apple\.coreservices\.useractivityd"))
-       
+
 (allow sysctl-read)
 
 (allow iokit-open
@@ -20,7 +28,8 @@
 
 (allow ipc-posix-shm-read-data
        (ipc-posix-name "apple.shm.cfprefsd.daemon")
-       (ipc-posix-name "apple.shm.cfprefsd.501")
+       (ipc-posix-name-prefix "apple.cfprefs.")
+       (ipc-posix-name-prefix "apple.shm.cfprefsd.")
        (ipc-posix-name-regex #"/tmp/com\.apple\.csseed\."))
 
 (allow mach-lookup
@@ -28,6 +37,7 @@
        (global-name "com.apple.coreservices.launchservicesd")
        (global-name "com.apple.distributed_notifications@Uv3")
        (global-name "com.apple.lsd.mapdb")
+       (global-name "com.apple.lsd.modifydb")
        (global-name "com.apple.marco")
        (global-name "com.apple.sharingd.nsxpc")
        (global-name "com.apple.windowserver.active")
@@ -36,5 +46,17 @@
        (global-name "com.apple.diagnosticd")
        (global-name "com.apple.cfprefsd.agent")
        (global-name "com.apple.bird")
-       (global-name "com.apple.awdd"))
+       (global-name "com.apple.networkd")
+       (global-name "com.apple.awdd")
+       (global-name "com.apple.DiskArbitration.diskarbitrationd")
+       (global-name "com.apple.coreservices.uauseractivitypasteboardclient.xpc")
+       (global-name "com.apple.coreservices.uasharedpasteboardprogressui.xpc")
+       (global-name "com.apple.ProgressReporting")
+       (global-name "com.apple.iokit.powerdxpc")
+       (global-name "com.apple.PowerManagement.control")
+)
 
+;; Things needed for debugging, only if it's a debug server
+(if (param "ALLOW_NETWORK_ACCESS")
+    (allow network-outbound network-inbound)
+)

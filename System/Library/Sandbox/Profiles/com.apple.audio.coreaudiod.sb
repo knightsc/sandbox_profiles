@@ -28,6 +28,7 @@
 	(literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
 	(literal "/Library/Audio/Plug-Ins/Components")
 	(literal "/Library/Preferences/SystemConfiguration/preferences.plist")
+	(literal "/Library/Audio/CoreAudioLib/libAudioDiagnostics.dylib")
 
 	(literal "/Library/Keychains/System.keychain")
 	(literal "/private/var/db/mds/messages/se_SecurityMessages")
@@ -95,6 +96,7 @@
 (allow mach-lookup
 	(global-name "com.apple.CoreServices.coreservicesd")
 	(global-name "com.apple.PowerManagement.control")
+	(global-name "com.apple.audio.coreaudiod")
 	(global-name "com.apple.audio.audiohald")
 	(global-name "com.apple.distributed_notifications@1v3")
 	(global-name "com.apple.system.DirectoryService.libinfo_v1")
@@ -106,7 +108,11 @@
 	(global-name "com.apple.SecurityServer")
 	(global-name "com.apple.ocspd")
 )
-;;;(allow mach-lookup)
+
+(allow mach-register
+	(global-name "com.apple.audio.coreaudiod")
+	(global-name "com.apple.audio.audiohald")
+)
 
 (allow ipc-posix-shm)
 
@@ -135,10 +141,12 @@
 
 ;;;This is for AVB Support
 (allow system-kext-load
-	(kext-bundle-id "com.apple.plugin.IO8021ASPlugin")
-	(kext-bundle-id "com.apple.plugin.IOAVBPlugin")
-	(kext-bundle-id "com.apple.iokit.IOTimeSyncFamily")
-	(kext-bundle-id "com.apple.plugin.IOMRPPlugin")
 	(kext-bundle-id "com.apple.iokit.IONetworkingFamily")
+	(kext-bundle-id "com.apple.iokit.IOTimeSyncFamily")
+	(kext-bundle-id "com.apple.plugin.IOgPTPPlugin")
+	(kext-bundle-id "com.apple.iokit.IOAVBFamily")
+	(kext-bundle-id "com.apple.plugin.IOAVBControlPlugin")
 	(kext-bundle-id "com.apple.plugin.IOAVBDiscoveryPlugin")
+	(kext-bundle-id "com.apple.plugin.IOAVBStreamingPlugin")
+	(kext-bundle-id "com.apple.plugin.IOMRPPlugin")
 )

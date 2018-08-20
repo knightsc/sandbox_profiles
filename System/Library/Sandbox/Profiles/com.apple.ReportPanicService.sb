@@ -23,6 +23,7 @@
 (allow file-read*
        (subpath "/Library/Caches/com.apple.ReportPanicService")
        (subpath "/System/Library/CoreServices")
+       (subpath "/private/var/tmp/kernel_panics")
        (literal "/System/Library/Extensions/AppleKextExcludeList.kext/Contents/Resources/KnownPanics.plist"))
 
 (allow file-read-metadata
@@ -36,7 +37,8 @@
        (subpath "/System/Library/LaunchAgents"))
 
 (allow file-write*
-       (subpath "/Library/Caches/com.apple.ReportPanicService"))
+       (subpath "/Library/Caches/com.apple.ReportPanicService")
+       (subpath "/private/var/tmp/kernel_panics"))
 
 (allow file-write-unlink
        (regex #"\.kext$")

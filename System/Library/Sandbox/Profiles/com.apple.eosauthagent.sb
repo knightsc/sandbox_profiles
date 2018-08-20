@@ -1,0 +1,61 @@
+(version 1)
+(deny default)
+
+(import "system.sb")
+(import "com.apple.corefoundation.sb")
+(corefoundation)
+
+(allow file-read-metadata)
+
+(allow file-read*
+    (subpath "/System/Library/PrivateFrameworks/SSOClient.framework")
+    (subpath "/System/Library/Frameworks/SSOClient.framework")
+    (subpath "/AppleInternal/Applications/AppleConnect.app/Contents/Frameworks/SSOClient.framework")
+    (subpath "/Applications/AppleConnect.app/Contents/Frameworks/SSOClient.framework")
+    (subpath "/Library/Frameworks/AppleConnect.framework")
+    (subpath "/private/var/root/Library/Preferences/")
+    (subpath "/Library/KerberosPlugins/")
+    (subpath "/private/var/db/")
+    (literal "/usr/bin/kinit"))
+
+(allow file-read* file-write*
+    (regex #"/Library/Caches/")
+    (regex #"/Library/Preferences/")
+    (subpath "/private/var/folders/"))
+
+(allow file-issue-extension
+    (regex #"/Library/Caches/")
+    (subpath "/private/var/folders/"))
+
+(allow process-fork)
+(allow process-exec
+    (literal "/usr/bin/kinit"))
+
+(allow mach-lookup
+    (global-name "com.apple.ist.ds.appleconnect2.service.agent")
+    (global-name "com.apple.FSEvents")
+    (global-name "org.h5l.kcm")
+    (global-name "com.apple.GSSCred")
+    (global-name "com.apple.SystemConfiguration.configd")
+    (global-name "com.apple.DiskArbitration.diskarbitrationd")
+    (global-name "com.apple.SecurityServer")
+    (global-name "com.apple.cookied")
+    (global-name "com.apple.nsurlstorage-cache")
+    (global-name "com.apple.usymptomsd")
+    (global-name "com.apple.coreservices.launchservicesd"))
+
+(allow mach-register
+    (global-name-regex #"^com\.apple\.ist\.ds\.appleconnect2\.service\.eosauthagent.*"))
+
+(allow ipc-posix-shm-read-data
+    (ipc-posix-name "FNetwork.defaultStorageSession")
+    (ipc-posix-name-regex #"ls\.[a-f0-9\.]+")
+    (ipc-posix-name "apple.shm.notification_center")
+    (ipc-posix-name-regex #"^/tmp/com.apple.csseed.[0-9]+$"))
+
+(allow ipc-posix-shm-read* ipc-posix-shm-write-data
+    (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+(allow network-outbound)
+(allow system-socket)
+(allow distributed-notification-post)

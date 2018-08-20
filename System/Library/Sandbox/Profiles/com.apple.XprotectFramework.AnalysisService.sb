@@ -1,0 +1,55 @@
+;;;;;; Copyright (c) 2015 Apple Inc.  All Rights reserved.
+;;;;;;
+;;;;;; WARNING: The sandbox rules in this file currently constitute
+;;;;;; Apple System Private Interface and are subject to change at any time and
+;;;;;; without notice. The contents of this file are also auto-generated and
+;;;;;; not user editable; it may be overwritten at any time.
+
+(version 1)
+
+(deny default)
+(import "system.sb")
+(import "com.apple.corefoundation.sb")
+
+(corefoundation)
+
+(define (home-subpath home-relative-subpath)
+    (subpath (string-append (param "_HOME") home-relative-subpath)))
+
+
+(allow file-read*)
+(allow file-write-xattr (xattr "com.apple.quarantine"))
+(allow file-write-create (literal "/private/var/db/lsd"))
+(allow file-write* (subpath "/private/var/db/lsd"))
+(allow file-write*
+    (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsDirectory\.db$")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsDirectory\.db_$")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsObject\.db$")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsObject\.db_$")
+    (regex #"^/private/var/tmp/mds/[0-9]+(/|$)")
+    (regex #"^/private/var/db/mds/[0-9]+(/|$)")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds(/|$)")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/-Caches-/mds(/|$)")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mds\.lock$"))
+
+(allow file-write-create file-write-mode file-write-owner
+    (home-subpath "/Library/Caches/com.apple.XprotectFramework.AnalysisService"))
+
+(allow mach-lookup
+    (global-name "com.apple.lsd.modifydb")
+    (global-name "com.apple.lsd.mapdb")
+    (global-name "com.apple.security.syspolicy")
+    (global-name "com.apple.SecurityServer")
+    (global-name "com.apple.ocspd")
+    (global-name "com.apple.nsurlstorage-cache")
+    (global-name "com.apple.CoreServices.coreservicesd"))
+
+
+;;This can probably leave once rdar://problem/21932990 lands
+(allow ipc-posix-shm-read-data
+    (ipc-posix-name-regex #"/tmp/com\.apple\.csseed\."))
+
+;;More Security framework allows
+(allow ipc-posix-shm-read* ipc-posix-shm-write-data
+(ipc-posix-name "com.apple.AppleDatabaseChanged"))
+

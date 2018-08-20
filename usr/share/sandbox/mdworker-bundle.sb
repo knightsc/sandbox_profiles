@@ -12,6 +12,9 @@
 (deny default)
 (import "system.sb")
 
+(if (defined? 'system-package-check)
+    (allow system-package-check))
+
 ;; Suppress log noise from Carbon / frameworks.
 (deny process-exec (with no-log))
 (deny file-write*

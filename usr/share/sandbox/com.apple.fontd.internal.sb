@@ -34,6 +34,7 @@
     (global-name "com.apple.distributed_notifications@1v3")
     (global-name "com.apple.SystemConfiguration.configd")
     (global-name "com.apple.lsd.mapdb")
+    (global-name "com.apple.mobileassetd")
 )
 
 (allow file-read*
@@ -85,12 +86,6 @@
             (font-file-or-directory)
         )
     )
-    (allow file-write*
-        (require-all
-            (subpath path)
-            (font-file)
-        )
-    )
     (allow file-issue-extension
         (require-all
             (subpath path)
@@ -105,7 +100,6 @@
 
 (allow file-read* file-write* (subpath (param "DARWIN_USER_CACHE_DIR")))
 (allow file-read* file-write* (subpath (param "DARWIN_USER_TEMP_DIR")))
-(allow file-read* file-write* (subpath "/var/tmp"))
 
 (allow file-read-metadata (subpath "/"))
 
@@ -121,6 +115,7 @@
     ;; System and user preferences
     (literal "/Library/Preferences/.GlobalPreferences.plist")
     (home-literal "/Library/Preferences/.GlobalPreferences.plist")
+    (home-literal "/Library/Preferences/com.apple.ATSDefaults.plist")
     (home-literal "/Library/Preferences/com.apple.FontRegistry.user.plist")
     (home-literal "/.CFUserTextEncoding")
     (home-regex #"/Library/Preferences/ByHost/\.GlobalPreferences\.")
@@ -145,4 +140,7 @@
 
 ; And override everything else if we get given an extension
 (allow file-read* (extension "com.apple.app-sandbox.read"))
-(allow file-read* file-write* (extension "com.apple.app-sandbox.read-write"))
+(allow file-read* (extension "com.apple.app-sandbox.read-write"))
+
+; Bookmark with SecurityScope
+(allow mach-lookup (global-name "com.apple.scopedbookmarksagent.xpc"))

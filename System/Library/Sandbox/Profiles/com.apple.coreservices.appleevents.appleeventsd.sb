@@ -14,7 +14,7 @@
 (allow file-read-metadata (literal "/dev/console"))
 
 ; this all seems necessary for SecCode calls
-(allow file-read-metadata (literal "/"))
+(allow file-read-metadata)
 (allow mach-lookup (global-name "com.apple.distributed_notifications@1v3"))
 (allow mach-lookup (global-name "com.apple.SecurityServer"))
 (allow ipc-posix-shm-read-data (ipc-posix-name "com.apple.AppleDatabaseChanged"))
@@ -23,7 +23,6 @@
 ; Give us access to our own temporary directory
 (if (param "TEMPDIR")
 	(allow file-read* file-write* (regex (string-append "^" (param "TEMPDIR") "/*" ) ) ) )
-
 
 ; If appleeventsd is built for the DEBUG configuration, then let it write log files to /var/tmp/
 (define debug (equal? "1" (param "__AEDEBUGSERVER")))
@@ -35,10 +34,10 @@
 
 		; If MallocStackLogging is true, then we need to allow writes to the place it's going to put them.
 		(if (param "MallocStackLoggingDirectory")
-			(allow file-write* (regex (string-append "^/" (param "MallocStackLoggingDirectory")))) )
+			(allow file-write* (regex (string-append "^/" (param "MallocStackLoggingDirectory"))))
 		)
 	)
-
+)
 
 ;
 ; The calls we make to Security.framework require a bunch of sandbox exceptions.  Someday they'll make a security.sb file that
@@ -71,7 +70,7 @@
 		(literal "/usr/libexec")
 		(literal "/usr/libexec/xscertd"))
 
-	(allow file* (subpath "/private/var/folders" ))
+	(allow file-read* file-read-metadata file-write* (subpath "/private/var/folders" ))
 
 	(allow file-read-metadata
 		(literal "/Library")

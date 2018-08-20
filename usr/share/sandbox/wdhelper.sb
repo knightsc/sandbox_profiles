@@ -35,6 +35,7 @@
     (literal "/Library/Preferences/com.apple.CoreCaptureEnable.plist")
     (literal "/Library/Preferences/com.apple.CoreCaptureDisable.plist")
     (literal "/Library/Preferences/com.apple.Bluetooth.plist")
+    (subpath "/Library/Preferences/Logging/Subsystems")
 )
 
 (allow file-ioctl
@@ -78,6 +79,7 @@
     (subpath "/Library/Logs/DiagnosticReports")
     (literal "/Library/Preferences/com.apple.CoreCaptureEnable.plist")
     (literal "/Library/Preferences/com.apple.CoreCaptureDisable.plist")
+    (subpath "/Library/Preferences/Logging/Subsystems")
 )
 
 (allow file-write-create
@@ -87,6 +89,7 @@
     (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.eapolclient\.plist")
     (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.airport\.preferences\.plist")
     (subpath (param "TMP_DIR"))
+    (subpath "/Library/Preferences/Logging/Subsystems")
 )
 
 (allow file-write-data
@@ -95,6 +98,7 @@
     (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.eapolclient\.plist")
     (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.airport\.preferences\.plist")
     (subpath (param "TMP_DIR"))
+    (subpath "/Library/Preferences/Logging/Subsystems")
 )
 
 (allow file-write-unlink
@@ -104,12 +108,14 @@
     (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.eapolclient\.plist")
     (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.airport\.preferences\.plist")
     (subpath (param "TMP_DIR"))
+    (subpath "/Library/Preferences/Logging/Subsystems")
 )
 
 (allow file-write-owner
     (literal "/Library/Preferences/SystemConfiguration/preferences.plist-new")
     (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.eapolclient\.plist")
     (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.airport\.preferences\.plist")
+    (subpath "/Library/Preferences/Logging/Subsystems")
 )
 
 (allow file-write-mode
@@ -117,6 +123,7 @@
     (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.eapolclient\.plist")
     (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.airport\.preferences\.plist")
     (subpath (param "TMP_DIR"))
+    (subpath "/Library/Preferences/Logging/Subsystems")
 )
 
 (allow mach-lookup
@@ -127,6 +134,7 @@
     (global-name "com.apple.SecurityServer")
     (global-name "com.apple.airportd")
     (global-name "com.apple.corecaptured")
+    (global-name "com.apple.logd.admin")
 )
 
 (allow authorization-right-obtain
@@ -160,13 +168,19 @@
     (literal "/usr/bin/top")
     (literal "/usr/sbin/ioreg")
     (literal "/usr/bin/darwinup")
-    (literal "/usr/sbin/discoveryutil")
+    (literal "/usr/bin/pmset")
     (literal "/usr/local/bin/wl")
     (literal "/sbin/ping")
     (literal "/usr/sbin/ndp")
     (literal "/usr/sbin/arp")
+    (literal "/usr/bin/log")
+    (literal "/usr/bin/sysdiagnose")
 )
 
 (allow iokit-open
-       (iokit-user-client-class "IOBluetoothHCIPacketLogUserClient")
+    (iokit-user-client-class "IOBluetoothHCIPacketLogUserClient")
+)
+
+(allow system-fsctl
+    (fsctl-command #x682f) ; HFSIOC_SET_HOTFILE_STATE
 )

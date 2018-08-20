@@ -1,0 +1,13 @@
+;;;;;; Copyright 2016 Apple Inc. All rights reserved.
+;;;;;;
+;;;;;; Sandbox profile for /usr/libexec/DataDetectorsSourceAccess
+
+(version 1)
+(deny default)
+
+(import "system.sb")
+
+(allow file-read-metadata)
+
+(allow file-read* file-write*
+       (subpath "/private/var/db/datadetectors"))

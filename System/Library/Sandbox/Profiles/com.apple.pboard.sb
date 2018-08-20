@@ -3,3 +3,9 @@
 
 (import "system.sb")
 (allow ipc-posix-shm (ipc-posix-name-regex #"^CFPBS:"))
+(allow mach-lookup
+    (global-name "com.apple.coreservices.uasharedpasteboardmanager.xpc")
+    (global-name "com.apple.lsd.mapdb")
+    (local-name "com.apple.CFPasteboardClient"))
+
+(allow file-read* (literal "/usr/libexec/pboard"))

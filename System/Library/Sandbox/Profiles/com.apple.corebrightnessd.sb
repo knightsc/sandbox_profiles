@@ -1,0 +1,44 @@
+;;;
+;;; For macOS: /usr/libexec/corebrightnessd
+;;;
+
+(version 1)
+(deny default)
+
+(import "system.sb")
+
+; CFBundleGetMainBundle()
+(allow file-read*
+       (literal "/usr/libexec")
+       (literal "/usr/libexec/corebrightnessd"))
+
+; Synchronize preferences for current user
+; 1. Stat any user's home dir (e.g. /private/var/root, /Users/<username>)
+; 2. .*/Library/Preferences/com.apple.CoreBrightness.plist
+; CFPreferencesSynchronize("com.apple.CoreBrightness", kCFPreferencesCurrentUser, kCFPreferencesAnyHost)
+; ==> -[_CFXPreferences synchronizeIdentifier:user:host:container:]
+; ==> -[_CFXPreferences(SourceAdditions) withSourceForIdentifier:user:byHost:container:cloud:perform:]
+; ==> -[_CFXPreferences(SourceAdditions) withSources:] (block from withSourceForIdentifier:user:byHost:container:cloud:perform:)
+; ==> __useVolatileDomainsForUser ==> __URLExists ==> _CFGetFileProperties ==> stat
+(allow file-read-metadata)
+(allow file-read* file-write*
+       (regex ".+/Library/Preferences/com\.apple\.CoreBrightness\.plist$"))
+
+(allow file-read*
+       (literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist"))
+
+(allow file-read*
+       (literal "/Library/Preferences/.GlobalPreferences.plist"))
+
+(allow file-read*
+       (regex #"^/private/var/root/Library/Preferences/ByHost/\.GlobalPreferences\..+\.plist$"))
+
+(allow iokit-open
+       (iokit-user-client-class "RootDomainUserClient"))
+
+(allow mach-lookup
+       (global-name "com.apple.coreduetd.context")
+       (global-name "com.apple.iohideventsystem")
+       (global-name "com.apple.SystemConfiguration.configd")
+       (global-name "com.apple.system.opendirectoryd.api")
+       (global-name "com.apple.CoreDisplay.master"))

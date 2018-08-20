@@ -11,12 +11,24 @@
 (allow file*
         (subpath (param "DARWIN_TEMP_DIR"))
         (subpath (param "DARWIN_CACHE_DIR"))
-        (literal "/private/var/log/coreduetd.log")
+        (literal "/private/var/log/CoreDuet/coreduetd.log")
         (subpath "/private/var/db/CoreDuet"))
 
 (allow file-read*
-        (subpath "/usr/share/CoreDuetDaemonConfig.bundle"))
-        
+        (subpath "/usr/share/CoreDuetDaemonConfig.bundle")
+        (literal "/usr/libexec")
+        (literal "/private/var/db/.AppleSetupDone")
+        (subpath "/usr/libexec/coreduetd"))
+
+(allow file-read-data
+        (subpath "/System/Library/Preferences/Logging")
+        (subpath "/AppleInternal/Library/Preferences/Logging")
+        (subpath "/Library/Preferences/Logging")
+        (literal "/Library/Preferences/com.apple.timezone.auto.plist"))
+
+(allow file-read-metadata
+    (subpath "/usr"))
+
 (allow user-preference*
        (preference-domain "com.apple.CoreDuet"))
 
@@ -24,9 +36,24 @@
 (allow mach-lookup
         (global-name "com.apple.DuetHeuristic-thermald")
         (global-name "com.apple.coreservices.launchservicesd")
+        (global-name "com.apple.lsd.mapdb")
         (global-name "com.apple.metadata.mds")
         (global-name "com.apple.coreduetd.knowledge")
         (global-name "com.apple.coreduetd.people")
         (global-name "com.apple.coreduetd.knowledgebase")
-        (global-name "com.apple.coreduetd.batterysaver"))
+        (global-name "com.apple.coreduetd.batterysaver")
+        (global-name "com.apple.iokit.powerdxpc")
+        (global-name "com.apple.coreduetd.context")
+        (global-name "com.apple.SystemConfiguration.configd")
+        (global-name "com.apple.symptom_analytics")
+        (global-name "com.apple.windowserver")
+        (global-name "com.apple.windowserver.active")
+        (global-name "com.apple.mediaremoted.xpc")
+        (global-name "com.apple.CoreLocation.agent")
+        (global-name "com.apple.locationd.desktop.registration")
+        (global-name "com.apple.locationd.desktop.synchronous"))
 
+(allow ipc-posix-shm*
+        (ipc-posix-name "coreduetd")
+        (ipc-posix-name "/CDCSS")
+        (ipc-posix-name "com.apple.coreduetd"))

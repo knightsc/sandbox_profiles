@@ -73,7 +73,7 @@
        (regex #"^/private/var/folders/[^/]+/[^/]+/[A-Z]/mds(/|$)")
        (regex #"/\.TemporaryItems(/|$)")
        (regex #"/Library/Keychains/")
-	   (regex #"/OS X Install Data(/|$)")
+	   (regex #"/(macOS|OS X) Install Data(/|$)")
        (regex #"\.appdownload(/|$)")
        (regex #"^/etilqs_"))
 
@@ -124,6 +124,7 @@
        (global-name "com.apple.coreservices.appleevents")
        (global-name "com.apple.cookied")
        (global-name "com.apple.FontServer")
+       (global-name "com.apple.fonts")
 	   (global-name "com.apple.DiskArbitration.diskarbitrationd")
        (global-name "com.apple.cvmsServ")
 	   (global-name "com.apple.logind")

@@ -1,0 +1,123 @@
+;;;
+;;; Sandbox profile for /usr/libexec/avconferencd
+;;;
+;;; Copyright (c) 2016 Apple Inc.  All Rights reserved.
+;;;
+;;; WARNING: The sandbox rules in this file currently constitute
+;;; Apple System Private Interface and are subject to change at any time and
+;;; without notice. The contents of this file are also auto-generated and
+;;; not user editable; it may be overwritten at any time.
+
+(version 1)
+
+(deny default)
+
+(define (home-regex home-relative-regex)
+    (regex (string-append "^" (regex-quote (param "HOME_DIR")) home-relative-regex)))
+(define regex-home home-regex)
+
+(define (home-subpath home-relative-subpath)
+    (subpath (string-append (param "HOME_DIR") home-relative-subpath)))
+
+(define (home-literal home-relative-literal)
+    (literal (string-append (param "HOME_DIR") home-relative-literal)))
+
+(import "system.sb")
+(system-graphics)
+(system-network)
+
+(import "com.apple.corefoundation.sb")
+(corefoundation)
+
+(allow file-read*
+    (literal "/")
+    (literal "/Library/Keychains/apsd.keychain")
+    (literal "/Library/Preferences/com.apple.security.plist")
+    (subpath "/Library/Audio/Plug-Ins/HAL")
+    (subpath "/Library/CoreMediaIO/Plug-Ins/DAL")
+    (subpath "/Library/Audio/CoreAudioLib")
+    (subpath "/usr/libexec"))
+
+(allow file-read-metadata
+    (subpath "/"))
+
+(allow file-read* file-write*
+    (home-subpath "/Library/Caches/com.apple.VideoConference")
+    (home-regex #"/Library/Preferences/ByHost/com\.apple\.Bluetooth\..*\.plist$")
+    (subpath (param "DARWIN_USER_TEMP_DIR"))
+    (subpath (param "DARWIN_USER_CACHE_DIR"))
+    (subpath "/private/var/db/mds")
+    (subpath "/private/tmp/vp")
+    (subpath "/private/tmp/vcp")
+    (subpath "/Library/Keychains"))
+
+(allow file-issue-extension
+    (require-all
+    (extension-class "com.apple.app-sandbox.read-write")
+    (home-subpath "/Library/Caches/com.apple.VideoConference/logs")))
+
+(allow user-preference-read
+    (preference-domain "com.apple.VideoConference")
+    (preference-domain "com.apple.coremedia")
+    (preference-domain "com.apple.security"))
+
+(allow device-camera)
+(allow iokit-open
+    (iokit-user-client-class "IOUSBDeviceUserClientV2")
+    (iokit-user-client-class "IOUSBInterfaceUserClientV2"))
+
+(allow device-microphone)
+
+(allow iokit-open
+    (iokit-registry-entry-class "IGAccelDevice")
+    (iokit-registry-entry-class "IGAccelSharedUserClient")
+    (iokit-registry-entry-class "IGAccelVideoContextMain")
+    (iokit-registry-entry-class "IGAccelVideoContextMedia")
+    (iokit-registry-entry-class "IGAccelVideoContextVEBox")
+    (iokit-registry-entry-class "IOAudioControlUserClient")
+    (iokit-registry-entry-class "IOAudioEngineUserClient")
+    (iokit-registry-entry-class "RootDomainUserClient")
+    (iokit-registry-entry-class "IOBluetoothHCIUserClient"))
+
+(allow mach-lookup
+    (global-name "com.apple.SystemConfiguration.NetworkInformation")
+    (global-name "com.apple.SystemConfiguration.configd")
+    (global-name "com.apple.apsd")
+    (global-name "com.apple.audio.audiohald")
+    (global-name "com.apple.cmio.AppleCameraAssistant")
+    (global-name "com.apple.cmio.VDCAssistant")
+    (global-name "com.apple.cmio.IIDCVideoAssistant")
+    (global-name "com.apple.cmio.AVCAssistant")
+    (global-name "com.apple.cmio.iOSScreenCaptureAssistant")
+    (global-name "com.apple.coreservices.launchservicesd")
+    (global-name "com.apple.identityservicesd.desktop.auth")
+    (global-name "com.apple.logind")
+    (global-name "com.apple.lsd.mapdb")
+    (global-name "com.apple.marco")
+    (global-name "com.apple.rtcreportingd")
+    (global-name "com.apple.windowserver.active")
+    (global-name "com.apple.SecurityServer")
+    (global-name "com.apple.securityd.xpc")
+    (global-name "com.apple.WirelessCoexManager"))
+
+(allow network-inbound
+    (local tcp "*:*")
+    (local udp "*:*"))
+
+(allow network-outbound
+    (literal "/private/var/run/mDNSResponder")
+    (remote tcp "*:*")
+    (remote udp "*:*"))
+
+(allow ipc-posix-shm-read-data
+    (ipc-posix-name-regex #"^/tmp/com\.apple\.csseed\.[0-9]+$")
+    (ipc-posix-name-regex #"^AudioIO")
+    (ipc-posix-name "FNetwork.defaultStorageSession")
+    (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+(allow ipc-posix-shm-write-data
+    (ipc-posix-name-regex #"^AudioIO")
+    (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+(allow ipc-posix-shm-read-metadata
+    (ipc-posix-name-regex #"^AudioIO"))

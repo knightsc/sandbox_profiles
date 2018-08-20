@@ -20,6 +20,7 @@
 (allow mach-lookup
     (global-name "com.apple.distributed_notifications@1v3")
     (global-name "com.apple.metadata.mds")
+    (global-name "com.apple.metadata.mds.legacy")
 )
 
 (allow network-outbound

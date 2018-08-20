@@ -1,7 +1,8 @@
 (version 1)
 (deny default)
 (import "system.sb")
-(import "com.apple.securitydservice.sb")
+
+(allow file-read*)
 
 ; System is read only
 
@@ -25,7 +26,16 @@
        (subpath "/var/tmp")
        (subpath "/usr/tmp"))
 
+(allow ipc-posix-shm-read-data  ipc-posix-shm-write-data 
+       (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+(allow ipc-posix-shm-read-data
+       (ipc-posix-name-regex #"^/tmp/com.apple.csseed.[0-9]+$"))
+
 (allow file-read* file-write*
+    (regex 
+          #"^(/private)?/var/db/mds/system/mds.lock$"
+    )
 	(regex #"^/Library/Preferences/SystemConfiguration/VPN-[^/]+\.plist")
 	(subpath "/private/var/run/racoon"))
 
@@ -63,7 +73,11 @@
 	(global-name "com.apple.ocspd")
 	(global-name "com.apple.PowerManagement.control")
 	(global-name "com.apple.pluginkit.pkd")
-	(global-name "com.apple.UNCUserNotification"))
+	(global-name "com.apple.UNCUserNotification")
+	(global-name "com.apple.SecurityServer")
+	(global-name "com.apple.securityd.xpc")
+	(global-name "com.apple.lsd.modifydb")
+	(global-name "com.apple.lsd.mapdb"))
 
 (allow process-fork)
 (allow process-exec

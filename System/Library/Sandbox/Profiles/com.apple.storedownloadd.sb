@@ -75,7 +75,7 @@
        (regex #"^/private/var/folders/[^/]+/[^/]+/[A-Z]/mds(/|$)")
        (regex #"/\.TemporaryItems(/|$)")
        (regex #"/Library/Keychains/")
-	   (regex #"/OS X Install Data(/|$)")
+	   (regex #"/(macOS|OS X) Install Data(/|$)")
        (regex #"\.appdownload(/|$)")
        (regex #"^/etilqs_"))
 
@@ -133,6 +133,7 @@
        (global-name "com.apple.coreservices.appleevents")
        (global-name "com.apple.cookied")
        (global-name "com.apple.FontServer")
+       (global-name "com.apple.fonts")
 	   (global-name "com.apple.DiskArbitration.diskarbitrationd")
        (global-name "com.apple.cvmsServ")
 	   (global-name "com.apple.logind")
@@ -145,7 +146,9 @@
        (global-name "com.apple.CrashReporterSupportHelper")
        (global-name "com.apple.cfnetwork.AuthBrokerAgent")
        (global-name "com.apple.lsd.mapdb")
-       (global-name "com.apple.lsd.modifydb"))
+       (global-name "com.apple.lsd.modifydb")
+       (global-name "com.apple.duetactivityscheduler")
+       (global-name "com.apple.system_installd"))
 
 (allow authorization-right-obtain
        (right-name "system.install.app-store-software")

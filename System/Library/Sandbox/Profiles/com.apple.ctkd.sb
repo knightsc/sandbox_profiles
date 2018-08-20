@@ -1,0 +1,35 @@
+;;;
+;;; Sandbox profile for /System/Library/Frameworks/CryptoTokenKit.framework/ctkd
+;;;
+;;; Copyright (c) 2016 Apple Inc.  All Rights reserved.
+;;;
+;;; WARNING: The sandbox rules in this file currently constitute
+;;; Apple System Private Interface and are subject to change at any time and
+;;; without notice. The contents of this file are also auto-generated and
+;;; not user editable; it may be overwritten at any time.
+
+(version 1)
+(deny default)
+
+(import "system.sb")
+
+(allow file-read*
+        (path "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains"))
+
+(allow file-read-metadata)
+
+(allow mach-lookup
+        (global-name "com.apple.ctkd.slot-client")
+        (global-name "com.apple.distributed_notifications@1v3")
+        (global-name "com.apple.distributed_notifications@Uv3")
+        (global-name "com.apple.pluginkit.pkd")
+        (global-name "com.apple.securityd.xpc")
+        (global-name "com.apple.ocspd")
+)
+
+(allow user-preference-read
+    (preference-domain "kCFPreferencesAnyApplication"))
+
+(allow user-preference-read user-preference-write
+    (preference-domain "com.apple.security.smartcard")
+)

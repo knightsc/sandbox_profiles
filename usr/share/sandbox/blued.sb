@@ -29,10 +29,17 @@
        (global-name "com.apple.btsa")
        (global-name "com.apple.bluetoothaudiod")
        (global-name "com.apple.lsd.mapdb")
-       (global-name "com.apple.bluetoothReporter"))
+       (global-name "com.apple.iohideventsystem")
+       (global-name "com.apple.bluetoothReporter")
+       (global-name "com.apple.PowerManagement.control")
+	   (global-name "com.apple.mediaremoted.xpc"))
 
 (allow file-write-create
        (regex   #"^/private/var/log/bluetoothCoreDump-\..*\.log$")
+	   (regex   #"^/private/var/log/AccessoryDiagnosticsInfo*.txt$")
+	   (regex   #"^/private/var/log/Accessory_Crash_Baseband_.*\.bin$")
+	   (regex   #"^/private/var/log/Accessory_Crash_Host_.*\.bin$")
+	   (regex   #"^/private/var/log/Accessory_Crash_DSP_.*\.bin$")
 )
 
 (allow file-read* file-write*
@@ -54,6 +61,14 @@
        (literal "/private/var/log/bluetoothFramework.log")
        (literal "/private/var/log/bluetoothCoreDump.log")
        (literal "/private/var/log/cloudpaird.log")
+
+	   (regex   #"^/private/var/log/AccessoryDiagnosticsInfo*.txt$")
+	   (regex   #"^/private/var/log/AccessoryDebugData*.txt$")
+	   (regex   #"^/private/var/log/AccessorySCP*.bin$")
+	   (regex   #"^/private/var/log/Accessory_Crash_Baseband_.*\.bin$")
+	   (regex   #"^/private/var/log/Accessory_Crash_Host_.*\.bin$")
+	   (regex   #"^/private/var/log/Accessory_Crash_DSP_.*\.bin$")
+
        (literal "/Library/Preferences/SystemConfiguration/com.apple.Bluetooth")
        (literal "/Library/Preferences/SystemConfiguration/com.apple.Bluetooth-lock")
        (literal "/Library/Preferences/SystemConfiguration/com.apple.Bluetooth-new"))

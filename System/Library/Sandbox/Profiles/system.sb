@@ -11,16 +11,23 @@
 
 ;;; Allow registration of per-pid services.
 (allow mach-register
-       (local-name-regex #""))
+       (local-name-prefix ""))
 
 ;;; Allow read access to standard system paths.
 (allow file-read*
        (require-all (file-mode #o0004)
                     (require-any (subpath "/Library/Filesystems/NetFSPlugins")
+                                 (subpath "/Library/Preferences/Logging")      ; Logging Rethink
                                  (subpath "/System")
                                  (subpath "/private/var/db/dyld")
                                  (subpath "/usr/lib")
                                  (subpath "/usr/share"))))
+
+;;; Allow reading internal profiles on development builds
+(allow file-read*
+       (require-all (file-mode #o0004)
+                    (subpath "/AppleInternal/Library/Preferences/Logging")
+                    (system-attribute apple-internal)))
 
 (allow file-read-metadata
        (literal "/etc")
@@ -54,14 +61,14 @@
 
 ;;; Allow creation of core dumps.
 (allow file-write-create
-       (require-all (regex #"^/cores/")
+       (require-all (prefix "/cores/")
                     (vnode-type REGULAR-FILE)))
 
 
 ;;; Allow IPC to standard system agents.
 (allow ipc-posix-shm-read*
-       (ipc-posix-name #"apple.shm.notification_center")
-       (ipc-posix-name-regex #"^apple\.shm\.cfprefsd\."))
+       (ipc-posix-name "apple.shm.notification_center")
+       (ipc-posix-name-prefix "apple.cfprefs."))
 
 (allow mach-lookup
        (global-name "com.apple.appsleep")
@@ -70,6 +77,8 @@
        (global-name "com.apple.cfprefsd.daemon")
        (global-name "com.apple.diagnosticd")
        (global-name "com.apple.espd")
+       (global-name "com.apple.logd")
+       (global-name "com.apple.logd.events")
        (global-name "com.apple.secinitd")
        (global-name "com.apple.system.DirectoryService.libinfo_v1")
        (global-name "com.apple.system.logger")
@@ -102,23 +111,23 @@
   ;; OpenCL
   (allow iokit-open
          (iokit-connection "IOAccelerator")
-         (iokit-user-client-class "IOAccelerationUserClient")
-         (iokit-user-client-class "IOSurfaceRootUserClient")
-         (iokit-user-client-class "IOSurfaceSendRight"))
+         (iokit-registry-entry-class "IOAccelerationUserClient")
+         (iokit-registry-entry-class "IOSurfaceRootUserClient")
+         (iokit-registry-entry-class "IOSurfaceSendRight"))
   ;; CoreVideo CVCGDisplayLink
   (allow iokit-open
-         (iokit-user-client-class "IOFramebufferSharedUserClient"))
+         (iokit-registry-entry-class "IOFramebufferSharedUserClient"))
   ;; H.264 Acceleration
   (allow iokit-open
-         (iokit-user-client-class "AppleSNBFBUserClient"))
+         (iokit-registry-entry-class "AppleSNBFBUserClient"))
   ;; QuartzCore
   (allow iokit-open
-         (iokit-user-client-class "AGPMClient")
-         (iokit-user-client-class "AppleGraphicsControlClient")
-         (iokit-user-client-class "AppleGraphicsPolicyClient"))
+         (iokit-registry-entry-class "AGPMClient")
+         (iokit-registry-entry-class "AppleGraphicsControlClient")
+         (iokit-registry-entry-class "AppleGraphicsPolicyClient"))
   ;; OpenGL
   (allow iokit-open
-         (iokit-user-client-class "AppleMGPUPowerControlClient"))
+         (iokit-registry-entry-class "AppleMGPUPowerControlClient"))
   ;; DisplayServices
   (allow iokit-set-properties
          (require-all (iokit-connection "IODisplay")
@@ -149,4 +158,3 @@
          (require-all (socket-domain AF_SYSTEM)
                       (socket-protocol 2)) ; SYSPROTO_CONTROL
          (socket-domain AF_ROUTE)))
-

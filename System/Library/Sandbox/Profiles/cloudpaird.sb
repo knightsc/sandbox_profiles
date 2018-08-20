@@ -77,6 +77,7 @@
 
 
 (allow file-read*
+	   (literal "/Applications/iTunes.app/Contents/version.plist")
        (literal "/Library/Preferences/SystemConfiguration/preferences.plist")
        (literal "/Library/Preferences/com.apple.security.plist")
        (literal "/private/var/db/DetachedSignatures")
@@ -127,21 +128,28 @@
 )
 
 (allow mach-lookup
+	(global-name "com.apple.BezelServices")
+	(global-name "com.apple.mediaremoted.xpc")
     (global-name "com.apple.identityservicesd.desktop.auth")
     (global-name "com.apple.marco")
     (global-name "com.apple.BluetoothDOServer")
 	(global-name "com.apple.xpchelper")
 	(global-name "com.apple.bluetoothUIServer")
     (global-name "com.apple.blued")
+    (global-name "com.apple.cloudd")
+    (global-name "com.apple.apsd")
     (global-name "com.apple.logind")
+    (global-name "com.apple.accountsd.accountmanager")
     (global-name "com.apple.SecurityServer")
+    (global-name "com.apple.sharingd.nsxpc")
     (global-name "com.apple.windowserver.active")
     (global-name "com.apple.securityd.xpc")
     (global-name "com.apple.CoreServices.coreservicesd")
     (global-name "com.apple.SystemConfiguration.configd")
     (global-name-regex #"^com\.apple\.distributed_notifications")
+	(global-name "com.apple.telephonyutilities.callservicesdaemon.callstatecontroller")
+	(global-name "com.apple.telephonyutilities.callservicesdaemon.callcapabilities")
 )
-    
 
 (allow iokit-open
        (iokit-user-client-class "IOBluetoothDeviceUserClient")
@@ -152,3 +160,9 @@
        (iokit-user-client-class "RootDomainUserClient")
 )
 
+
+(allow network-outbound
+       (literal "/private/var/run/mDNSResponder")
+       (remote tcp "*:25" )  ;; outgoing mail for CSS notifications
+       (remote tcp "*:443" ) ;; CSS/cryptobot
+)

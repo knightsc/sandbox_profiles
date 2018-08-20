@@ -43,6 +43,7 @@
 	(literal "/usr/local/bin")
 	(literal "/usr/local/bin/CADebug")
 	(literal "/private/var/root/Library/Logs/awdd/awd-AirPlayXPCHelper.log")
+	(literal "/private/etc/hosts")
 	(subpath "/Library/Video/Plug-Ins")
 	(subpath "/Library/Audio/Plug-Ins/HAL")
 	(subpath "/private/var/db/mds/system")
@@ -52,6 +53,7 @@
 (allow file-write*
 	(literal "/private/var/db/mds/system/mds.lock")
 	(literal "/private/var/root/Library/Logs/awdd/awd-AirPlayXPCHelper.log")
+	(subpath "/private/tmp")
 )
 	
 (allow iokit-open
@@ -60,9 +62,20 @@
 	(iokit-user-client-class "IOAudio2DeviceUserClient")
 	(iokit-user-client-class "RootDomainUserClient")
 	(iokit-user-client-class "IOReportUserClient")
+	(iokit-user-client-class "IOBluetoothHCIUserClient")
+    (iokit-user-client-class "IOBluetoothRFCOMMConnectionUserClient")
+    (iokit-user-client-class "IOBluetoothRFCOMMChannelUserClient")
+    (iokit-user-client-class "IOBluetoothL2CAPChannelUserClient")
+    (iokit-user-client-class "IOBluetoothDeviceUserClient")
 )
-	
-(allow mach-lookup 
+
+(allow iokit-set-properties
+    (iokit-property "AuthenticationAttempted")
+    (iokit-property "ClassOfDevice")
+    (iokit-property "OpenConnectionAuthenticationRequired")
+)
+
+(allow mach-lookup
 	(global-name "com.apple.SecurityServer")
 	(global-name "com.apple.SystemConfiguration.DNSConfiguration")
 	(global-name "com.apple.SystemConfiguration.configd")
@@ -70,6 +83,7 @@
 	(global-name "com.apple.ocspd")
 	(global-name "com.apple.pluginkit.pkd")
 	(global-name "com.apple.spindump")
+	(global-name "com.apple.PairingManager")
 	       
 	(global-name "com.apple.audio.audiohald")
 
@@ -87,6 +101,11 @@
 
 	(global-name "com.apple.coresymbolicationd")
 	(global-name "com.apple.awdd")
+	(global-name "com.apple.SharingServices")
+	(global-name "com.apple.blued")
+	(global-name "com.apple.bluetoothaudiod")
+	(global-name "com.apple.BluetoothDOServer")
+    (global-name "com.apple.airportd")
 )
 
 ;;
@@ -96,6 +115,7 @@
 	(literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist")
 	(literal "/Library/Preferences/.GlobalPreferences.plist")
 	(literal "/Library/Preferences/com.apple.security.plist")
+	(literal "/Library/Preferences/com.apple.Bluetooth.plist")
 	(regex #"^/private/var/root/Library/Preferences/ByHost/\.GlobalPreferences\..*\.plist$")
 )
 
@@ -103,6 +123,7 @@
 	(preference-domain "com.apple.airplay")
 	(preference-domain "com.apple.coremedia")
 	(preference-domain "com.apple.security")
+	(preference-domain "com.apple.Bluetooth")
 )
 
 (allow user-preference-write

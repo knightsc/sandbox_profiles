@@ -1,0 +1,50 @@
+;; Copyright (c) 2016 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice.
+;;
+
+(version 1)
+
+(import "system.sb")
+
+;; Allow arbitrary reads to enable file analysis
+(allow file-read* file-read-metadata file-read-data)
+
+;; Allow writes to sqlite datastore
+(allow file-write*
+	(subpath "/private/var/db/dz")
+	(subpath (param "TEMPDIR"))
+)
+
+(allow file-write-data
+	(path "/private/var/db/mds/system/mds.lock")
+)
+
+(allow ipc-posix-shm-read-data
+	(ipc-posix-name "com.apple.AppleDatabaseChanged")
+)
+
+(allow ipc-posix-shm-write-data
+	(ipc-posix-name "com.apple.AppleDatabaseChanged")
+)
+
+;; Allow access to mach services required for bundle analysis
+(allow mach-lookup
+	(global-name "com.apple.CoreServices.coreservicesd")
+	(global-name "com.apple.SecurityServer")
+	(global-name "com.apple.distributed_notifications@1v3")
+	(global-name "com.apple.ocspd")
+
+	;; LaunchServices
+	(global-name "com.apple.lsd.mapdb")
+	(global-name "com.apple.lsd.modifydb")
+)
+
+;;
+;; TEMPORARY - Allow removing legacy dznd database
+;;
+(allow file-write-unlink
+	(path "/private/var/db/dz.db")
+)

@@ -15,16 +15,24 @@
        (home-literal "")
        (home-literal "/Library/Preferences/.GlobalPreferences.plist")
        (home-literal "/Library/Preferences/com.apple.icloud.findmydeviced.findmydevice-user-agent.plist")
+       (home-literal "/Library/Preferences/MobileMeAccounts.plist")
 
        (literal "/Library/Preferences/.GlobalPreferences.plist")
        (literal "/AppleInternal")
+       (literal "/usr/libexec")
        (literal "/usr/libexec/findmydevice-user-agent")
 
        (home-regex #"/Library/Preferences/ByHost/\.GlobalPreferences\.[-\w.]*"))
 
+(allow file-write*
+       (home-literal "")
+       (home-literal "/Library/Preferences/com.apple.icloud.findmydeviced.notbackedup.plist"))
+
 (allow mach-lookup
+       (global-name "com.apple.accountsd.accountmanager")
+       (global-name "com.apple.distributed_notifications@Uv3")
        (global-name "com.apple.icloud.findmydeviced")
-       (global-name "com.apple.icloud.findmydeviced.user-agent")
+       (global-name "com.apple.icloud.findmydeviced.ua-services")
        (global-name "com.apple.CoreServices.coreservicesd")
        (global-name "com.apple.distributed_notifications")  
        (global-name "com.apple.UNCUserNotification"))

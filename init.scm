@@ -185,6 +185,27 @@
 		 (cdrs (cdr unz)))
 	    (cons (apply proc cars) (apply map (cons proc cdrs)))))))
 
+(define (filter pred l)
+  (if (null? l)
+      '()
+      (if (pred (car l))
+          (cons (car l) (filter pred (cdr l)))
+          (filter pred (cdr l)))))
+
+(define (partition pred lst)
+  (letrec
+    ((collect
+       (lambda (lst in out)
+         (if (null? lst)
+             (list in out)
+             (let
+               ((x (car lst))
+                (rest (cdr lst)))
+               (if (pred x)
+                   (collect rest (append in (list x)) out)
+                   (collect rest in (append out (list x)))))))))
+    (collect lst '() '())))
+
 (define (for-each proc . lists)
   (if (null? lists)
       (apply proc)

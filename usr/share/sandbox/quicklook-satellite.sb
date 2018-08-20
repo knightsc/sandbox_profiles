@@ -81,7 +81,7 @@
      ((list? paths)
       (for-each
        (lambda (path)
-         (if (string? x)
+         (if (string? path)
              (allow file-read* (subpath path))))
        paths))
      ((string? paths)
@@ -138,7 +138,7 @@
        (global-name "com.apple.CoreServices.coreservicesd")
        (global-name "com.apple.SecurityServer")
        (global-name "com.apple.windowserver.active")
-       (global-name "com.apple.FontServer")
+       (global-name "com.apple.fonts")	
        (global-name "com.apple.FontObjectsServer")
        (global-name "com.apple.cvmsServ")
        (global-name "com.apple.pictd")
@@ -155,4 +155,5 @@
        (global-name "com.apple.lsd.modifydb")
        (global-name "com.apple.dock.fullscreen"))
 
-       
+;; See rdar://problem/22730278
+(allow network-outbound (regex #"^/private/tmp/\.webdavUDS\.[^/]+$"))

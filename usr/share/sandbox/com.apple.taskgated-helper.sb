@@ -28,6 +28,7 @@
        (regex #"^/System/Library/PrivateFrameworks/CommerceKit.framework/.*")
        (literal "/usr/libexec")
        (literal "/usr/libexec/taskgated")
+       (literal "/usr/libexec/amfid")
        (literal "/usr/libexec/taskgated-helper"))
 
 (allow file-read-metadata
@@ -44,7 +45,6 @@
        (literal "/private/var/db/mds")
        (literal "/private/var/db/mds/system")
        (literal "/private/var/run/systemkeychaincheck.done")
-       (literal "/private/var/db/TH_EnableDebug")
 ;       (regex #"^/System/Library/Frameworks/.*\\.framework$")			-- 12392673
 ;       (regex #"^/System/Library/PrivateFrameworks/.*\\.framework$")	-- 12392673
 		)

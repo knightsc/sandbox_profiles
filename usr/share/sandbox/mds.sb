@@ -14,10 +14,13 @@
 (disable-full-symbolication)
 (import "system.sb")
 
+(if (defined? 'system-package-check)
+    (allow system-package-check))
+
 ;; Let us register our own name
 (allow mach-register
        (global-name "com.apple.metadata.mds")
-       (global-name "com.apple.metadata.mds.xpc")
+       (global-name "com.apple.metadata.mds.legacy")
        (global-name "com.apple.metadata.mds.xpcs"))
 
 (allow file-fsctl)
@@ -60,10 +63,6 @@
 
 (allow file-write-xattr (xattr-regex #"^com\.apple\.metadata:"))
 
-(allow job-creation
-    (regex #"^/System/Library/Frameworks/CoreServices\.framework/Versions/A/Frameworks/Metadata\.framework/Versions/A/Support/mdworker(32)?$")
-    (regex #"^/System/Library/Frameworks/CoreServices\.framework/Versions/A/Frameworks/Metadata\.framework/Versions/A/Support/mds_stores"))
-
 (allow ipc-posix-shm)
 
 ;; (allow mach-lookup (global-name-regex "^com\.apple\."))
@@ -79,8 +78,10 @@
     (global-name "com.apple.DiskArbitration.diskarbitrationd")
     (global-name "com.apple.FSEvents")
     (global-name "com.apple.PowerManagement.control")
+    (global-name "com.apple.tccd.system")
     (global-name "com.apple.tccd")
     (global-name "com.apple.metadata.mdbulkimport")
+    (global-name "com.apple.metadata.mds.index.xpc")
     (global-name "com.apple.metadata.mds.index")
     (global-name "com.apple.metadata.mds.scan")
     (global-name "com.apple.metadata.mdwrite")
@@ -98,7 +99,8 @@
     (global-name "com.apple.bird")
     (global-name "com.apple.lsd.mapdb")
     (global-name "com.apple.lsd.modifydb")
-    )
+    (global-name "com.apple.launchservices.mapdb")
+    (global-name "com.apple.cache_delete"))
     
 (allow mach-per-user-lookup)
 

@@ -1,6 +1,6 @@
 ;;;;;;  Copyright 2013 Apple Inc. All rights reserved.
 ;;;;;;
-;;;;;;  Sandbox profile for CloudDocs's bird.
+;;;;;;  Sandbox profile for CloudDocs's bird on OS X.
 ;;;;;;
 
 (version 1)
@@ -22,6 +22,11 @@
        (preference-domain "com.apple.security.revocation") ;; <rdar://problem/16698112>
 )
 
+(allow user-preference-read ;; <rdar://problem/31514002>
+       (preference-domain "com.apple.security")
+       (preference-domain "com.apple.Security")
+)
+
 ;; Homedir-relative path filters
 (define (home-regex home-relative-regex)
        (regex (string-append "^" (regex-quote (param "_HOME")) home-relative-regex)))
@@ -29,6 +34,10 @@
        (subpath (string-append (param "_HOME") home-relative-subpath)))
 (define (home-literal home-relative-literal)
        (literal (string-append (param "_HOME") home-relative-literal)))
+
+;; AppSupport-related path filters
+(define (appsupport-subpath appsupport-relative-subpath)
+       (subpath (string-append (param "_APP_SUPPORT") appsupport-relative-subpath)))
 
 ;;; Networking for Config Plist
 
@@ -50,39 +59,47 @@
 )
 
 (allow file-read*
+	(subpath "/AppleInternal/Library/Preferences/Logging") ;; rdar://problem/26495116
 	(subpath "/private/var/db/mds")
 	(subpath "/Library/QuickLook")
-	(subpath (string-append (param "_HOME") "/Library/QuickLook"))
+	(home-subpath "/Library/QuickLook")
 	(home-literal "/.CFUserTextEncoding")
 	;; IconServices rdar://17761890
 	(regex #"^/private/var/folders/[^/]+/[^/]+/[^/]+/com\.apple\.iconservices/store\.index")
 	(subpath "/Library/Caches/com.apple.iconservices.store")
+	;; App lookup rdar://25510090
+	(regex #"^/.*/Pages.app")
+	(regex #"^/.*/Keynote.app")
+	(regex #"^/.*/Numbers.app")
+	;; DiagnosticMessagesClient check (stat ==> file-read-metadata)
+	(literal "/Library/Caches/com.apple.DiagnosticReporting.HasBeenAppleInternal")
 )
 
 (deny file-write-setugid)
 
 (allow file-read* file-write*
        (regex #"^/private/var/folders/[^/]+/[^/]+/[^/]+/com\.apple\.bird/mds($|/)")
-       ;; When <rdar://problem/17515698> is fixed, delete this line
-       (regex #"^(/private)?/var/folders/[^/]+/[^/]+/C/mds($|/)")
        (mount-relative-regex #"^/\.TemporaryItems(/|$)") ;;; Safe Saves use .TemporaryItems, see e.g. <rdar://problem/9245317>
-       (subpath (string-append (param "_APP_SUPPORT") "/CloudDocs"))
-       (subpath (string-append (param "_APP_SUPPORT") "/Ubiquity"))
+       (appsupport-subpath "/CloudDocs")
+       (appsupport-subpath "/Ubiquity")
        (subpath (param "_CACHE"))
        (subpath (param "_ROOT"))
        (regex (string-append "^" (regex-quote (param "_ROOT")) #"\.")) ;; <rdar://problem/16981507>
        (subpath (param "_TMP"))
-       (literal (string-append (param "_HOME") "/Library/Caches")) ;; <rdar://problem/16784836>
-       (literal (string-append (param "_HOME") "/Library/Caches/CloudKit")) ;; <rdar://problem/23748070>
-       (subpath (string-append (param "_HOME") "/Library/Caches/CloudKit/com.apple.clouddocs"))
-       (subpath (string-append (param "_HOME") "/Library/Caches/CloudKit/com.apple.bird"))
-       (subpath (string-append (param "_HOME") "/Library/Caches/com.apple.ubd"))
-       (subpath (string-append (param "_HOME") "/Library/Logs/Ubiquity"))
-       ;; Work around for
-       ;; <rdar://problem/16333924>
-       (subpath (string-append (param "_HOME") "/Library/Caches/CloudKit/com.apple.cloudd"))
+       (subpath (param "_CS_DARWIN_USER_DIR"))
+       (subpath (param "_CS_DARWIN_USER_CACHE_DIR"))
+       (home-literal "/Library/Caches")          ;; <rdar://problem/16784836>
+       (home-literal "/Library/Caches/CloudKit") ;; <rdar://problem/23748070>
+       (home-subpath "/Library/Caches/CloudKit/com.apple.clouddocs")
+       (home-subpath "/Library/Caches/CloudKit/com.apple.bird")
+       (home-subpath "/Library/Caches/com.apple.ubd")
+       (home-subpath "/Library/Logs/Ubiquity")
+       ;; Workaround for <rdar://problem/16333924>
+       (home-subpath "/Library/Caches/CloudKit/com.apple.cloudd")
        ;; <rdar://problem/17536698> nsurlsessiond cache
        (home-subpath "/Library/Caches/com.apple.nsurlsessiond/Downloads/com.apple.bird")
+       (home-subpath "/Desktop")
+       (home-subpath "/Documents")
 )
 
 ;;; Revisiond client (stolen from iOS, should go to GS framework.sb eventually)
@@ -113,9 +130,11 @@
 (allow file-issue-extension (require-all
        (require-any
            (subpath (param "_ROOT"))
-           (subpath (string-append (param "_APP_SUPPORT") "/CloudDocs/session/r"))
-           (subpath (string-append (param "_APP_SUPPORT") "/CloudDocs/session/containers"))
-           (subpath (string-append (param "_HOME") "/Library/Caches/com.apple.bird")))
+           (home-subpath "/Desktop")
+           (home-subpath "/Documents")
+           (appsupport-subpath "/CloudDocs/session/r")
+           (appsupport-subpath "/CloudDocs/session/containers")
+           (home-subpath "/Library/Caches/com.apple.bird"))
        (require-any
            (extension-class "com.apple.librarian.ubiquity-container")
            (extension-class "com.apple.app-sandbox.read")
@@ -141,6 +160,7 @@
 (preference-read "com.apple.CloudKit.BehaviorOptions")
 (preference-read "com.apple.DebugSymbols")
 (preference-read "com.apple.security.revocation")
+(preference-read "com.apple.cache_delete")
 (preference-rw   "MobileMeAccounts") ;; Get rid of this as soon as we can adopt Account.framework
 
 (allow file-read-metadata
@@ -209,7 +229,14 @@
         (global-name "com.apple.coreservices.sharedfilelistd.async-mig")
 ;; LS Register App <rdar://problem/20454752>
         (global-name "com.apple.lsd.modifydb")
+        (global-name "com.apple.DesktopServicesHelper")
+;; Used by sharing acceptation flow to select file in Finder (25639025)
+        (global-name "com.apple.coreservices.launchservicesd")
+        (global-name "com.apple.coreservices.appleevents")
 )
+
+;; Used by sharing acceptation flow to select file in Finder (25639025)
+(allow appleevent-send)
 
 ;; from application.sb
 (allow system-fsctl
@@ -220,3 +247,8 @@
        (fsctl-command (_IO "z" 12))
        (fsctl-command (_IO "z" 19))
        (fsctl-command (_IO "z" 23)))
+
+;; allow F_PATHPKG_CHECK (23424418)
+(if (defined? 'system-package-check)
+(allow system-package-check))
+

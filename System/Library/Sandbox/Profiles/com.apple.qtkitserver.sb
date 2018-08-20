@@ -174,6 +174,7 @@
        (global-name "com.apple.coreservices.launchservicesd")
        (global-name "com.apple.ls.boxd")
        (global-name "com.apple.lsd.mapdb")
+       (global-name "com.apple.lsd.modifydb")
        (global-name "com.apple.metadata.mds")
        (global-name "com.apple.cookied")
        (global-name "com.apple.cfnetwork.AuthBrokerAgent")
@@ -193,6 +194,7 @@
        (global-name "com.apple.tsm.uiserver")
        (global-name "com.apple.UNCUserNotification")
        (global-name "com.apple.windowserver.active")
+       (global-name "com.apple.DiskArbitration.diskarbitrationd")
        (global-name "com.apple.window_proxies"))
        
 ;; Security framework

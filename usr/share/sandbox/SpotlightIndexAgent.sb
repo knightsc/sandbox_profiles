@@ -12,8 +12,18 @@
 
 (deny default)
 
+(import "system.sb")
+
+(allow file-read*
+    (literal "/Library/Preferences/.GlobalPreferences.plist")
+    (literal (string-append (param "_HOME") "/Library/Preferences/.GlobalPreferences.plist"))
+    (literal (string-append (param "_HOME") "/Library/Preferences/com.apple.spotlight.IndexAgent.plist"))
+    (regex (string-append "^" (regex-quote (param "_HOME")) #"/Library/Preferences/ByHost/\.GlobalPreferences\.[^/]*\.plist$"))
+    (regex (string-append "^" (regex-quote (param "_HOME")) #"/Library/Preferences/ByHost/com\.apple\.spotlight\.IndexAgent\.[^/]*\.plist$")))
+
 (allow file-read-metadata
-    (literal "/AppleInternal"))
+    (literal "/AppleInternal")
+    (literal (param "_HOME")))
 
 (allow ipc-posix-shm-read-data
     (ipc-posix-name-regex #"^/tmp/com.apple.csseed.[^/]+$"))
@@ -23,12 +33,11 @@
     (global-name "com.apple.corespotlight.receiver.coreduet")
     (global-name "com.apple.corespotlight.receiver.corespotlight")
     (global-name "com.apple.corespotlight.receiver.suggestions")
+    (global-name "com.apple.corespotlight.receiver.duetexpertcenter")
     (global-name "com.apple.lsd.mapdb")
     (global-name "com.apple.pluginkit.pkd")
     (global-name "com.apple.system.logger")
     (global-name "com.apple.tccd")
-    (global-name "com.apple.distributed_notifications")
-    (global-name "com.apple.distributed_notifications@1v3")
-    (global-name "com.apple.distributed_notifications@Uv3")
+    (global-name "com.apple.tccd.system")
+    (global-name "com.apple.logd")
     (global-name-regex #"^com\.apple\.distributed_notifications"))
-

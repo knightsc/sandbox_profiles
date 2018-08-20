@@ -7,16 +7,18 @@
 (define (home-literal home-relative-literal)
        (literal (string-append (param "USER_HOME") home-relative-literal)))
 (allow file-read*
-       (literal "/Library/Caches/com.apple.AssetCacheClientProfiles.plist")
        (literal "/Library/Keychains/System.keychain")
        (literal "/Library/Preferences/.GlobalPreferences.plist")
        (literal "/Library/Preferences/SystemConfiguration/preferences.plist")
+       (literal "/Library/Preferences/com.apple.AssetCacheClientProfiles.plist")
        (literal "/Library/Preferences/com.apple.AssetCacheLocatorService.plist")
        (literal "/Library/Preferences/com.apple.security.plist")
        (literal "/Library/Preferences/com.apple.security.revocation.plist")
        (home-literal "/Library/Preferences/com.apple.security.plist")
        (home-literal "/Library/Preferences/com.apple.security.revocation.plist")
        (subpath "/private/var/db/mds"))
+(allow file-read-metadata
+       (literal "/Applications/Server.app/Contents/ServerRoot/usr/libexec/AssetCache/AssetCache"))
 (allow file-read* file-write*
        (subpath (param "USER_CACHE_PATH"))
        (subpath (param "USER_TEMP_PATH")))
@@ -24,10 +26,12 @@
        (ipc-posix-name "com.apple.AppleDatabaseChanged"))
 (allow mach-lookup
        (global-name "com.apple.AssetCacheC")
+       (global-name "com.apple.AssetCacheC.builtin")
        (global-name "com.apple.DiskArbitration.diskarbitrationd")
        (global-name "com.apple.SecurityServer")
        (global-name "com.apple.SystemConfiguration.DNSConfiguration")
        (global-name "com.apple.SystemConfiguration.configd")
+       (global-name "com.apple.lsd.mapdb")
        (global-name "com.apple.metadata.mds")
        (global-name "com.apple.ocspd"))
 (allow network-inbound

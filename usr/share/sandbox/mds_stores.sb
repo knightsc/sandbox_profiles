@@ -14,12 +14,16 @@
 (disable-full-symbolication)
 (import "system.sb")
 
+(if (defined? 'system-package-check)
+    (allow system-package-check))
+
 ;;(allow file-read-metadata
 ;;    (mount-relative-regex #"^/"))
 
 ;; Let us register our own name
 (allow mach-register
-       (global-name "com.apple.metadata.mds.index"))
+       (global-name "com.apple.metadata.mds.index")
+       (global-name "com.apple.metadata.mds.index.xpc"))
 
 
 (allow file-read-metadata)

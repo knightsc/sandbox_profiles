@@ -1,6 +1,6 @@
 ;;;;;; Base profile for Application Sandboxing
 ;;;;;;
-;;;;;; Copyright (c) 2011-2013 Apple Inc.  All Rights reserved.
+;;;;;; Copyright (c) 2011-2017 Apple Inc.  All Rights reserved.
 ;;;;;;
 ;;;;;; WARNING: The sandbox rules in this file currently constitute
 ;;;;;; Apple System Private Interface and are subject to change at any time and
@@ -22,40 +22,7 @@
      "com.apple.security.files.user-selected.read")
     ("com.apple.security.files.user-selected.read-write"
      "com.apple.security.documents.user-selected.read-write")))
-(if (not (defined? 'sbpl-filter?))
-  (define (sbpl-filter? x) (and (list? x) (eq? (car x) 'filter))))
-(macro (with-filter form)
-       (let* ((ps (cdr form)) (extra-filter (car ps)) (rules (cdr ps)))
-         `(letrec ((collect
-                     (lambda (l filters non-filters)
-                       (if (null? l)
-                         (list filters non-filters)
-                         (let* ((x (car l)) (rest (cdr l)))
-                           (if (sbpl-filter? x)
-                             (collect rest (cons x filters) non-filters)
-                             (collect rest filters (cons x non-filters)))))))
-                   (inject-filter
-                     (lambda args
-                       (let* ((collected (collect args '() '()))
-                              (filters (car collected))
-                              (non-filters (cadr collected)))
-                         (if (null? filters)
-                           (cons ,extra-filter non-filters)
-                           (cons (require-all
-                                   (apply require-any filters)
-                                   ,extra-filter)
-                                 non-filters)))))
-                   (orig-allow allow)
-                   (orig-deny deny)
-                   (wrapper
-                     (lambda (action)
-                       (lambda args
-                         (apply action (apply inject-filter args))))))
-            (set! allow (wrapper orig-allow))
-            (set! deny (wrapper orig-deny))
-            ,@rules
-            (set! deny orig-deny)
-            (set! allow orig-allow))))
+(unless (defined? '*entitlements*) (define *entitlements* '()))
 (define (legacy-entitlement ls)
   (let loop ((ls ls))
     (if (null? ls)
@@ -107,108 +74,193 @@
       (allow file-write-create
              file-write-data
              (require-all (vnode-type DIRECTORY) (literal path))))))
+(define (end-with-slash? s) (eqv? (string-ref s (- (string-length s) 1)) #\/))
+(define (strip-last-char s) (substring s 0 (- (string-length s) 1)))
+(define (HEX-pattern-match-generator pattern-descriptor)
+  (letrec ((pattern-string ""))
+    (for-each
+      (lambda (repeat-count)
+        (if (zero? repeat-count)
+          (set! pattern-string (string-append pattern-string "-"))
+          (let appender ((count repeat-count))
+            (if (> count 0)
+              (begin
+                (set! pattern-string (string-append pattern-string "[0-9A-F]"))
+                (appender (- count 1)))))))
+      pattern-descriptor)
+    pattern-string))
+(define (uuid-HEX-pattern-match-string)
+  (HEX-pattern-match-generator '(8 0 4 0 4 0 4 0 12)))
+(define *uuid-pattern* "")
+(define (uuid-regex-string)
+  (if (zero? (string-length *uuid-pattern*))
+    (set! *uuid-pattern* (uuid-HEX-pattern-match-string)))
+  *uuid-pattern*)
 (define resolving-literal literal)
 (define resolving-subpath subpath)
+(define resolving-prefix prefix)
 (define resolving-regex regex)
 (define (protect-redirected-paths))
 (define (protect-redirectable-paths))
-(letrec ((*path-aliases*
-           (or (entitlement "com.apple.private.app-sandbox.redirected-paths")
-               '()))
-         (*redirectable-paths*
-           (or (entitlement "com.apple.private.app-sandbox.redirectable-paths")
-               '()))
-         (path-ancestor?
-           (lambda (short long)
-             (cond ((< (string-length long) (string-length short)) #f)
-                   ((string=? short long) #t)
-                   ((%string-prefix? short long)
-                    (char=? #\/ (string-ref long (string-length short))))
-                   (else #f))))
-         (path-alias-resolve
-           (lambda (path)
-             (let loop ((mapping *path-aliases*))
-               (if (null? mapping)
-                 path
-                 (let ((key (caar mapping)) (realpath (cadar mapping)))
-                   (if (path-ancestor? key path)
-                     (string-append
-                       realpath
-                       (substring path (string-length key)))
-                     (loop (cdr mapping))))))))
-         (path-ancestor-regex?
-           (lambda (short long)
-             (cond ((< (string-length long) (string-length short)) #f)
-                   ((string=? short long) #f)
-                   ((%string-prefix? short long)
-                    (let ((c (string-ref long (string-length short))))
-                      (or (char=? c #\/) (char=? c #\$))))
-                   (else #f))))
-         (path-alias-resolve-regex
-           (lambda (path-regex)
-             (let loop ((mapping *path-aliases*))
-               (if (null? mapping)
-                 path-regex
-                 (let ((key (string-append "^" (regex-quote (caar mapping))))
-                       (realpath
-                         (string-append "^" (regex-quote (cadar mapping)))))
-                   (if (path-ancestor-regex? key path-regex)
-                     (string-append
-                       realpath
-                       (substring path-regex (string-length key)))
-                     (loop (cdr mapping))))))))
-         (subpath-aliases
-           (lambda (path)
-             (let ((x (list path)))
-               (for-each
-                 (lambda (mapping)
-                   (if (and (not (string=? path (car mapping)))
-                            (path-ancestor? path (car mapping)))
-                     (set! x (append x (car mapping)))))
-                 *path-aliases*)
-               x)))
-         (flatten
-           (lambda (l accum)
-             (cond ((null? l) accum)
-                   ((atom? l) (cons l accum))
-                   (else (flatten (car l) (flatten (cdr l) accum))))))
-         (orig-regex regex)
-         (orig-literal literal)
-         (orig-subpath subpath)
-         (%resolving-literal
-           (lambda paths (apply orig-literal (map path-alias-resolve paths))))
-         (%resolving-subpath
-           (lambda paths
-             (apply orig-subpath
-                    (map path-alias-resolve
-                         (flatten (map subpath-aliases paths) '())))))
-         (%resolving-regex
-           (lambda patterns
-             (apply orig-regex (map path-alias-resolve-regex patterns))))
-         (%protect-redirected-paths
-           (lambda ()
+(let* ((*path-aliases*
+         (or (entitlement "com.apple.private.app-sandbox.redirected-paths")
+             '()))
+       (*redirectable-paths*
+         (or (entitlement "com.apple.private.app-sandbox.redirectable-paths")
+             '()))
+       (path-ancestor?
+         (lambda (short long)
+           (cond ((< (string-length long) (string-length short)) #f)
+                 ((string=? short long) #t)
+                 ((%string-prefix? short long)
+                  (or (end-with-slash? short)
+                      (char=? #\/ (string-ref long (string-length short)))))
+                 (else #f))))
+       (path-list-ancestor?
+         (lambda (shortlist long)
+           (member
+             #t
+             (map (lambda (short) (path-ancestor? short long)) shortlist))))
+       (path-alias-resolve
+         (lambda (path)
+           (let loop ((mapping *path-aliases*))
+             (if (null? mapping)
+               path
+               (let ((key (caar mapping)) (realpath (cadar mapping)))
+                 (if (path-ancestor? key path)
+                   (string-append
+                     realpath
+                     (substring path (string-length key)))
+                   (loop (cdr mapping))))))))
+       (path-ancestor-regex?
+         (lambda (short long)
+           (cond ((< (string-length long) (string-length short)) #f)
+                 ((string=? short long) #f)
+                 ((%string-prefix? short long)
+                  (let ((c (string-ref long (string-length short))))
+                    (or (char=? c #\/) (char=? c #\$))))
+                 (else #f))))
+       (path-alias-resolve-regex
+         (lambda (path-regex)
+           (let loop ((mapping *path-aliases*))
+             (if (null? mapping)
+               path-regex
+               (let ((key (string-append "^" (regex-quote (caar mapping))))
+                     (realpath
+                       (string-append "^" (regex-quote (cadar mapping)))))
+                 (if (path-ancestor-regex? key path-regex)
+                   (string-append
+                     realpath
+                     (substring path-regex (string-length key)))
+                   (loop (cdr mapping))))))))
+       (subpath-aliases
+         (lambda (path)
+           (let ((x (list path)))
              (for-each
                (lambda (mapping)
-                 (let ((symlink-path (car mapping))
-                       (target-path (cadr mapping)))
-                   (allow file-read-metadata (orig-literal symlink-path))
-                   (deny file-write-unlink (orig-literal symlink-path))
-                   (deny file-write-create
-                         (require-all
-                           (orig-literal target-path)
-                           (vnode-type SYMLINK)))))
-               *path-aliases*)))
-         (%protect-redirectable-paths
-           (lambda ()
+                 (if (and (not (string=? path (car mapping)))
+                          (path-ancestor? path (car mapping)))
+                   (set! x (append x (car mapping)))))
+               *path-aliases*)
+             x)))
+       (prefix-aliases
+         (lambda (path)
+           (let ((x (list path)))
              (for-each
-               (lambda (path)
-                 (deny file-write-create
-                       (require-all (orig-literal path) (vnode-type SYMLINK))))
-               *redirectable-paths*))))
+               (lambda (mapping)
+                 (if (and (not (string=? path (car mapping)))
+                          (%string-prefix? path (car mapping)))
+                   (set! x (append x (car mapping)))))
+               *path-aliases*)
+             x)))
+       (flatten
+         (lambda (l accum)
+           (cond ((null? l) accum)
+                 ((atom? l) (cons l accum))
+                 (else (flatten (car l) (flatten (cdr l) accum))))))
+       (orig-regex regex)
+       (orig-literal literal)
+       (orig-subpath subpath)
+       (orig-prefix prefix)
+       (%resolving-literal
+         (lambda paths (apply orig-literal (map path-alias-resolve paths))))
+       (%resolving-subpath
+         (lambda paths
+           (apply orig-subpath
+                  (map path-alias-resolve
+                       (flatten (map subpath-aliases paths) '())))))
+       (%resolving-prefix
+         (lambda prefixes
+           (apply orig-prefix
+                  (map path-alias-resolve
+                       (flatten (map prefix-aliases prefixes) '())))))
+       (%resolving-regex
+         (lambda patterns
+           (apply orig-regex (map path-alias-resolve-regex patterns))))
+       (remove-trailing-slash
+         (lambda (path) (if (end-with-slash? (strip-last-char path) path))))
+       (ensure-trailing-slash
+         (lambda (path)
+           (if (end-with-slash? path) path (string-append path "/"))))
+       (force-list
+         (lambda (ls) (cond ((list? ls) ls) ((string? ls) (list ls)))))
+       (find-all-pos-of-char
+         (lambda (str char pos)
+           (cond ((>= pos (string-length str)) '())
+                 ((char=? char (string-ref str pos))
+                  (cons pos (find-all-pos-of-char str char (+ pos 1))))
+                 (else (find-all-pos-of-char str char (+ pos 1))))))
+       (dirhierarchy-list
+         (lambda (short long)
+           (map (lambda (pos)
+                  (cond ((= pos 0) "/") (else (substring long 0 pos))))
+                (find-all-pos-of-char
+                  (ensure-trailing-slash long)
+                  #\/
+                  (- (string-length short) 1)))))
+       (parentdirs-list (lambda (path) (dirhierarchy-list "/" path)))
+       (dangerous-paths
+         (append
+           *redirectable-paths*
+           (map cadr *path-aliases*)
+           (force-list
+             (entitlement
+               "com.apple.security.temporary-exception.files.absolute-path.read-write"))
+           (map (lambda (relpath) (string-append (param "_HOME") relpath))
+                (force-list
+                  (entitlement
+                    "com.apple.security.temporary-exception.files.home-relative-path.read-write")))))
+       (protect
+         (lambda (path)
+           (deny file-write-create
+                 (require-all (orig-literal path) (vnode-type SYMLINK)))))
+       (protect-ancestors-of-path
+         (lambda (path)
+           (when (not (null? dangerous-paths))
+                 (for-each
+                   (lambda (dir)
+                     (if (path-list-ancestor? dangerous-paths dir)
+                       (protect dir)))
+                   (parentdirs-list path)))))
+       (%protect-redirected-paths
+         (lambda ()
+           (for-each
+             (lambda (mapping)
+               (let ((symlink-path (car mapping)) (target-path (cadr mapping)))
+                 (allow file-read-metadata (orig-literal symlink-path))
+                 (protect-ancestors-of-path symlink-path)
+                 (protect-ancestors-of-path target-path)))
+             *path-aliases*)))
+       (%protect-redirectable-paths
+         (lambda ()
+           (for-each
+             (lambda (path) (protect-ancestors-of-path path))
+             *redirectable-paths*))))
   (if *path-aliases*
     (begin
       (set! resolving-literal %resolving-literal)
       (set! resolving-subpath %resolving-subpath)
+      (set! resolving-prefix %resolving-prefix)
       (set! resolving-regex %resolving-regex)
       (set! protect-redirected-paths %protect-redirected-paths)))
   (if *redirectable-paths*
@@ -216,6 +268,7 @@
 (macro (with-transparent-redirection rules)
        `(let ((literal resolving-literal)
               (subpath resolving-subpath)
+              (prefix resolving-prefix)
               (regex resolving-regex))
           ,@rules))
 (define (home-regex home-relative-regex)
@@ -224,6 +277,8 @@
 (define regex-home home-regex)
 (define (home-subpath home-relative-subpath)
   (resolving-subpath (string-append (param "_HOME") home-relative-subpath)))
+(define (home-prefix home-relative-subpath)
+  (resolving-prefix (string-append (param "_HOME") home-relative-subpath)))
 (define (home-literal home-relative-literal)
   (resolving-literal (string-append (param "_HOME") home-relative-literal)))
 (define (container-regex container-relative-regex)
@@ -243,27 +298,180 @@
       (param "application_container")
       container-relative-literal)))
 (import "system.sb")
-(allow system-audit
-       system-sched
-       mach-register
-       mach-task-name
-       process-fork
-       lsopen)
+(allow system-audit system-sched mach-task-name process-fork lsopen)
+(define (end-with-star? string)
+  (eqv? (string-ref string (- (string-length string) 1)) #\*))
+(define (select-mach-filter filter with-star without-star)
+  (if (end-with-star? filter)
+    (with-star (strip-last-char filter))
+    (without-star filter)))
+(define (bundle-id-can-register-service bundle-id service-filter)
+  (if (and (param "application_bundle_id")
+           (equal? (param "application_bundle_id") bundle-id))
+    (let ((mach-filter
+            (select-mach-filter
+              service-filter
+              global-name-prefix
+              global-name)))
+      (allow mach-register mach-filter))))
 (if (and (param "application_bundle_id")
-         (%string-prefix? "com.apple." (param "application_bundle_id"))
-         (allow mach-register (with report))))
-(define (restrict-service-name-to-bundle-id service-name bundle-id)
-  (unless
-    (or (not (param "application_bundle_id"))
-        (equal? (param "application_bundle_id") bundle-id))
-    (deny mach-register (global-name service-name))))
-(restrict-service-name-to-bundle-id
-  "com.evernote.ipc.note"
-  "com.evernote.Evernote")
-(restrict-service-name-to-bundle-id
-  "com.pushbullet.macapp-notifications"
+         (%string-prefix? "com.apple." (param "application_bundle_id")))
+  (allow mach-register (with report)))
+(allow mach-register (local-name-prefix ""))
+(bundle-id-can-register-service
+  "2BUA8C4S2C.com.agilebits.onepassword-osx-helper"
+  "com.agilebits.onepassword-osx-helper")
+(bundle-id-can-register-service
+  "com.busymac.busycontacts"
+  "BusyContacts Protocol 1.0")
+(bundle-id-can-register-service
+  "com.amazon.Kindle"
+  "com.amazon.KindleForMac-*")
+(bundle-id-can-register-service
+  "com.belightsoft.ArtText2"
+  "com.belightsoft.ArtText2:Art Text")
+(bundle-id-can-register-service
+  "com.belightsoft.ArtText2Lite"
+  "com.belightsoft.ArtText2Lite:Art Text")
+(bundle-id-can-register-service
+  "com.coppertino.VOXAgent"
+  "com.coppertino.VOXAgent")
+(bundle-id-can-register-service
+  "com.coppertino.VOXCloud"
+  "com.coppertino.VOXCloud")
+(bundle-id-can-register-service
+  "com.devon-technologies.bot"
+  "com.devon-technologies.bot")
+(bundle-id-can-register-service
+  "com.devon-technologies.get"
+  "com.devon-technologies.get")
+(bundle-id-can-register-service "com.devon-technologies.think2" "DevonThink")
+(bundle-id-can-register-service "org.grunenberg.PhotoStickies" "PhotoStickies")
+(bundle-id-can-register-service
+  "com.evernote.Evernote"
+  "com.evernote.ipc.note")
+(bundle-id-can-register-service
+  "com.evernote.Evernote"
+  "com.evernote.ipc.client")
+(bundle-id-can-register-service
+  "com.evernote.EvernoteHelper"
+  "com.evernote.ipc.helper")
+(bundle-id-can-register-service
+  "com.microsoft.OneDrive-mac"
+  "com.microsoft.SkyDrive*")
+(bundle-id-can-register-service
+  "com.mudflatsoftware.DropSync3"
+  "com.mudflatsoftware.dropsync3.authserver")
+(bundle-id-can-register-service
+  "com.nisus.LibreOfficeImporter"
+  "com.nisus.LibreOfficeImporter")
+(bundle-id-can-register-service
+  "com.nullriver.MediaLinkHelper"
+  "com.nullriver.MediaLink")
+(bundle-id-can-register-service
+  "com.omnigroup.OmniGraffle6.MacAppStore"
+  "com.omnigroup.OmniGraffle:OmniGraffle")
+(bundle-id-can-register-service
+  "com.omnigroup.OmniGraffle6.MacAppStore"
+  "com.omnigroup.OmniGraffle6:OmniGraffle")
+(bundle-id-can-register-service
+  "com.omnigroup.OmniGraffle6.MacAppStore"
+  "com.omnigroup.OmniGrafflePro:OmniGraffle")
+(bundle-id-can-register-service
+  "com.omnigroup.OmniGraffle6.MacAppStore"
+  "com.omnigroup.OmniGraffle.MacAppStore:OmniGraffle")
+(bundle-id-can-register-service
+  "com.omnigroup.OmniGraffle6.MacAppStore"
+  "com.omnigroup.OmniGraffle6.MacAppStore:OmniGraffle")
+(bundle-id-can-register-service
+  "com.omnigroup.OmniGraffle6.MacAppStore"
+  "com.omnigroup.OmniGrafflePro.MacAppStore:OmniGraffle")
+(bundle-id-can-register-service
+  "com.omnigroup.OmniGraphSketcher.MacAppStore"
+  "com.omnigroup.OmniGraphSketcher:OmniGraphSketcher")
+(bundle-id-can-register-service
+  "com.omnigroup.OmniGraphSketcher.MacAppStore"
+  "com.omnigroup.OmniGraphSketcher.MacAppStore:OmniGraphSketcher")
+(if (and (param "application_bundle_id")
+         (%string-prefix? "com.omnigroup." (param "application_bundle_id")))
+  (allow mach-register
+         (global-name
+           "com.omnigroup.OmniCrashCatcher.CrashingApplicationTaskPort")))
+(bundle-id-can-register-service
+  "com.pushbullet.macapp.Pushbullet-Share"
   "com.pushbullet.macapp-notifications")
-(deny mach-register (global-name "KeychainUtilityServer"))
+(bundle-id-can-register-service
+  "com.syniumsoftware.screenium3"
+  "com.syniumsoftware.screenium3")
+(bundle-id-can-register-service
+  "com.syniumsoftware.screenium3"
+  "com.syniumsoftware.screeniumrecorder")
+(bundle-id-can-register-service
+  "com.taptileapps.Taptile-Timetracking-Helper"
+  "com.taptileapps.Taptile-Timetracking-Helper")
+(bundle-id-can-register-service
+  "com.TechSmith.Snagit"
+  "com.techsmith.Snagit.CaptureResponseServer")
+(bundle-id-can-register-service
+  "com.techsmith.snagit.capturehelper"
+  "com.techsmith.snagit.CaptureServerString")
+(bundle-id-can-register-service
+  "com.techsmith.snagit.capturehelper"
+  "com.techsmith.snagit.recorderServer")
+(bundle-id-can-register-service
+  "com.websecurify.Proxy"
+  "com.websecurify.ProxyHelperService")
+(bundle-id-can-register-service "cx.c3.Xee3" "cx.c3.Xee3.ImageLoader")
+(bundle-id-can-register-service "com.southpolesoftware.iVI" "iviport")
+(bundle-id-can-register-service
+  "net.dsd.BarcodyExpress"
+  "net.dsd.BarcodyExpress:Barcody*")
+(bundle-id-can-register-service "net.dsd.Barcody" "net.dsd.Barcody:Barcody")
+(bundle-id-can-register-service "net.dsd.Barcody3" "net.dsd.Barcody3:Barcody")
+(bundle-id-can-register-service
+  "net.icalamus.iCalamus"
+  "net.icalamus.iCalamus:iCalamus")
+(bundle-id-can-register-service
+  "net.icalamus.iCalamus2"
+  "net.icalamus.iCalamus2:iCalamus")
+(bundle-id-can-register-service
+  "se.bitfield.RoadMovie.mas"
+  "se.bitfield.RoadMovieExportHelperApp")
+(bundle-id-can-register-service
+  "uk.org.pond.Add-Folder-Icons"
+  "uk.org.pond.Add-Folder-Icons")
+(bundle-id-can-register-service "com.objClean.Enforcer" "[com.objClean]")
+(bundle-id-can-register-service "com.intuit.Quicken.2015" "Quicken 2015")
+(bundle-id-can-register-service "com.intuit.Quicken.2016" "Quicken 2016")
+(bundle-id-can-register-service "com.blackpixel.kaleidoscope" "KSDOConnection")
+(when (and (param "application_bundle_id")
+           (or (equal? (param "application_bundle_id") "com.adobe.elements13")
+               (equal? (param "application_bundle_id") "com.adobe.pre11editor")
+               (equal?
+                 (param "application_bundle_id")
+                 "com.adobe.pre11quickeditor")
+               (equal? (param "application_bundle_id") "com.adobe.pse11editor")
+               (equal?
+                 (param "application_bundle_id")
+                 "com.adobe.pse12editor")))
+      (allow mach-register
+             mach-lookup
+             (global-name-prefix "\\\\.\\port\\Rob_and_Mike_")))
+(when (and (param "application_bundle_id")
+           (equal? (param "application_bundle_id") "com.adobe.elements13"))
+      (allow mach-register
+             mach-lookup
+             (global-name "maspselauncher13.0")
+             (global-name-prefix "Welcome - Photoshop Elements 13.0")))
+(when (and (param "application_bundle_id")
+           (equal? (param "application_bundle_id") "com.adobe.pse13organizer"))
+      (allow mach-register
+             mach-lookup
+             (global-name-prefix "Organizer - Elements Organizer 13.0")))
+(bundle-id-can-register-service "com.sparrowmailapp.sparrow" "Sparrow-Port")
+(bundle-id-can-register-service
+  "com.sparrowmailapp.sparrowlite"
+  "Sparrow-Port")
 (deny process-info*)
 (allow process-info-pidinfo)
 (allow process-info-pidfdinfo (target self))
@@ -271,6 +479,9 @@
 (allow process-info-setcontrol (target self))
 (allow process-info-dirtycontrol (target self))
 (allow process-info-rusage (target self))
+(allow process-codesigning-status* (target self))
+(deny nvram*)
+(allow nvram-get (nvram-variable "IOGVAEncoderRestricted"))
 (deny file-link (home-subpath "/Library"))
 (if (entitlement "com.apple.security.temporary-exception.yasb")
   (begin
@@ -280,11 +491,12 @@
 (allow file-read* process-exec (subpath "/Library"))
 (deny file-read*
       process-exec
-      (subpath "/Library/Preferences")
+      (subpath "/Library/Application Support/AppStoreContent")
+      (subpath "/Library/Application Support/AppStore")
       (subpath "/Library/Caches")
       (subpath "/Library/Logs")
-      (subpath "/Library/Application Support/AppStoreContent")
-      (subpath "/Library/Application Support/AppStore"))
+      (subpath "/Library/Managed Preferences")
+      (subpath "/Library/Preferences"))
 (when (param "application_bundle")
       (allow-read-directory-contents (param "application_bundle"))
       (allow process-exec (subpath (param "application_bundle"))))
@@ -380,139 +592,138 @@
            (device-conforms-to "IOBDMedia")
            (device-conforms-to "IODVDMedia")
            (device-conforms-to "IOCDMedia"))))
-(if (entitlement "com.apple.security.network.client")
-  (begin
-    (allow network-outbound (remote ip))
-    (allow mach-lookup
-           (global-name "com.apple.cfnetwork.AuthBrokerAgent")
-           (global-name "com.apple.cfnetwork.cfnetworkagent")
-           (global-name "com.apple.nesessionmanager")
-           (global-name "com.apple.nsurlsessiond")
-           (global-name "com.apple.NetworkDiagnostic.agent"))))
-(if (entitlement "com.apple.security.network.server")
-  (allow network-inbound (local ip)))
-(if (or (entitlement "com.apple.security.network.client")
-        (entitlement "com.apple.security.network.server"))
-  (system-network))
-(if (entitlement "com.apple.security.network.client")
-  (allow mach-lookup (global-name "com.apple.WebKit.PluginAgent")))
-(if (entitlement "com.apple.security.device.camera")
-  (begin
-    (allow iokit-open
-           (iokit-user-client-class "IOUSBDeviceUserClientV2")
-           (iokit-user-client-class "IOUSBInterfaceUserClientV2"))
-    (allow device-camera)))
-(if (or (entitlement "com.apple.security.device.microphone")
-        (entitlement "com.apple.security.device.audio-input"))
-  (allow device-microphone))
-(if (or (entitlement "com.apple.security.device.hid")
-        (entitlement "com.apple.security.device.usb"))
-  (allow iokit-open (iokit-user-client-class "IOHIDLibUserClient")))
-(if (entitlement "com.apple.security.device.usb")
-  (begin
-    (allow iokit-open
-           (iokit-user-client-class "IOUSBDeviceUserClientV2")
-           (iokit-user-client-class "IOUSBInterfaceUserClientV3"))))
-(if (entitlement "com.apple.security.device.firewire")
-  (begin
-    (allow iokit-open (iokit-user-client-class "IOFireWireUserClient"))
-    (allow iokit-open (iokit-user-client-class "IOFireWireAVCUserClient"))
-    (allow iokit-open
-           (iokit-user-client-class "IOFireWireAVCProtocolUserClient"))
-    (allow iokit-set-properties (iokit-property "SummonNub"))))
-(if (entitlement "com.apple.security.device.bluetooth")
-  (begin
-    (shared-preferences-read "com.apple.Bluetooth")
-    (allow file-read*
-           (literal "/Library/Preferences/com.apple.Bluetooth.plist"))
-    (allow mach-lookup
-           (global-name "com.apple.BluetoothDOServer")
-           (global-name "com.apple.blued"))
-    (allow iokit-open
-           (iokit-user-client-class "IOBluetoothRFCOMMConnectionUserClient")
-           (iokit-user-client-class "IOBluetoothRFCOMMChannelUserClient")
-           (iokit-user-client-class "IOBluetoothL2CAPChannelUserClient")
-           (iokit-user-client-class "IOBluetoothDeviceUserClient")
-           (iokit-user-client-class "IOBluetoothHCIUserClient"))
-    (allow iokit-set-properties
-           (iokit-property "AuthenticationAttempted")
-           (iokit-property "ClassOfDevice")
-           (iokit-property "OpenConnectionAuthenticationRequired"))))
-(if (entitlement "com.apple.security.device.serial")
-  (allow file*
-         (require-all
-           (vnode-type TTY)
-           (require-not
-             (require-any
-               (literal "/dev/fsevents")
-               (literal "/dev/lockstat")
-               (literal "/dev/machtrace")
-               (literal "/dev/profile")
-               (literal "/dev/ptmx")
-               (literal "/dev/sdt")
-               (literal "/dev/systrace")
-               (regex "^/dev/tty[^\\.]")
-               (regex "^/dev/pty")
-               (regex "^/dev/fbt")
-               (regex "^/dev/io8log"))))))
-(if (entitlement "com.apple.security.personal-information.location")
-  (begin
-    (allow mach-lookup
-           (global-name "com.apple.CoreLocation.agent")
-           (global-name "com.apple.locationd.desktop.spi")
-           (global-name "com.apple.locationd.desktop.synchronous")
-           (global-name "com.apple.locationd.desktop.registration"))))
-(if (entitlement "com.apple.security.personal-information.addressbook")
-  (begin
-    (allow distributed-notification-post)
-    (with-filter
-      (extension "com.apple.tcc.kTCCServiceAddressBook")
+(when (entitlement "com.apple.security.network.client")
+      (allow network-outbound (remote ip))
       (allow mach-lookup
-             (global-name
-               "com.apple.AddressBook.AddressBookApplicationFrameworkIPC")
-             (global-name "com.apple.AddressBook.SourceSync")
-             (global-name "com.apple.AddressBook.AssistantService")
-             (global-name "com.apple.AddressBook.abd"))
-      (shared-preferences-read-write "com.apple.AddressBook")
+             (global-name "com.apple.cfnetwork.AuthBrokerAgent")
+             (global-name "com.apple.cfnetwork.cfnetworkagent")
+             (global-name "com.apple.nesessionmanager")
+             (global-name "com.apple.nsurlsessiond")
+             (global-name "com.apple.NetworkDiagnostic.agent")
+             (global-name "com.apple.WebKit.PluginAgent")))
+(when (entitlement "com.apple.security.network.server")
+      (allow network-inbound (local ip)))
+(when (or (entitlement "com.apple.security.network.client")
+          (entitlement "com.apple.security.network.server"))
+      (system-network))
+(when (entitlement "com.apple.network.multipath-tcp")
+      (allow system-socket (socket-domain 39)))
+(when (entitlement "com.apple.security.device.camera")
+      (allow iokit-open
+             (iokit-user-client-class "IOUSBDeviceUserClientV2")
+             (iokit-user-client-class "IOUSBInterfaceUserClientV2"))
+      (allow device-camera))
+(when (or (entitlement "com.apple.security.device.microphone")
+          (entitlement "com.apple.security.device.audio-input"))
+      (allow device-microphone))
+(when (or (entitlement "com.apple.security.device.hid")
+          (entitlement "com.apple.security.device.usb"))
+      (allow iokit-open (iokit-user-client-class "IOHIDLibUserClient")))
+(when (entitlement "com.apple.security.device.usb")
+      (allow iokit-open
+             (iokit-user-client-class "IOUSBDeviceUserClientV2")
+             (iokit-user-client-class "IOUSBInterfaceUserClientV3")))
+(when (entitlement "com.apple.security.device.firewire")
+      (allow iokit-open (iokit-user-client-class "IOFireWireUserClient"))
+      (allow iokit-open (iokit-user-client-class "IOFireWireAVCUserClient"))
+      (allow iokit-open
+             (iokit-user-client-class "IOFireWireAVCProtocolUserClient"))
+      (allow iokit-set-properties (iokit-property "SummonNub")))
+(when (entitlement "com.apple.security.device.bluetooth")
+      (shared-preferences-read "com.apple.Bluetooth")
       (allow file-read*
-             file-write*
-             (home-subpath "/Library/Application Support/AddressBook"))
-      (allow-read-write-directory-contents
-        (param "application_addressbook_lock_dir"))
-      (read-write-and-issue-extensions (home-subpath "/Library/Images/People"))
-      (read-only-and-issue-extensions
+             (literal "/Library/Preferences/com.apple.Bluetooth.plist"))
+      (allow mach-lookup
+             (global-name "com.apple.BluetoothDOServer")
+             (global-name "com.apple.blued"))
+      (allow iokit-open
+             (iokit-user-client-class "IOBluetoothRFCOMMConnectionUserClient")
+             (iokit-user-client-class "IOBluetoothRFCOMMChannelUserClient")
+             (iokit-user-client-class "IOBluetoothL2CAPChannelUserClient")
+             (iokit-user-client-class "IOBluetoothDeviceUserClient")
+             (iokit-user-client-class "IOBluetoothHCIUserClient"))
+      (allow iokit-set-properties
+             (iokit-property "AuthenticationAttempted")
+             (iokit-property "ClassOfDevice")
+             (iokit-property "OpenConnectionAuthenticationRequired")))
+(when (entitlement "com.apple.security.device.serial")
+      (allow file*
+             (require-all
+               (vnode-type TTY)
+               (require-not
+                 (require-any
+                   (literal "/dev/fsevents")
+                   (literal "/dev/lockstat")
+                   (literal "/dev/machtrace")
+                   (literal "/dev/profile")
+                   (literal "/dev/ptmx")
+                   (literal "/dev/sdt")
+                   (literal "/dev/systrace")
+                   (regex "^/dev/tty[^\\.]")
+                   (regex "^/dev/pty")
+                   (regex "^/dev/fbt")
+                   (regex "^/dev/io8log"))))))
+(when (entitlement "com.apple.security.personal-information.location")
+      (allow mach-lookup
+             (global-name "com.apple.CoreLocation.agent")
+             (global-name "com.apple.locationd.desktop.spi")
+             (global-name "com.apple.locationd.desktop.synchronous")
+             (global-name "com.apple.locationd.desktop.registration")))
+(when (entitlement "com.apple.security.personal-information.addressbook")
+      (allow distributed-notification-post)
+      (with-filter
+        (extension "com.apple.tcc.kTCCServiceAddressBook")
+        (allow mach-lookup
+               (global-name "com.apple.AddressBook.abd")
+               (global-name
+                 "com.apple.AddressBook.AddressBookApplicationFrameworkIPC")
+               (global-name "com.apple.AddressBook.AssistantService")
+               (global-name "com.apple.AddressBook.ContactsAccountsService")
+               (global-name "com.apple.AddressBook.SourceSync")
+               (global-name "com.apple.ContactsAgent.addressbook"))
+        (shared-preferences-read-write "com.apple.AddressBook")
+        (allow file-read*
+               file-write*
+               (home-subpath "/Library/Application Support/AddressBook"))
+        (allow-read-write-directory-contents
+          (param "application_addressbook_lock_dir"))
+        (read-write-and-issue-extensions
+          (home-subpath "/Library/Images/People"))
+        (read-only-and-issue-extensions
+          (require-any
+            (subpath "/Library/Images/People")
+            (subpath "/System/Library/Images/People")
+            (subpath "/Network/Library/Images/People"))))
+      (deny file-link
+            (subpath "/Library/Images/People")
+            (subpath "/System/Library/Images/People")
+            (subpath "/Network/Library/Images/People")))
+(when (entitlement "com.apple.security.personal-information.calendars")
+      (allow file-read* file-write* (home-subpath "/Library/Calendars"))
+      (deny file-read*
+            file-write*
+            (home-literal "/Library/Calendars/Calendar Cache")
+            (home-literal "/Library/Calendars/Calendar Cache-journal")
+            (home-literal "/Library/Calendars/Calendar Cache-shm")
+            (home-literal "/Library/Calendars/Calendar Cache-wal")
+            (home-literal "/Library/Calendars/.Calendar Cache-conch"))
+      (read-write-and-issue-extensions
         (require-any
-          (subpath "/Library/Images/People")
-          (subpath "/System/Library/Images/People")
-          (subpath "/Network/Library/Images/People"))))
-    (deny file-link
-          (subpath "/Library/Images/People")
-          (subpath "/System/Library/Images/People")
-          (subpath "/Network/Library/Images/People"))))
-(if (entitlement "com.apple.security.personal-information.calendars")
-  (begin
-    (allow file-read* file-write* (home-subpath "/Library/Calendars"))
-    (deny file-read*
-          file-write*
-          (home-literal "/Library/Calendars/Calendar Cache")
-          (home-literal "/Library/Calendars/Calendar Cache-journal")
-          (home-literal "/Library/Calendars/Calendar Cache-shm")
-          (home-literal "/Library/Calendars/Calendar Cache-wal")
-          (home-literal "/Library/Calendars/.Calendar Cache-conch"))
-    (read-write-and-issue-extensions
-      (require-any
-        (home-subpath "/Library/Calendars/Attachments")
-        (home-regex "/Library/Calendars/[0-9A-Z-]+\\.[^/]+/Attachments(/|$)")
-        (home-subpath "/Library/Calendars/Temporary Files")))
-    (allow-read-write-directory-contents
-      (param "application_calendars_lock_dir"))
-    (allow mach-lookup
-           (global-name-regex "^com\\.apple\\.CalendarStore\\.lock\\.")
-           (global-name "com.apple.accountsd.accountmanager")
-           (global-name "com.apple.CalendarAgent")
-           (global-name "com.apple.CalendarAgent.database")
-           (global-name "com.apple.CalendarAgent.proxy")
-           (global-name "com.apple.CalendarAgent.store"))))
+          (home-subpath "/Library/Calendars/Attachments")
+          (home-regex "/Library/Calendars/[0-9A-Z-]+\\.[^/]+/Attachments(/|$)")
+          (home-subpath "/Library/Calendars/Temporary Files")))
+      (allow-read-write-directory-contents
+        (param "application_calendars_lock_dir"))
+      (allow mach-lookup
+             (global-name-regex "^com\\.apple\\.CalendarStore\\.lock\\.")
+             (global-name "com.apple.accountsd.accountmanager")
+             (global-name "com.apple.CalendarAgent")
+             (global-name "com.apple.CalendarAgent.database")
+             (global-name "com.apple.CalendarAgent.proxy")
+             (global-name "com.apple.CalendarAgent.store")))
+(when (or (entitlement "com.apple.private.logging.diagnostic")
+          (entitlement "com.apple.diagnosticd.diagnostic"))
+      (allow mach-lookup (global-name "com.apple.logd.admin")))
 (letrec ((itunes-subpaths
            (lambda args
              (let* ((itunes-roots
@@ -572,43 +783,40 @@
       (apply-read-and-issue-extension allow subdir-path-filter)
       (if access-to-containing-dir-is-read-only
         (apply-read-and-issue-extension deny subdir-path-filter)))
-    (if (entitlement ent-rw)
-      (begin
-        (apply-read-and-issue-extension allow subdir-path-filter)
-        (apply-write-and-issue-extension allow subdir-path-filter))
-      (if (not access-to-containing-dir-is-read-only)
-        (begin
-          (apply-read-and-issue-extension deny subdir-path-filter)
-          (apply-write-and-issue-extension deny subdir-path-filter))))))
-(if (entitlement "com.apple.security.assets.music.read-only")
-  (begin
-    (apply-read-and-issue-extension
-      allow
-      (home-subpath "/Music/iTunes/iTunes Music"))
-    (set-access-to-itunes-music-subdirectory
-      "com.apple.security.assets.movies"
-      (home-subpath "/Music/iTunes/iTunes Music/Movies")
-      #t)
-    (set-access-to-itunes-music-subdirectory
-      "com.apple.security.assets.pictures"
-      (home-subpath "/Music/iTunes/iTunes Music/Pictures")
-      #t)))
-(if (entitlement "com.apple.security.assets.music.read-write")
-  (begin
-    (apply-read-and-issue-extension
-      allow
-      (home-subpath "/Music/iTunes/iTunes Music"))
-    (apply-write-and-issue-extension
-      allow
-      (home-subpath "/Music/iTunes/iTunes Music"))
-    (set-access-to-itunes-music-subdirectory
-      "com.apple.security.assets.movies"
-      (home-subpath "/Music/iTunes/iTunes Music/Movies")
-      #f)
-    (set-access-to-itunes-music-subdirectory
-      "com.apple.security.assets.pictures"
-      (home-subpath "/Music/iTunes/iTunes Music/Pictures")
-      #f)))
+    (when (entitlement ent-rw)
+          (apply-read-and-issue-extension allow subdir-path-filter)
+          (apply-write-and-issue-extension allow subdir-path-filter))
+    (unless
+      access-to-containing-dir-is-read-only
+      (apply-read-and-issue-extension deny subdir-path-filter)
+      (apply-write-and-issue-extension deny subdir-path-filter))))
+(when (entitlement "com.apple.security.assets.music.read-only")
+      (apply-read-and-issue-extension
+        allow
+        (home-subpath "/Music/iTunes/iTunes Music"))
+      (set-access-to-itunes-music-subdirectory
+        "com.apple.security.assets.movies"
+        (home-subpath "/Music/iTunes/iTunes Music/Movies")
+        #t)
+      (set-access-to-itunes-music-subdirectory
+        "com.apple.security.assets.pictures"
+        (home-subpath "/Music/iTunes/iTunes Music/Pictures")
+        #t))
+(when (entitlement "com.apple.security.assets.music.read-write")
+      (apply-read-and-issue-extension
+        allow
+        (home-subpath "/Music/iTunes/iTunes Music"))
+      (apply-write-and-issue-extension
+        allow
+        (home-subpath "/Music/iTunes/iTunes Music"))
+      (set-access-to-itunes-music-subdirectory
+        "com.apple.security.assets.movies"
+        (home-subpath "/Music/iTunes/iTunes Music/Movies")
+        #f)
+      (set-access-to-itunes-music-subdirectory
+        "com.apple.security.assets.pictures"
+        (home-subpath "/Music/iTunes/iTunes Music/Pictures")
+        #f))
 (define (ubiquity-filter s)
   (let ((s (list->string
              (let loop ((orig (string->list s)) (ls '()))
@@ -626,57 +834,60 @@
           (home-subpath path))))))
 (sandbox-array-entitlement
   "com.apple.developer.ubiquity-container-identifiers"
-  (lambda (id) (read-write-and-issue-extensions (ubiquity-filter id))))
+  (lambda (id)
+    (allow file-link (ubiquity-filter id))
+    (read-write-and-issue-extensions (ubiquity-filter id))))
 (read-only-and-issue-extensions
   (require-all
     (extension "com.apple.librarian.ubiquity-revision")
     (mount-relative-regex "^/\\.DocumentRevisions-V100(/|$)")))
-(read-write-and-issue-extensions
-  (require-all
-    (home-subpath "/Library/Mobile Documents")
-    (extension "com.apple.librarian.ubiquity-container")))
-(if (entitlement "com.apple.developer.game-center")
-  (begin
-    (allow mach-lookup
-           (global-name "com.apple.gamed")
-           (global-name "com.apple.gamed.osx")
-           (global-name "com.apple.gamed.xpc"))
-    (shared-preferences-read "com.apple.gamekit")))
-(if (entitlement "com.apple.security.print")
-  (begin
-    (allow authorization-right-obtain
-           (right-name "system.print.operator")
-           (right-name "system.printingmanager"))
-    (allow mach-lookup
-           (global-name "com.apple.printuitool.agent")
-           (global-name "com.apple.printtool.agent")
-           (global-name "com.apple.printtool.daemon"))
-    (allow file-read*
-           (home-literal "/.cups/lpoptions")
-           (home-literal "/.cups/client.conf")
-           (literal "/private/etc/cups/client.conf")
-           (literal "/private/etc/cups/lpoptions")
-           (subpath "/private/etc/cups/ppd")
-           (literal "/private/var/run/cupsd"))
-    (shared-preferences-read "org.cups.PrintingPrefs")))
-(if (entitlement "com.apple.security.files.downloads.read-only")
-  (read-only-and-issue-extensions (home-subpath "/Downloads")))
-(if (entitlement "com.apple.security.files.downloads.read-write")
-  (read-write-and-issue-extensions (home-subpath "/Downloads")))
-(if (or (entitlement "com.apple.security.files.downloads.read-only")
-        (entitlement "com.apple.security.files.downloads.read-write"))
-  (allow process-exec (home-subpath "/Downloads")))
-(if (or (entitlement "com.apple.security.files.bookmarks.app-scope")
-        (entitlement "com.apple.security.files.bookmarks.document-scope")
-        (entitlement "com.apple.security.files.bookmarks.collection-scope")
-        (entitlement "com.apple.security.files.user-selected.read-only")
-        (entitlement "com.apple.security.files.user-selected.read-write"))
-  (allow mach-lookup (global-name "com.apple.scopedbookmarksagent.xpc")))
+(with-filter
+  (extension "com.apple.librarian.ubiquity-container")
+  (allow file-link (home-subpath "/Library/Mobile Documents"))
+  (read-write-and-issue-extensions (home-subpath "/Library/Mobile Documents")))
+(when (entitlement "com.apple.developer.game-center")
+      (allow mach-lookup
+             (global-name "com.apple.gamed")
+             (global-name "com.apple.gamed.osx")
+             (global-name "com.apple.gamed.xpc"))
+      (shared-preferences-read "com.apple.gamekit"))
+(when (or (entitlement "com.apple.diagnosticd.diagnostic")
+          (entitlement "com.apple.private.logging.diagnostic"))
+      (with-filter
+        (extension "com.apple.logd.read-only")
+        (allow file-read*
+               (subpath "/private/var/db/diagnostics")
+               (subpath "/private/var/db/uuidtext"))))
+(when (entitlement "com.apple.security.print")
+      (allow authorization-right-obtain
+             (right-name "system.print.operator")
+             (right-name "system.printingmanager"))
+      (allow mach-lookup
+             (global-name "com.apple.printuitool.agent")
+             (global-name "com.apple.printtool.agent")
+             (global-name "com.apple.printtool.daemon"))
+      (allow file-read*
+             (home-literal "/.cups/lpoptions")
+             (home-literal "/.cups/client.conf")
+             (literal "/private/etc/cups/client.conf")
+             (literal "/private/etc/cups/lpoptions")
+             (subpath "/private/etc/cups/ppd")
+             (literal "/private/var/run/cupsd"))
+      (shared-preferences-read "org.cups.PrintingPrefs"))
+(when (entitlement "com.apple.security.files.downloads.read-only")
+      (read-only-and-issue-extensions (home-subpath "/Downloads")))
+(when (entitlement "com.apple.security.files.downloads.read-write")
+      (read-write-and-issue-extensions (home-subpath "/Downloads")))
+(when (or (entitlement "com.apple.security.files.downloads.read-only")
+          (entitlement "com.apple.security.files.downloads.read-write"))
+      (allow process-exec (home-subpath "/Downloads")))
+(when (or (entitlement "com.apple.security.files.bookmarks.app-scope")
+          (entitlement "com.apple.security.files.bookmarks.document-scope")
+          (entitlement "com.apple.security.files.bookmarks.collection-scope")
+          (entitlement "com.apple.security.files.user-selected.read-only")
+          (entitlement "com.apple.security.files.user-selected.read-write"))
+      (allow mach-lookup (global-name "com.apple.scopedbookmarksagent.xpc")))
 (allow qtn-user (extension "com.apple.app-sandbox.read-write"))
-(allow file-write-create
-       (require-all
-         (vnode-type DIRECTORY)
-         (home-literal "/Library/Group Containers")))
 (sandbox-array-entitlement
   "com.apple.security.application-groups"
   (lambda (suite)
@@ -700,12 +911,7 @@
                  (string-append
                    (regex-quote group-container-root)
                    container-relative-regex)))))
-      (allow file-write-create
-             file-write-data
-             file-read-data
-             (require-all
-               (vnode-type DIRECTORY)
-               (home-literal group-container-root)))
+      (allow file-read-data (home-literal group-container-root))
       (allow file-chroot
              file-ioctl
              file-link
@@ -760,8 +966,8 @@
            (home-subpath "/Library/Colors")
            (home-subpath "/Library/FontCollections")
            (home-subpath "/Library/Spelling"))))
-(if (entitlement "com.apple.security.assets.music.read-write")
-  (allow file-read* file-write* (home-subpath "/Library/Audio/Presets")))
+(when (entitlement "com.apple.security.assets.music.read-write")
+      (allow file-read* file-write* (home-subpath "/Library/Audio/Presets")))
 (allow mach-lookup
        (global-name "com.apple.cfprefsd.daemon")
        (global-name "com.apple.cfprefsd.agent")
@@ -780,6 +986,7 @@
        (home-subpath "/Library/QuickLook"))
 (allow file-read*
        (home-literal "/.CFUserTextEncoding")
+       (home-subpath "/Library/Filters")
        (home-subpath "/Library/Fonts")
        (home-subpath "/Library/KeyBindings")
        (home-subpath "/Library/Keyboard Layouts")
@@ -794,15 +1001,17 @@
   "com.apple.coremedia"
   "com.apple.coremediaio.support"
   "com.apple.corevideo"
+  "com.apple.DictionaryServices"
   "com.apple.driver.AppleBluetoothMultitouch.mouse"
   "com.apple.driver.AppleBluetoothMultitouch.trackpad"
   "com.apple.driver.AppleHIDMouse"
   "com.apple.HIToolbox"
   "com.apple.inputmethodkit"
   "com.apple.LaunchServices"
+  "com.apple.lookup.shared"
   "com.apple.MultitouchSupport"
-  "com.apple.security"
   "com.apple.security_common"
+  "com.apple.security"
   "com.apple.ServicesMenu.Services"
   "com.apple.speech.synthesis.general.prefs"
   "com.apple.speech.voice.prefs"
@@ -813,8 +1022,6 @@
 (shared-preferences-read-write "com.apple.AppKit.TextFavorites")
 (allow user-preference-read (preference-domain "kCFPreferencesAnyApplication"))
 (shared-preferences-read "com.apple.mediaaccessibility")
-(shared-preferences-read-write "com.apple.mediaaccessibility.public")
-(shared-preferences-read-write "com.apple.sharekit.recents")
 (shared-preferences-read-write
   "com.apple.preferences.extensions.ServicesWithUI"
   "com.apple.preferences.extensions.ShareMenu")
@@ -837,17 +1044,20 @@
          (string-append
            "/Library/Application Scripts/"
            (param "application_container_id"))))
-(allow file-write-create
-       (require-all
-         (vnode-type DIRECTORY)
-         (require-any
-           (home-literal "/Library/Application Scripts")
-           (home-literal
-             (string-append
-               "/Library/Application Scripts/"
-               (param "application_container_id"))))))
 (when (param "application_bundle_id")
       (allow file-read*
+             (literal
+               (string-append
+                 "/Library/Managed Preferences/"
+                 (param "application_bundle_id")
+                 ".plist"))
+             (literal
+               (string-append
+                 "/Library/Managed Preferences/"
+                 (param "_USER")
+                 "/"
+                 (param "application_bundle_id")
+                 ".plist"))
              (literal
                (string-append
                  "/Library/Preferences/"
@@ -881,14 +1091,14 @@
        (literal "/private/var/run/resolv.conf")
        (literal "/Library/Caches/com.apple.DiagnosticReporting.Networks.plist")
        (literal "/Library/Preferences/.GlobalPreferences.plist")
+       (literal "/Library/Preferences/com.apple.AppleShareClient.plist")
+       (literal "/Library/Preferences/com.apple.HIToolbox.plist")
+       (literal "/Library/Preferences/com.apple.loginwindow.plist")
+       (regex "^/Library/Preferences/com\\.apple\\.security")
+       (subpath "/Library/Preferences/Logging/Subsystems")
        (literal
          "/Library/Preferences/SystemConfiguration/com.apple.PowerManagement.plist")
        (literal "/Library/Preferences/SystemConfiguration/preferences.plist")
-       (literal "/Library/Preferences/com.apple.AppleShareClient.plist")
-       (regex "^/Library/Preferences/com\\.apple\\.security")
-       (literal "/Library/Preferences/com.apple.loginwindow.plist")
-       (literal "/Library/Preferences/SystemConfiguration/preferences.plist")
-       (literal "/Library/Preferences/com.apple.HIToolbox.plist")
        (subpath "/Users/Shared/SC Info"))
 (allow file-read*
        process-exec
@@ -900,7 +1110,11 @@
        (subpath "/Developer")
        (require-all (file-mode 4) (subpath "/Applications")))
 (allow mach-lookup (global-name "com.apple.ocspd"))
-(allow file-read* file-write* (home-subpath "/Library/Keychains"))
+(allow file-read* file-write* (home-prefix "/Library/Keychains/"))
+(deny file-read*
+      file-write*
+      (home-regex
+        (string-append "/Library/Keychains/" (uuid-regex-string) "(/|$)")))
 (allow file-read*
        (subpath "/private/var/db/mds")
        (literal "/private/var/db/DetachedSignatures"))
@@ -944,9 +1158,11 @@
        (global-name "com.apple.dock.server")
        (global-name "com.apple.FileCoordination")
        (global-name "com.apple.FontObjectsServer")
-       (global-name "com.apple.FontServer")
+       (global-name "com.apple.FontRegistry.FontRegistryUIAgent")
+       (global-name "com.apple.fonts")
        (global-name "com.apple.FSEvents")
        (global-name "com.apple.helpd")
+       (global-name "com.apple.icdd")
        (global-name "com.apple.iconservices")
        (global-name "com.apple.iconservices.store")
        (global-name "com.apple.ImageCaptureExtension2.presence")
@@ -955,8 +1171,9 @@
        (global-name "com.apple.inputmethodkit.launchagent")
        (global-name "com.apple.inputmethodkit.launcher")
        (global-name "com.apple.inputmethodkit.setxpcendpoint")
-       (global-name "com.apple.InputMethodKit.TextReplacementService")
+       (global-name "com.apple.iohideventsystem")
        (global-name "com.apple.KerberosHelper.LKDCHelper")
+       (global-name "com.apple.KeyboardServices.TextReplacementService")
        (global-name "com.apple.librariand")
        (global-name "com.apple.lookupd")
        (global-name "com.apple.ls.boxd")
@@ -964,6 +1181,7 @@
        (global-name "com.apple.lsd.modifydb")
        (global-name "com.apple.lsd.open")
        (global-name "com.apple.lsd.openurl")
+       (global-name "com.apple.mediaremoted.xpc")
        (global-name "com.apple.metadata.mds")
        (global-name "com.apple.midiserver")
        (global-name "com.apple.midiserver.io")
@@ -974,6 +1192,7 @@
        (global-name "com.apple.ProgressReporting")
        (global-name "com.apple.quicklook")
        (global-name "com.apple.quicklook.config")
+       (global-name "com.apple.quicklook.ThumbnailsAgent")
        (global-name "com.apple.quicklook.ui.helper")
        (global-name "com.apple.quicklook.ui.helper.active")
        (global-name "com.apple.revisiond")
@@ -1013,7 +1232,9 @@
 (allow iokit-open (iokit-user-client-class "RootDomainUserClient"))
 (allow iokit-open (iokit-user-client-class "IOHIDParamUserClient"))
 (system-graphics)
-(allow iokit-set-properties (iokit-property "CapsLockDelayOverride"))
+(with-filter
+  (iokit-registry-entry-class "IOHIDEventDriver")
+  (allow iokit-set-properties (iokit-property "CapsLockDelayOverride")))
 (allow iokit-open
        (iokit-user-client-class "AppleSATLSMARTUserClient")
        (iokit-user-client-class "AHCISMARTUserClient")
@@ -1032,9 +1253,9 @@
   (deny network-outbound (literal "/private/var/run/cupsd")))
 (unless
   (or (entitlement "com.apple.security.network.client")
-      (entitlement "com.apple.security.network.server")
-      (entitlement "com.apple.security.print"))
+      (entitlement "com.apple.security.network.server"))
   (deny network-outbound (literal "/private/var/run/mDNSResponder")))
+(deny network-outbound (remote ip "localhost:631"))
 (deny file-write-xattr (xattr "com.apple.quarantine") (with no-log))
 (deny file-read-xattr
       file-write-xattr
@@ -1079,7 +1300,6 @@
 (allow iokit-open
        (iokit-user-client-class "AppleUpstreamUserClient")
        (iokit-user-client-class "AudioAUUC"))
-(allow network-outbound (regex "^/private/tmp/\\.webdavUDS\\.[^/]+$"))
 (read-write-and-issue-extensions
   (mount-relative-regex "^/\\.TemporaryItems(/|$)"))
 (allow authorization-right-obtain (right-name "com.apple.trust-settings.user"))
@@ -1136,6 +1356,16 @@
            (regex "^/Library/Preferences/com\\.apple\\.GSS\\..*\\.plist$")
            (home-literal "/Library/Preferences/edu.mit.Kerberos")
            (home-literal "/Library/Preferences/com.apple.Kerberos.plist"))))
+(allow file-read* (subpath "/private/var/db/datadetectors/sys"))
+(allow mach-lookup (global-name "com.apple.DataDetectorsSourceAccess"))
+(shared-preferences-read "com.apple.MobileAsset")
+(allow mach-lookup (global-name "com.apple.mobileassetd"))
+(with-filter
+  (extension "com.apple.assets.read")
+  (allow file-read*
+         (subpath "/System/Library/Assets")
+         (subpath "/Library/Assets")
+         (home-subpath "/Library/Assets")))
 (allow file-read*
        (home-subpath "/Library/Dictionaries")
        (subpath "/Library/Dictionaries")
@@ -1169,14 +1399,10 @@
 (sandbox-array-entitlement
   "com.apple.security.temporary-exception.mach-register.local-name"
   (lambda (name) (allow mach-register (local-name name))))
-(define (end-with-slash? string)
-  (eqv? (string-ref string (- (string-length string) 1)) #\/))
-(define (strip-trailing-slash path)
-  (substring path 0 (- (string-length path) 1)))
 (define (safe-subpath path) (subpath (if (string=? path "") "/" path)))
 (define (select-filter path with-slash without-slash)
   (if (end-with-slash? path)
-    (with-slash (strip-trailing-slash path))
+    (with-slash (strip-last-char path))
     (without-slash path)))
 (sandbox-array-entitlement
   "com.apple.security.temporary-exception.files.home-relative-path.read-only"

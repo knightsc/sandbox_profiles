@@ -1,0 +1,103 @@
+;; Copyright (c) 2012 Apple Inc.  All Rights reserved.
+;;
+;; profile for com.apple.softwareupdated
+;;
+;; WARNING: The sandbox rules in this file currently constitute 
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice.
+;;
+
+(version 1)
+(deny default)
+(import "system.sb")
+(import "com.apple.corefoundation.sb")
+(corefoundation)
+
+(allow file-read-metadata)
+
+(if (param "_CACHE_DIR")
+       (allow file-write* file-read* (subpath (param "_CACHE_DIR"))))
+
+(if (param "_TMP_DIR")
+       (allow file-write* file-read* (subpath (param "_TMP_DIR"))))
+
+(deny file-write-setugid)
+
+(allow file-read* file-write*
+    (subpath "/System/Library/Assets")
+    (subpath "/System/Library/PreinstalledAssets")
+    (literal "/private/var/root/Library/Preferences/com.apple.MobileAsset.plist")
+    (literal "/private/var/root/Library/Preferences/com.apple.cache_delete.plist")
+    (literal "/dev/ptmx")
+    (literal "/private/var/db/mds/system/mds.lock")
+)
+
+(allow ipc-posix-shm-read-data
+       (ipc-posix-name-regex #"^/tmp/com\.apple\.csseed\.[^/]+$")
+       (ipc-posix-name "apple.shm.notification_center")
+       (ipc-posix-name "FNetwork.defaultStorageSession")
+       (ipc-posix-name "com.apple.AppleDatabaseChanged")
+)
+
+(allow ipc-posix-shm-write-data
+       (ipc-posix-name "com.apple.AppleDatabaseChanged")
+)
+
+(allow file-read*
+    (literal "/Library/Preferences/.GlobalPreferences.plist")
+    (literal "/Library/Preferences/SystemConfiguration/preferences.plist")
+    (literal "/usr/libexec")
+    (literal "/usr/libexec/mobileassetd")
+    (literal "/private/var/db/mds/system/mdsObject.db")
+    (literal "/private/var/db/mds/system/mdsDirectory.db")
+)
+
+(allow mach-lookup
+       (global-name "com.apple.CoreServices.coreservicesd")
+       (global-name "com.apple.PowerManagement.control")
+       (global-name "com.apple.SecurityServer")
+       (global-name "com.apple.SystemConfiguration.SCNetworkReachability")
+       (global-name "com.apple.SystemConfiguration.configd")
+       (global-name "com.apple.cfnetwork.cfnetworkagent")
+       (global-name "com.apple.distributed_notifications@1v3")
+       (global-name "com.apple.networkd")
+       (global-name "com.apple.ocspd")
+       (global-name "com.apple.windowserver.active")
+       (global-name "com.apple.coreservices.launchservicesd")
+       (global-name "com.apple.DiskArbitration.diskarbitrationd")
+       (global-name "com.apple.FontServer")
+       (global-name "com.apple.FontObjectsServer")
+       (global-name "com.apple.nsurlsessiond")
+       (global-name "com.apple.nsurlstorage-cache")
+       (global-name "com.apple.AssetCacheLocatorService")
+       (global-name "com.apple.xpc.activity.control")
+       (global-name "com.apple.lsd.mapdb")
+       (global-name "com.apple.lsd.modifydb")
+       (global-name "com.apple.CrashReporterSupportHelper")
+)
+
+;; from application.sb
+(allow system-fsctl
+       (fsctl-command (_IO "h" 24))
+       (fsctl-command (_IO "h" 30))
+       (fsctl-command (_IO "h" 31))
+       (fsctl-command (_IO "h" 32))
+       (fsctl-command (_IO "z" 12))
+       (fsctl-command (_IO "z" 19))
+       (fsctl-command (_IO "z" 23)))
+
+(allow mach-per-user-lookup)
+
+;; Suppress log noise from Carbon / frameworks.
+(deny file-write*
+    (literal "/private/var/empty/Library")
+    (with no-log)
+)
+
+;; Edge cache servers can use arbitrary ports
+(system-network)
+(allow network-outbound
+       (literal "/private/var/run/mDNSResponder")
+       (remote tcp "*:*")
+)
+

@@ -3,26 +3,66 @@
 (version 1)
 
 (deny default)
-
 (import "system.sb")
-(import "com.apple.corefoundation.sb")
 
 ;;; initialize CF sandbox actions
+(import "com.apple.corefoundation.sb")
 (corefoundation)
+
+;;; Copied from util.sb for home-relative stuff.
+(define (home-literal . relative-subpaths)
+  (apply literal (map home-relative-path relative-subpaths)))
+
+(define (home-subpath . relative-subpaths)
+  (apply subpath (map home-relative-path relative-subpaths)))
+
+(define (home-prefix . relative-subpaths)
+  (apply prefix (map home-relative-path relative-subpaths)))
+(define (home-regex . relative-regexes)
+  (require-all
+    (apply any-home-regex relative-regexes)
+    (home-subpath "")))
+
+(define (home-relative-path relative-subpath)
+  (string-append (param "_HOME") relative-subpath))
+;;; end util.sb
+
+
+(if (positive? (string-length (param "_HOME")))
+    (begin
+        (allow file-read* file-write*
+            (home-subpath "/Library/Caches/com.apple.cache_delete")
+            (home-subpath "/Library/Caches/com.apple.CacheDelete"))))
+
+(allow file-write*
+    (regex "/private/var/folders/.*/mds/mds.lock"))
+
 
 (allow file-read*
 	(literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
     (literal "/Library/Preferences/.GlobalPreferences.plist")
-    (literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist")
-	(regex   "^/private/var/root/Library/Preferences/ByHost/\.GlobalPreferences\..*\.plist$")
+    (regex "/Users/.*/Library/Preferences/.GlobalPreferences.plist")
+    (regex "/Users/.*/Library/Preferences/ByHost/.GlobalPreferences\..*\.plist")
+    (regex "/AppleInternal/Library/CacheDelete")
+    (regex "/AppleInternal/Library/CacheDelete/.*")
+    (regex "/Applications/.*")
+    (regex "/private/var/folders/.*/mds/mds.lock")
+    (regex "/private/var/folders/.*/com.apple.LaunchServices-.*\.csstore")
+    (regex "*\.appex")
 	(subpath "/System/Library/CacheDelete"))
 
-;; Various patterns used by cache-delete services.
+;;; Various patterns used by cache-delete services.
 (allow mach-lookup
 	(global-name-regex #"^com\.apple\.cache_delete_.+")
 	(global-name-regex #"^com\.apple\..+cache-delete$")
 	(global-name-regex #"^com\.apple\..+[cC]ache[dD]elete$")
-    (global-name "com.apple.windowserver.active"))
+    (global-name "com.apple.pluginkit.pkd")
+    (global-name "com.apple.SecurityServer")
+    (global-name "com.apple.lsd.modifydb")
+    (global-name "com.apple.lsd.mapdb")
+    (global-name "com.apple.diskspaced")
+    (global-name "com.apple.windowserver.active")
+    (global-name "com.apple.cookied"))
 
 (allow file-read-metadata)
 
@@ -30,4 +70,43 @@
     (preference-domain "com.apple.cache_delete"))
 
 (allow system-fsctl
-       (fsctl-command (_IO "h" 24)))    ; HFS_VOLUME_STATUS / HFSIOC_VOLUME_STATUS
+    (fsctl-command (_IO "h" 24))    ; HFS_VOLUME_STATUS / HFSIOC_VOLUME_STATUS
+                                    ; /* Get the low disk space values */
+    (fsctl-command (_IO "h" 27))    ; #define	HFSIOC_GET_VERY_LOW_DISK	_IOR('h', 27, u_int32_t)
+
+    (fsctl-command (_IO "h" 28))    ; #define	HFSIOC_GET_LOW_DISK	_IOR('h', 28, u_int32_t)
+
+    (fsctl-command (_IO "h" 29))    ; #define	HFSIOC_GET_DESIRED_DISK	_IOR('h', 29, u_int32_t)
+)
+
+(allow ipc-posix-sem)
+
+
+;;; Required for networking / cert checking / cert pinning
+;;; Obtained via sandbox trace command
+(if (positive? (string-length (param "_HOME")))
+    (allow file-issue-extension
+        (home-literal "/Library/Caches/com.apple.CacheDelete")))
+
+(allow file-read*
+    (path "/Library/Keychains/System.keychain")
+    (path "/Library/Preferences/com.apple.security.plist")
+    (path "/private/var/db/mds/messages/se_SecurityMessages")
+    (path "/private/var/db/mds/system/mdsDirectory.db"))
+
+(if (positive? (string-length (param "_HOME")))
+    (begin
+        (home-literal "/Library/Keychains/login.keychain-db")))
+
+(allow file-read* file-write*
+    (path "/Library/Application Support/CrashReporter/DiagnosticMessagesHistory.plist"))
+
+(allow ipc-posix-shm-read-data ipc-posix-shm-write-data
+    (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+(allow system-socket (require-all (socket-domain AF_SYSTEM) (socket-protocol 2))) ; SYSPROTO_CONTROL
+
+(allow network-outbound
+  (literal "/private/var/run/mDNSResponder")
+  (remote tcp "*:80")
+  (remote tcp "*:443"))

@@ -29,8 +29,6 @@
 	   (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
        (literal "/Library/Preferences/com.apple.loginwindow.plist")
 	   (literal "/private/var/db/PreviousSystemVersion.plist")
-	   (literal "/Users/mbaldwin/Library/Keyboard Layouts")
-	   (literal "/Users/mbaldwin/Library/Input Methods")
 	   (subpath "/Library/Documentation/Help/MacHelp.help")
 	   (subpath "/Users/Shared")
        (regex #"/Library/Preferences/com\.apple\.appstore\.plist$")
@@ -41,7 +39,9 @@
        (regex #"/Library/Preferences/com\.apple\.HIToolbox\.plist$")
        (regex #"/Library/Preferences/com.apple.security\.plist$")
 	   (regex #"/\.CFUserTextEncoding$")
-       (regex #"/Library/Caches/com\.apple\.commerce/updates-com\.apple\.appstore\.updateQueue\.plist$"))
+       (regex #"/Library/Caches/com\.apple\.commerce/updates-com\.apple\.appstore\.updateQueue\.plist$")
+       (regex #"/Library/Keyboard Layouts(/|$)")
+       (regex #"/Library/Input Methods(/|$)"))
 
 (allow file-read* file-write*
        (literal "/Library/Caches/com.apple.DiagnosticReporting.Networks.plist")
@@ -77,7 +77,7 @@
        (regex #"^/private/var/folders/[^/]+/[^/]+/[A-Z]/mds(/|$)")
        (regex #"/\.TemporaryItems(/|$)")
        (regex #"/Library/Keychains/")
-	   (regex #"/OS X Install Data(/|$)")
+	   (regex #"/(macOS|OS X) Install Data(/|$)")
        (regex #"\.appdownload(/|$)")
        (regex #"^/etilqs_"))
 
@@ -138,6 +138,7 @@
        (global-name "com.apple.lsd.modifydb")
        (global-name "com.apple.cookied")
        (global-name "com.apple.FontServer")
+       (global-name "com.apple.fonts")
 	   (global-name "com.apple.DiskArbitration.diskarbitrationd")
        (global-name "com.apple.cvmsServ")
 	   (global-name "com.apple.logind")

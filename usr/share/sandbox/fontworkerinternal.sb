@@ -28,7 +28,6 @@
 )
 
 (allow file-write*
-    (subpath "/private/var/folders")
     (subpath (param "DARWIN_USER_TEMP_DIR"))
     (subpath (param "DARWIN_USER_CACHE_DIR"))
 )

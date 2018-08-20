@@ -5,6 +5,10 @@
 (import "com.apple.corefoundation.sb")
 (corefoundation)
 
+(allow process-fork)
+(allow process-exec
+    (subpath "/usr/bin/tailspin"))
+
 (allow file-read*
        (subpath "/")
 	   (literal "/Library/Caches/com.apple.DiagnosticReporting.Networks.plist")
@@ -46,7 +50,10 @@
        (iokit-user-client-class "IOAccelRestartUserClient"))
 
 (allow mach-lookup
-       (global-name "com.apple.SystemConfiguration.configd"))
+       (global-name "com.apple.SystemConfiguration.configd")
+       (global-name "com.apple.tailspind")
+       (global-name "com.apple.coresymbolicationd")
+       (global-name "com.apple.FSEvents"))
 
 (allow ipc-posix-shm
        (ipc-posix-name "apple.shm.notification_center"))

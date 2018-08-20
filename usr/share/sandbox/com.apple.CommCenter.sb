@@ -77,6 +77,7 @@
        (home-subpath "/Library/Preferences")
        (home-subpath "/Library/SyncedPreferences")
        (home-subpath "/Library/Audio/Plug-Ins/Components")
+       (private-literal "/etc/hosts")
        (private-literal "/var/db/DetachedSignatures")
        (private-literal "/var/db/mds/messages/se_SecurityMessages")
        (private-literal "/var/db/mds/system/mdsDirectory.db")
@@ -117,9 +118,9 @@
        (private-literal "/var/db/mds")
        (private-literal "/var/db/mds/system")
        (private-literal "/var/run/systemkeychaincheck.done")
-       (private-regex #"^/var/folders/[^/]+/[^/]+/C/mds$")
-       (private-regex #"^/var/folders/[^/]+/[^/]+/C/mds/mdsObject\.db$")
-       (literal "/usr/lib/libspindump.dylib"))
+       (private-subpath "/var/folders")
+       (literal "/usr/lib/libspindump.dylib")
+       (private-literal "/tmp/CommCenter.KeepAlive.Enabled"))
 
 (allow file-read-data
        (subpath "/System/Library/Security/Certificates.bundle")
@@ -136,6 +137,7 @@
        (home-subpath "/Library/Preferences")
        (private-literal "/tmp/ct.shutdown")
        (private-literal "/tmp/CommCenter.dumping")
+       (private-literal "/tmp/CommCenter.KeepAlive.Enabled")
        ; mediaserver log
        (home-regex "/logs/mediaserverd/JitterBuffer")
        ;
@@ -217,11 +219,18 @@
        (global-name "com.apple.pluginkit.pkd")
        (global-name "com.apple.incoming-call-filter-server")
        (global-name "com.apple.CrashReporterSupportHelper")
-       (global-name "com.apple.UNCUserNotification"))
+       (global-name "com.apple.UNCUserNotification")
+       ;;; For CallKit from TelephonyProvider
+       (global-name "com.apple.callkit.callsourcehost")
+       (global-name "com.apple.callkit.callcontrollerhost")
+       (global-name "com.apple.videoconference.camera"))
+
 
 ; From system.sb
 (system-network)
 
+
+(allow system-socket)
 
 (allow network-inbound
        (local tcp "*:*")

@@ -10,6 +10,7 @@
 (literal "/usr/sbin/systemsoundserverd")
 (literal "/usr/sbin/systemsoundserverd/..namedfork/rsrc")
 (literal "/private/etc/master.passwd")
+(literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist")
 (subpath "/System")
 (subpath "/usr/share"))
 
@@ -43,6 +44,8 @@
 (global-name "com.apple.system.logger")
 (global-name "com.apple.system.notification_center")
 (global-name "com.apple.system.opendirectoryd.libinfo")
-(global-name "com.apple.distributed_notifications@1v3"))
+(global-name "com.apple.distributed_notifications@1v3")
+(global-name "com.apple.logd")
+(global-name "com.apple.diagnosticd"))
 
 (allow sysctl-read)

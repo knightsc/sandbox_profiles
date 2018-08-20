@@ -1,0 +1,63 @@
+;
+; Copyright (C) 2015 Apple Inc. All Rights reserved.
+;
+; Sandbox profile for /usr/libexec/swcd.
+;
+
+(version 1)
+(deny default)
+
+(import "system.sb")
+(import "com.apple.corefoundation.sb")
+
+(define (home-subpath home-relative-subpath)
+	(subpath (string-append (param "_HOME") home-relative-subpath)))
+
+(allow file-read*
+	(subpath "/"))
+
+(allow file-write-create
+	(regex (string-append "^" (param "_HOME") #"/Library/Keychains/login\.keychain\.sb-\..*\$"))
+)
+
+(allow file-write*
+	(regex #"^/Library/Keychains/System.keychain")
+	(home-subpath "/Library/Keychains")
+	(literal "/private/var/db/mds/system/mds.lock")
+	(regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mds\.lock$")
+	(regex #"^(/private)?/var/folders/[^/]+/[^/]+/C($|/)")
+	(regex #"^(/private)?/var/folders/[^/]+/[^/]+/T($|/)")
+)
+
+(allow file-write-create file-write-data file-write-flags
+	(literal "/private/tmp/SWC.log")
+	(literal "/private/tmp/SWC.log.2")
+)
+
+(allow ipc-posix-shm-read-data ipc-posix-shm-write-data
+	(ipc-posix-name "com.apple.AppleDatabaseChanged")
+	(ipc-posix-name "FNetwork.defaultStorageSession")
+)
+
+(allow mach-lookup
+	(global-name "com.apple.CoreServices.coreservicesd")
+	(global-name "com.apple.cookied")
+	(global-name "com.apple.coresymbolicationd")
+	(global-name "com.apple.lsd.mapdb")
+	(global-name "com.apple.lsd.modifydb")
+	(global-name "com.apple.metadata.mds")
+	(global-name "com.apple.networkd")
+	(global-name "com.apple.nsurlstorage-cache")
+	(global-name "com.apple.ocspd")
+	(global-name "com.apple.securityd.xpc")
+	(global-name "com.apple.SecurityServer")
+	(global-name-regex #"^com\.apple\.distributed_notifications")
+)
+
+(allow network-outbound)
+
+(allow system-socket)
+
+(allow user-preference-read user-preference-write
+	(preference-domain "com.apple.SharedWebCredentials")
+)

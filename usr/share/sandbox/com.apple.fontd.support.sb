@@ -41,6 +41,7 @@
                 (regex #"\.otf$")
                 (regex #"\.otc$")
                 (regex #"\.namedfork")
+                (regex #"/\.\.namedfork/rsrc")
             )
             (if (defined? 'vnode-type)
                 (vnode-type REGULAR-FILE)
@@ -84,6 +85,7 @@
             (font-file)
         )
     )
+    (allow file-issue-extension (subpath path))
     (allow file-read-metadata (subpath path))
 )
 
@@ -96,6 +98,7 @@
 (allow-read-access (param "__HOME"))
 (allow-read-access "/Library/Fonts")
 (allow-read-access "/System/Library/Fonts")
+(allow-read-access "/System/Library/Assets/com_apple_MobileAsset_Font3")
 (allow-read-access "/Library/Application Support/Apple/Fonts")
 (allow-read-file-access "/Volumes")
 

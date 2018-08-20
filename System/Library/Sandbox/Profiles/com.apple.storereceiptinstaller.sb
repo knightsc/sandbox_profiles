@@ -9,40 +9,39 @@
        (literal "/private/var/root/Library/Preferences")
 	   (literal "/Library/Preferences/.GlobalPreferences.plist")
 	   (literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist")
-       (literal "/Library/Preferences"))
+       (literal "/Library/Preferences/"))
 
 (allow file-read* file-write*
-       (literal "/Library/Application Support/App Store")
-       (literal "/Library/Application Support/App Store/adoption.plist")
-       (literal "/Library/Application Support/App Store/utd.plist")
-       (literal "/Library/Application Support/App Store/utdCheckinDone")
-       (literal "/Library/Preferences/com.apple.storeagent.plist")
-       (literal "/Library/Preferences/com.apple.commerce.plist")
-       (regex #"/Contents/_MASReceipt$")
-       (regex #"/Contents/_MASReceipt/receipt(\.saved)?$")
-       (subpath "/System/Library/Caches/com.apple.receiptInstaller"))
+   (require-all
+      (vnode-type DIRECTORY)
+      (require-any
+         (literal "/Library/Application Support/App Store")
+         (regex #"\.app(download)?(/Contents)?")
+         (regex #"\.app(download)?/Contents/_MASReceipt(\.sb-[a-zA-Z0-9-]+)?")))
 
-;; App deletion and placeholder management
-(allow file-read* file-write*
-       (regex #"\.appdownload(/|$)")
-       (regex #"\.app(/|$)"))
+   (require-all
+      (vnode-type REGULAR-FILE)
+      (require-any
+         (literal "/Library/Application Support/App Store/adoption.plist")
+         (literal "/Library/Application Support/App Store/utd.plist") ;TODO: Check if we need this
+         (literal "/Library/Application Support/App Store/utdCheckinDone") ;TODO: Check if we need this
+         (literal "/Library/Preferences/com.apple.commerce.plist")
+         (regex #"\.appdownload/Contents/placeholderinfo")
+         (regex #"\.appdownload/Icon")
+         (regex #"\.app(download)?/Contents/_MASReceipt((\.sb-[a-zA-Z0-9-]+)?/receipt(\.saved)?)"))) ;covers temporary files the receipt may be named
 
-(deny file-write-create (literal "/Library/Application Support/App Store"))
-	(allow file-write-create
-       (require-all
-          (vnode-type DIRECTORY)
-          (literal "/Library/Application Support/App Store")))
+   (subpath "/System/Library/Caches/com.apple.receiptInstaller"))
 
-;; In-app purchase content removal
+; In-app purchase content removal
 (allow file-read* file-write-unlink
 	(subpath "/Library/Application Support/AppStore/GroupContent")
 	(subpath "/Library/Application Support/AppStoreContent"))
 
-(allow ipc-posix-shm 
-       (ipc-posix-name "apple.shm.notification_center")
-       (ipc-posix-name-regex #"^/tmp/com\.apple\.csseed\."))
+(allow distributed-notification-post)
 
-(allow mach-lookup (global-name "com.apple.CoreServices.coreservicesd"))
+(allow mach-lookup
+       (global-name "com.apple.CoreServices.coreservicesd")
+       (global-name "com.apple.DiskArbitration.diskarbitrationd")) ;used by [[NSWorkspace sharedWorkspace] setIcon:forFile:options:];
 
 (deny mach-lookup (with no-report)
       (global-name-regex #"^com\.apple\.distributed_notifications"))

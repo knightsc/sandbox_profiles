@@ -21,6 +21,7 @@
        (literal "/Library/Preferences/com.apple.crypto.plist")
        (literal "/Library/Preferences/.GlobalPreferences.plist")
        (literal "/Library/Preferences/SystemConfiguration/preferences.plist")
+       (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
        (subpath "/Library/Managed Preferences")
        (literal "/private/etc/hosts")
        (literal "/private/var/db/mds/messages/se_SecurityMessages")

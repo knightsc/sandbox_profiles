@@ -12,6 +12,9 @@
 (deny default)
 (import "system.sb")
 
+(if (defined? 'system-package-check)
+    (allow system-package-check))
+
 (define (param-regex param-name param-relative-regex)
   (regex (string-append "^" (regex-quote (param param-name)) param-relative-regex)))
 
@@ -54,6 +57,7 @@
 ;;(deny mach-lookup (global-name "com.apple.CoreServices.coreservicesd") (with no-log))
 (deny mach-lookup (global-name "com.apple.coresymbolicationd") (with no-log))
 (deny mach-lookup (global-name "com.apple.ls.boxd") (with no-log))
+(deny mach-lookup (global-name "com.apple.audio.audiohald") (with no-log))
 
 ;; comment out and check violations
 (allow distributed-notification-post)
@@ -62,13 +66,15 @@
 (allow mach-lookup (global-name "com.apple.coreservices.quarantine-resolver"))
 (allow mach-lookup (global-name "com.apple.DiskArbitration.diskarbitrationd"))
 (allow mach-lookup (global-name "com.apple.FontObjectsServer"))
-(allow mach-lookup (global-name "com.apple.FontServer"))
+(allow mach-lookup (global-name "com.apple.fonts"))
 (allow mach-lookup (global-name "com.apple.SecurityServer"))
 (allow mach-lookup (global-name "com.apple.SystemConfiguration.configd"))
+(allow mach-lookup (global-name "com.apple.metadata.mds.legacy"))
 (allow mach-lookup (global-name "com.apple.metadata.mds"))
 (allow mach-lookup (global-name "com.apple.ocspd"))
 (allow mach-lookup (global-name "com.apple.windowserver.active"))
 
+(allow mach-lookup (global-name "com.apple.distributed_notifications@1v3"))
 (allow mach-lookup (global-name "com.apple.distributed_notifications@Uv3"))
 (allow mach-lookup (global-name "com.apple.metadata.mdwrite"))
 (allow mach-lookup (global-name "com.apple.CoreServices.coreservicesd"))
@@ -76,6 +82,8 @@
 
 (allow mach-lookup (global-name "com.apple.lsd.mapdb"))
 (allow mach-lookup (global-name "com.apple.lsd.modifydb"))
+
+(allow mach-lookup (global-name "com.apple.launchservices.mapdb"))
 
 (allow mach-lookup (global-name "com.apple.spotlight.IndexAgent"))
 
@@ -157,43 +165,6 @@
 ;;        (%protect-preference-symlink domain)              ;; No need to prevent unlink
         ))
     domains))
-
-;;
-;; Borrowed from application.sb
-;;
-(macro (with-filter form)
-       (let* ((ps (cdr form)) (extra-filter (car ps)) (rules (cdr ps)))
-         `(letrec ((collect
-                     (lambda (l filters non-filters)
-                       (if (null? l)
-                         (list filters non-filters)
-                         (let* ((x (car l)) (rest (cdr l)))
-                           (if (and (list? x) (eq? (car x) 'filter))
-                             (collect rest (cons x filters) non-filters)
-                             (collect rest filters (cons x non-filters)))))))
-                   (inject-filter
-                     (lambda args
-                       (let* ((collected (collect args '() '()))
-                              (filters (car collected))
-                              (non-filters (cadr collected)))
-                         (if (null? filters)
-                           (cons ,extra-filter non-filters)
-                           (cons (require-all
-                                   (apply require-any filters)
-                                   ,extra-filter)
-                                 non-filters)))))
-                   (orig-allow allow)
-                   (orig-deny deny)
-                   (wrapper
-                     (lambda (action)
-                       (lambda args
-                         (apply action (apply inject-filter args))))))
-            (set! allow (wrapper orig-allow))
-            (set! deny (wrapper orig-deny))
-            ,@rules
-            (set! deny orig-deny)
-            (set! allow orig-allow))))
-
 
 
 ;; Some pluginw are allowed to talk to tcc

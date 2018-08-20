@@ -30,9 +30,10 @@
 	   (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
        (literal "/Library/Preferences/com.apple.loginwindow.plist")
 	   (literal "/private/var/db/PreviousSystemVersion.plist")
+       (literal "/Library/Updates/ProductMetadata.plist")
 	   (subpath "/Library/Documentation/Help/MacHelp.help")
 	   (subpath "/Users/Shared")
-	   (regex "/Library/Bundles/[^/]+.bundle")
+       (regex "/Library/Bundles/[^/]+.bundle")
        (regex #"/Library/Preferences/com\.apple\.appstore\.plist$")
 	   (regex #"/Library/Preferences/com.apple.LaunchServices.plist$")
        (regex #"/Library/Preferences/\.GlobalPreferences\.plist$")
@@ -75,7 +76,7 @@
        (regex #"^/private/var/folders/[^/]+/[^/]+/[A-Z]/mds(/|$)")
        (regex #"/\.TemporaryItems(/|$)")
        (regex #"/Library/Keychains/")
-	   (regex #"/OS X Install Data(/|$)")
+	   (regex #"/(macOS|OS X) Install Data(/|$)")
        (regex #"\.appdownload(/|$)")
        (regex #"^/etilqs_"))
 
@@ -133,6 +134,7 @@
        (global-name "com.apple.coreservices.appleevents")
        (global-name "com.apple.cookied")
        (global-name "com.apple.FontServer")
+       (global-name "com.apple.fonts")
        (global-name "com.apple.FontObjectsServer")
 	   (global-name "com.apple.DiskArbitration.diskarbitrationd")
        (global-name "com.apple.cvmsServ")
@@ -145,7 +147,8 @@
        (global-name "com.apple.CrashReporterSupportHelper")
        (global-name "com.apple.cache_delete")
        (global-name "com.apple.ManagedClient.agent")
-       (global-name "com.apple.cfnetwork.AuthBrokerAgent"))
+       (global-name "com.apple.cfnetwork.AuthBrokerAgent")
+       (global-name "com.apple.pasteboard.1"))
 
 (allow authorization-right-obtain
        (right-name "system.install.app-store-software")

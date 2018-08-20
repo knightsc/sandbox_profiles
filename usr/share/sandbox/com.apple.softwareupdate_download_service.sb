@@ -27,13 +27,19 @@
 ;; Distributions can read anything
 (allow file-read*)
 
+(if (param "_CACHE_DIR")
+       (allow file-write* file-read* (subpath (param "_CACHE_DIR"))))
+
+(if (param "_TMP_DIR")
+       (allow file-write* file-read* (subpath (param "_TMP_DIR"))))
+
 (allow file-write*
        (regex #"^/private/var/folders/[^/]+/[^/]+/C/com\.apple\.SoftwareUpdate($|/)")
        (regex #"^/private/var/folders/[^/]+/[^/]+/C/com\.apple\.SoftwareUpdate\.SUDownloadService\.state$")
        (regex #"^/private/var/folders/[^/]+/[^/]+/C/com\.apple\.SoftwareUpdate\.SUDownloadService\.state\.previous$")
-       (regex #"^/private/var/folders/[^/]+/[^/]+/C/softwareupdated($|/)")
        (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds($|/)")
-       (regex #"^/private/var/folders/[^/]+/[^/]+/T($|/)"))
+       (regex #"^/private/var/folders/[^/]+/[^/]+/T/softwareupdated($|/)"))
+
 
 (allow iokit-open
         (iokit-user-client-class "RootDomainUserClient")
