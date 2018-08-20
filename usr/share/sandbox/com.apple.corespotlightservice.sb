@@ -1,0 +1,19 @@
+;;; For macos: /System/Library/Frameworks/CoreSpotlight.framework/CoreSpotlightService
+(version 1)
+(import "system.sb")
+
+(define (param-subpath param-name param-relative-subpath)
+(subpath (string-append (param param-name) param-relative-subpath)))
+
+(define (home-subpath home-relative-subpath)
+(param-subpath "_HOME" home-relative-subpath))
+
+(deny default)
+
+(deny file-map-executable iokit-get-properties process-info* nvram*)
+
+
+(allow file-read* (require-all (extension "com.apple.corespotlightservice.read-write")))
+(allow file-write* (require-all (extension "com.apple.corespotlightservice.read-write")))
+
+

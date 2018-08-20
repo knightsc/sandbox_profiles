@@ -33,12 +33,30 @@
 (allow file-read*
        (regex #"^/private/var/root/Library/Preferences/ByHost/\.GlobalPreferences\..+\.plist$"))
 
+(allow file-read*
+        (literal "/Library/Application\ Support/CrashReporter/SubmitDiagInfo.domains"))
+
+(allow file-read*
+        (literal "/Library/MessageTracer/SubmitDiagInfo.default.domains.searchtree"))
+
 (allow iokit-open
-       (iokit-user-client-class "RootDomainUserClient"))
+       (iokit-user-client-class "RootDomainUserClient")
+       (iokit-user-client-class "IOHIDLibUserClient"))
+
+(allow iokit-set-properties)
 
 (allow mach-lookup
        (global-name "com.apple.coreduetd.context")
        (global-name "com.apple.iohideventsystem")
        (global-name "com.apple.SystemConfiguration.configd")
        (global-name "com.apple.system.opendirectoryd.api")
-       (global-name "com.apple.CoreDisplay.master"))
+       (global-name "com.apple.CoreDisplay.Notification")
+       (global-name "com.apple.CoreDisplay.master")
+       (global-name "com.apple.BezelServices")
+       (global-name "com.apple.iokit.powerdxpc")
+       (global-name "com.apple.distributed_notifications@1v3")
+       (global-name "com.apple.lsd.modifydb")
+       (global-name "com.apple.lsd.mapdb")
+       (global-name "com.apple.windowserver.active")
+       (global-name "com.apple.windowserver")
+       (global-name "com.apple.CoreServices.coreservicesd"))

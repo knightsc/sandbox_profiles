@@ -89,7 +89,7 @@
     (regex #"^(/private)?/var/folders/[^/]+/[^/]+/C/[^/]+/mds/mdsObject\.db$")
     (regex #"^(/private)?/var/folders/[^/]+/[^/]+/C/[^/]+/mds/mdsObject\.db_$"))
 
-;;; rdar://problem/26620973 & rdar://problem/31070724
+;;; rdar://problem/26620973 & rdar://problem/31560540
 (allow file-read* file-write* (regex #"^(/private)?/var/folders/[^/]+/[^/]+/[^/]+/com\.apple\.speech\.speechsynthesisd.*"))
 
 ;;; rdar://problem/26439889 No speech at login window for Polyglot voices
@@ -98,10 +98,12 @@
 (allow mach-lookup
     (global-name "com.apple.audio.audiohald")
     (global-name "com.apple.audio.coreaudiod")
+    (global-name "com.apple.audio.AudioComponentRegistrar")
     (global-name "com.apple.CoreServices.coreservicesd")
     (global-name "com.apple.coreservices.launchservicesd")
     (global-name "com.apple.distributed_notifications@1v3")
     (global-name "com.apple.distributed_notifications@Uv3")
+    (global-name "com.apple.mobileassetd")
     (global-name "com.apple.ocspd")
     (global-name "com.apple.speechArbitrationServer")
     (global-name "com.apple.speech.speechdatainstallerd")

@@ -28,7 +28,9 @@
 	(global-name "com.apple.SystemConfiguration.configd")
 	(global-name "com.apple.CoreServices.coreservicesd")
 	(global-name "com.apple.bluetoothUIServer")
-    (global-name-regex #"^com.apple.distributed_notifications"))
+    (global-name-regex #"^com.apple.distributed_notifications")
+	(global-name "com.apple.bluetoothd")
+)
 
 (allow mach-per-user-lookup)
 

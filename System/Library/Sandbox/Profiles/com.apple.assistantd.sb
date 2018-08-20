@@ -29,7 +29,8 @@
 
 (deny file-write-setugid)
 
-(allow file* (subpath (param "_CACHEDIR")))
+(allow file-read* file-write* (subpath (param "_TEMPDIR")))
+(allow file-read* file-write* (subpath (param "_CACHEDIR")))
 
 (allow file-read* file-write* (extension "com.apple.app-sandbox.read-write"))
 (allow file-read* (extension "com.apple.app-sandbox.read"))
@@ -119,6 +120,7 @@
        (global-name "com.apple.AddressBook.SourceSync")
        (global-name "com.apple.AddressBook.AddressBookApplicationFrameworkIPC")
        (global-name "com.apple.AddressBook.ContactsAccountsService")
+       (global-name "com.apple.BluetoothDOServer")
        (global-name "com.apple.ContactsAgent.addressbook")
        (global-name "com.apple.accountsd.accountmanager")
        (global-name "com.apple.accountsd.oauthsigner")
@@ -136,6 +138,7 @@
        (global-name "com.apple.DiskArbitration.diskarbitrationd")
        (global-name "com.apple.networkd")
        (global-name "com.apple.cookied")
+       (global-name "com.apple.audio.AudioComponentRegistrar")
        (global-name "com.apple.audio.audiohald")
        (global-name "com.apple.audio.coreaudiod")
        (global-name "com.apple.ocspd")
@@ -174,7 +177,16 @@
        (global-name "com.apple.metadata.mds.legacy")
        (global-name "com.apple.spotlight.IndexAgent")
        (global-name "com.apple.coreservices.appleevents")
-       (global-name "com.apple.networkserviceproxy"))
+       (global-name "com.apple.networkserviceproxy")
+       (global-name "com.apple.cloudd")
+       (global-name "com.apple.apsd")
+       (global-name "com.apple.analyticsd")
+       (global-name "com.apple.symptom_analytics")
+       (global-name "com.apple.symptom_diagnostics")
+       (global-name "com.apple.siri.invoke")
+       (global-name "com.apple.remoted")
+       (global-name "com.apple.PowerManagement.control")
+       (global-name "com.apple.siriknowledged"))
 
 (allow ipc-posix-shm
        (ipc-posix-name-regex #"^AudioIO")

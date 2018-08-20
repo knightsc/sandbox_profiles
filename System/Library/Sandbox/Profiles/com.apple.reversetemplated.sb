@@ -10,6 +10,7 @@
     (global-name "com.apple.tccd") ;; DataDetectorsCore
     (global-name "com.apple.CoreServices.coreservicesd") ;; -[NSURL getResourceValue:forKey:error:]
     (global-name "com.apple.mobileassetd") ;; to get access to the reverse templates
+    (global-name "com.apple.parsecd") ;; to get flight information from Parsec (for flight template-less)
 )
 
 ;; SGAsset

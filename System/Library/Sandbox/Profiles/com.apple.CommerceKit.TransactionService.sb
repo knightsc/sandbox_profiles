@@ -92,6 +92,8 @@
        (ipc-posix-name "com.apple.AppleDatabaseChanged"))
 
 (allow mach-lookup
+       (global-name "com.apple.adid")
+       (global-name "com.apple.fpsd")
        (global-name "com.apple.UNCUserNotification")
        (global-name "com.apple.coreservices.launcherror-handler")
        (global-name "com.apple.softwareupdated")
@@ -138,7 +140,9 @@
        (global-name "com.apple.askpermissiond")
        (global-name "com.apple.CrashReporterSupportHelper")
        (global-name "com.apple.cfnetwork.AuthBrokerAgent")
+       (global-name "com.apple.cfnetwork.cfnetworkagent")
        (global-name "com.apple.nsurlstorage-cache")
+       (global-name "com.apple.rtcreportingd")
        (global-name "com.apple.CoreAuthentication.agent"))
 
 (allow authorization-right-obtain

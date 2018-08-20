@@ -1,0 +1,28 @@
+(version 1)
+
+(deny default)
+(deny dynamic-code-generation file-map-executable nvram* process-info*)
+
+(import "system.sb")
+
+;;; <rdar://problem/32252235> MAC: XPC: Sandbox violations on export
+(define (home-subpath home-relative-subpath)
+  (subpath (string-append (param "_HOME") home-relative-subpath)))
+(define (home-literal home-relative-literal)
+  (literal (string-append (param "_HOME") home-relative-literal)))
+(define (home-regex home-relative-regex)
+  (regex (string-append "^" (regex-quote (param "_HOME")) home-relative-regex)))
+
+(allow file-read* (home-literal "/Library/Preferences/.CFUserTextEncoding"))
+
+(allow file-read-metadata)
+
+(allow mach-lookup (global-name "com.apple.CoreServices.coreservicesd"))
+
+(allow file-read* (extension "com.apple.app-sandbox.read"))
+(allow file-read* file-write* (extension "com.apple.app-sandbox.read-write"))
+
+(allow process-info-dirtycontrol (target self))
+
+(allow file-map-executable (subpath "/System/Library/Frameworks")
+                           (subpath "/System/Library/PrivateFrameworks"))

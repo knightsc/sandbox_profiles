@@ -25,6 +25,10 @@
 ;; For validating the entitlements of clients.
 (allow process-info-codesignature)
 
+;; For mapping process path to CFScripter instance
+(allow process-info-pidinfo)
+
 (allow mach-lookup (global-name "com.apple.webinspector"))
+(allow mach-lookup (global-name "com.apple.assistant.analytics"))
 
 (trace "/tmp/ClientScripter.trace")

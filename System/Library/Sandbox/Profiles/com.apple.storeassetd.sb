@@ -93,6 +93,8 @@
        (global-name "com.apple.storeassetd"))
 
 (allow mach-lookup
+       (global-name "com.apple.adid")
+       (global-name "com.apple.fpsd")
        (global-name "com.apple.UNCUserNotification")
        (global-name "com.apple.coreservices.launcherror-handler")
        (global-name "com.apple.softwareupdated")
@@ -108,6 +110,7 @@
        (global-name "com.apple.storeinstallagent")
        (global-name "com.apple.storeinstalld")
        (global-name "com.apple.storeagent.pushservice-xpc")
+       (global-name "com.apple.commerce")
        (global-name "com.apple.daemon.vpp.storeagent-xpc")
        (global-name "com.apple.maspushagent-xpc")
        (global-name "com.apple.lateragent-xpc")
@@ -148,6 +151,8 @@
        (global-name "com.apple.cache_delete")
        (global-name "com.apple.ManagedClient.agent")
        (global-name "com.apple.cfnetwork.AuthBrokerAgent")
+       (global-name "com.apple.cfnetwork.cfnetworkagent")
+       (global-name "com.apple.rtcreportingd")
        (global-name "com.apple.pasteboard.1"))
 
 (allow authorization-right-obtain
@@ -162,6 +167,7 @@
        (right-name "com.apple.SoftwareUpdate.modify-settings"))
 
 (allow iokit-open
+       (iokit-user-client-class "AppleKeyStoreUserClient")
        (iokit-user-client-class "IOFramebufferSharedUserClient")
        (iokit-user-client-class "RootDomainUserClient")
        (iokit-user-client-class-regex #"AccelDevice$")

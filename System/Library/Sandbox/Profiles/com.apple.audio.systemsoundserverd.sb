@@ -12,7 +12,8 @@
 (literal "/private/etc/master.passwd")
 (literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist")
 (subpath "/System")
-(subpath "/usr/share"))
+(subpath "/usr/share")
+(subpath "/private/var/db/timezone"))
 
 (allow file-read-metadata
 (literal "/etc")
@@ -37,6 +38,7 @@
 
 (allow mach-lookup
 (global-name "com.apple.CoreServices.coreservicesd")
+(global-name "com.apple.audio.AudioComponentRegistrar")
 (global-name "com.apple.audio.audiohald")
 (global-name "com.apple.cfprefsd.agent")
 (global-name "com.apple.cfprefsd.daemon")

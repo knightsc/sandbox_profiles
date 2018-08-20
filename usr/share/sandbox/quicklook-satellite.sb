@@ -134,7 +134,6 @@
        (global-name "com.apple.audio.audiohald")
        (global-name "com.apple.SystemConfiguration.configd")
        (global-name "com.apple.decalog4.incoming")
-       (global-name "com.apple.quicklook.config")
        (global-name "com.apple.CoreServices.coreservicesd")
        (global-name "com.apple.SecurityServer")
        (global-name "com.apple.windowserver.active")

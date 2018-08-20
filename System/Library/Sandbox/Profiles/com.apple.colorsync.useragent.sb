@@ -1,0 +1,48 @@
+;;
+;; ColorSync User Agent - sandbox profile
+;; Copyright (c) 2016 Apple Inc. All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice. The contents of this file are also auto-generated and not
+;; user editable; it may be overwritten at any time.
+;;
+
+(version 1)
+(deny default)
+(import "system.sb")
+
+;;; Home Directory
+(define (home-subpath home-relative-subpath)
+    (subpath (string-append (param "_HOME") home-relative-subpath)))
+(define (home-literal home-relative-literal)
+    (literal (string-append (param "_HOME") home-relative-literal)))
+(define (home-regex home-relative-regex)
+    (regex (string-append "^" (regex-quote (param "_HOME")) home-relative-regex)))
+
+(allow file-read-metadata)
+
+(allow file-read* file-write*
+    (subpath (param "DARWIN_USER_DIR"))
+    (subpath (param "DARWIN_USER_TEMP_DIR"))
+    (subpath (param "DARWIN_USER_CACHE_DIR")))
+
+(allow file-read*
+    (literal "/Volumes")
+    (literal "/Library/Preferences/.GlobalPreferences.plist")
+    (subpath "/Library/Printers")
+    (subpath "/Library/ImageCapture/Devices")
+    (subpath "/Library/ColorSync/Profiles")
+    (subpath "System/Library/ColorSync/Profiles"))
+
+(allow file-read*
+    (home-literal ".CFUserTextEncoding")
+    (home-subpath "/Library/Printers")
+    (home-subpath "/Library/ImageCapture/Devices")
+    (home-subpath "/Library/ColorSync/Profiles"))
+
+
+
+(allow mach-lookup
+    (global-name "com.apple.CoreServices.coreservicesd"))
+

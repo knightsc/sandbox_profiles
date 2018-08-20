@@ -11,6 +11,8 @@
 (deny default)
 (import "system.sb")
 (import "com.apple.corefoundation.sb")
+(import "/System/Library/PrivateFrameworks/BridgeOSInstall.framework/Versions/A/Resources/framework.sb")
+(import "/System/Library/PrivateFrameworks/OSPersonalization.framework/Versions/A/Resources/framework.sb")
 (corefoundation)
 
 ;; We must be allowed to obtain any right that an AuthorizationRef we *create* will be asked to obtain, including the
@@ -27,6 +29,9 @@
 ;; Distributions can read anything
 (allow file-read*)
 
+;; PKRecipt can post notification of cache clearning
+(allow distributed-notification-post)
+
 (if (param "_CACHE_DIR")
        (allow file-write* file-read* (subpath (param "_CACHE_DIR"))))
 
@@ -40,7 +45,8 @@
        (regex #"^/private/var/folders/[^/]+/[^/]+/C/com\.apple\.SoftwareUpdate\.SUCatalogDataManager($|/)")
        (regex #"^/private/var/folders/[^/]+/[^/]+/C/softwareupdated($|/)")
        (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds($|/)")
-       (regex #"^/private/var/folders/[^/]+/[^/]+/T/softwareupdated($|/)"))
+       (regex #"^/private/var/folders/[^/]+/[^/]+/T/softwareupdated($|/)")
+       (regex #"^/private/var/db/softwareupdate($|/)"))
 
 (allow file-issue-extension
        (regex #"^/private/var/folders/[^/]+/[^/]+/[A-Z]/com\.apple\.SoftwareUpdate"))
@@ -49,7 +55,8 @@
         (iokit-user-client-class "AppleSMCClient")
         (iokit-user-client-class "AppleFDEKeyStoreUserClient")
         (iokit-user-client-class "RootDomainUserClient")
-        (iokit-user-client-class "CoreStorageUserClient"))
+        (iokit-user-client-class "CoreStorageUserClient")
+        (iokit-user-client-class "AppleAPFSUserClient"))
 
 (allow ipc-posix-shm-read-data
        (ipc-posix-name-regex #"^/tmp/com\.apple\.csseed\.[^/]+$")
@@ -73,7 +80,6 @@
        (global-name "com.apple.distributed_notifications@1v3")
        (global-name "com.apple.installd")
        (global-name "com.apple.system_installd")
-       (global-name "com.apple.InstallerDiagnostics.installerdiagd")
        (global-name "com.apple.networkd")
        (global-name "com.apple.ocspd")
        (global-name "com.apple.softwareupdated")
@@ -93,7 +99,11 @@
        (global-name "com.apple.dock.fullscreen")
        (global-name "com.apple.lsd.mapdb")
        (global-name "com.apple.lsd.modifydb")
-       (global-name "com.apple.softwareupdate_download_service"))
+       (global-name "com.apple.softwareupdate_download_service")
+       (global-name "com.apple.rtcreportingd")
+       (global-name "com.apple.coreservices.quarantine-resolver")
+       (global-name "com.apple.InstallerDiagnostics.installerdiagd")
+       (global-name "com.apple.bosreporter"))
 
 ;; from application.sb
 (allow system-fsctl

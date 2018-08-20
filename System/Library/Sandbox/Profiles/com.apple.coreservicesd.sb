@@ -1,0 +1,63 @@
+;;; Copyright (c) 2017 Apple Inc.  All Rights reserved.
+;;;
+;;; WARNING: The sandbox rules in this file currently constitute
+;;; Apple System Private Interface and are subject to change at any time and
+;;; without notice.
+;;;
+(version 1)
+
+(deny default)
+
+(import "system.sb")
+(import "com.apple.corefoundation.sb")
+(corefoundation)
+
+(deny file-map-executable iokit-get-properties process-info* nvram*)
+(deny dynamic-code-generation)
+
+(allow process-info* (target self))
+
+(allow process-info-codesignature)
+
+(allow user-preference-read user-preference-write
+	(preference-domain "com.apple.coreservicesd"))
+
+(allow file-read*)
+(allow file-read-metadata)
+
+(allow file-write*
+	(subpath (param "DARWIN_USER_TEMP_DIR"))
+	(subpath (param "DARWIN_USER_CACHE_DIR")))
+
+(allow file-ioctl
+	(path "/dev/fsevents"))
+
+(allow ipc-posix-shm-write-create
+	(ipc-posix-name-regex #"^/tmp/com.apple.csseed.[0-9]+$"))
+(allow ipc-posix-shm-write-data
+	(ipc-posix-name-regex #"^/tmp/com.apple.csseed.[0-9]+$"))
+
+(allow mach-lookup
+	(global-name "com.apple.DiskArbitration.diskarbitrationd"))
+
+(allow file-write*
+	(path "/System/Library/Caches/com.apple.Components2.SystemCache.Components"))
+(allow file-write*
+	(path "/System/Library/Caches/com.apple.Components2.SystemCache.QuickTimeComponents"))
+(allow file-write*
+	(path "/System/Library/Caches/com.apple.Components2.SystemCache.AudioComponents"))
+
+(allow file-map-executable (path "/System/Library/PrivateFrameworks/CoreServicesInternal.framework/Versions/A/CoreServicesInternal"))
+
+(allow distributed-notification-post)
+
+(allow iokit-get-properties (iokit-property "Protocol Characteristics"))
+(allow iokit-get-properties (iokit-property "IOMediaIcon"))
+(allow iokit-get-properties (iokit-property "Ejectable"))
+(allow iokit-get-properties (iokit-property "Removable"))
+(allow iokit-get-properties (iokit-property "CoreStorage Encrypted"))
+(allow iokit-get-properties (iokit-property "IOClassNameOverride"))
+(allow iokit-get-properties (iokit-property "od-server-name"))
+(allow iokit-get-properties (iokit-property "image-path"))
+(allow iokit-get-properties (iokit-property "filevault-image"))
+(allow iokit-get-properties (iokit-property "Product Identification"))

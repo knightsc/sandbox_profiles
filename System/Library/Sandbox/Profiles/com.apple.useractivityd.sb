@@ -12,6 +12,13 @@
 (allow file-write*
        (subpath (param "LOG_DIR")))
 
+;;(allow file-issue-extension
+;;       (extension "com.apple.app-sandbox.read-write"))
+
+(if (param "TMP_DIR")
+    (allow file-issue-extension
+           (regex (string-append "^" (param "TMP_DIR") "/*"))))
+
 (if (param "TMP_DIR")
     (allow file-write*
            (regex (string-append "^" (param "TMP_DIR") "/*"))))
@@ -54,6 +61,9 @@
        (global-name "com.apple.ProgressReporting")
        (global-name "com.apple.iokit.powerdxpc")
        (global-name "com.apple.PowerManagement.control")
+       (global-name "com.apple.BluetoothDOServer")
+       (global-name "com.apple.FileCoordination")
+       (global-name "com.apple.analyticsd")
 )
 
 ;; Things needed for debugging, only if it's a debug server

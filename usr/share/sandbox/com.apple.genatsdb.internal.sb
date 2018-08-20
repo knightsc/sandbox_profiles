@@ -57,15 +57,15 @@
         (subpath (param "__HOME"))
         (literal "/Users/"))
 
-(allow file-issue-extension-read)
+(allow file-issue-extension
+    (extension-class "com.apple.app-sandbox.read")
+)
 
 ;; Suppress log noise from Carbon / frameworks.
 (deny process-exec)
 (deny file-write*
     (literal "/private/var/empty/Library")
     (with no-log))
-
-(allow distributed-notification-post)
 
 (allow sysctl*)
 (allow ipc-posix-shm)

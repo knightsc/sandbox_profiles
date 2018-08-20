@@ -85,6 +85,13 @@
        (literal "/Library/Preferences/com.apple.HIToolbox.plist")
        (regex #"/Library/Preferences/com\.apple\.LaunchServices/com\.apple\.launchservices\.secure\.plist$"))
 
+(allow user-preference-read
+    (preference-domain "com.apple.AppleMultitouchTrackpad")
+    (preference-domain "com.apple.ServicesMenu.Services"))
+
+(allow user-preference*
+    (preference-domain "com.apple.storeuid"))
+
 (allow ipc-posix-shm-read-data
        (ipc-posix-name "FNetwork.defaultStorageSession")
        (ipc-posix-name-regex #"ls\.[a-f0-9\.]+")
@@ -95,13 +102,21 @@
        (ipc-posix-name "com.apple.AppleDatabaseChanged"))
 
 (allow mach-register
-       (global-name "com.apple.storeuid"))
+       (global-name "com.apple.storeuid")
+       (global-name "com.apple.storeagent.storekit"))
 
 (allow mach-lookup
+       (global-name "com.apple.accountsd.accountmanager")
+       (global-name "com.apple.iohideventsystem")
+       (global-name "com.apple.tsm.uiserver")
+       (global-name "com.apple.touchbarserver.mig")
+       (global-name "com.apple.touchbar.agent")
+       (global-name "com.apple.pbs.fetch_services")
        (global-name "com.apple.UNCUserNotification")
        (global-name "com.apple.coreservices.launcherror-handler")
        (global-name "com.apple.softwareupdated")
        (global-name "com.apple.SystemConfiguration.configd")
+       (global-name "com.apple.commerce")
        (global-name "com.apple.storeassetd")
        (global-name "com.apple.storeaccountd")
        (global-name "com.apple.storedownloadd")
@@ -153,6 +168,7 @@
        (global-name "com.apple.CrashReporterSupportHelper")
        (global-name "com.apple.dock.fullscreen")
        (global-name "com.apple.cfnetwork.AuthBrokerAgent")
+       (global-name "com.apple.cfnetwork.cfnetworkagent")
        (global-name "com.apple.iconservices"))
 
 (allow authorization-right-obtain
@@ -166,6 +182,10 @@
        (right-name "com.apple.SoftwareUpdate.modify-settings"))
 
 (allow iokit-open
+       (iokit-user-client-class "IOSurfaceSendRight")
+       (iokit-user-client-class "IOSurfaceRootUserClient")
+       (iokit-user-client-class "IGAccelCommandQueue")
+       (iokit-user-client-class "AppleMultitouchDeviceUserClient")
        (iokit-user-client-class "IOFramebufferSharedUserClient")
        (iokit-user-client-class "RootDomainUserClient")
        (iokit-user-client-class-regex #"AccelDevice$")

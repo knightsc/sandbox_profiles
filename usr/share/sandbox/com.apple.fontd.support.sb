@@ -85,12 +85,17 @@
             (font-file)
         )
     )
-    (allow file-issue-extension (subpath path))
+    (allow file-issue-extension
+        (require-all
+            (extension-class "com.apple.app-sandbox.read")
+            (subpath path)
+        )
+    )
     (allow file-read-metadata (subpath path))
 )
 
 (allow file-read*
-    (regex #"/private/var/folders/.*/.*/C/com.apple.FontRegistry/*")
+    (regex #"/private/var/folders/[^/]+/[^/]+/C/com.apple.FontRegistry/*")
 )
 
 (allow-read-access (param "DARWIN_USER_CACHE_DIR"))
@@ -109,6 +114,10 @@
     (global-name "com.apple.ATS.FontValidatorConduit")
     (global-name "com.apple.CoreServices.coreservicesd")
     (global-name-regex #"^com\.apple\.FontObjectsServer.*")
+)
+
+(allow mach-lookup
+	(global-name "com.apple.lsd.mapdb")
 )
 
 (allow file-read*

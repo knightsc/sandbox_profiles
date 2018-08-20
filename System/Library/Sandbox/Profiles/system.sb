@@ -10,8 +10,20 @@
 (version 1)
 
 ;;; Allow registration of per-pid services.
-(allow mach-register
-       (local-name-prefix ""))
+(allow mach-register (local-name-prefix ""))
+
+;;; Allow lookup of XPC services for backward-compatibility.
+(allow mach-lookup (xpc-service-name-prefix ""))
+
+;;; Allow system processes to trigger auto-mounting of filesystems.
+(allow system-automount
+       (process-attribute is-platform-binary))
+
+;;; Allow mapping of system frameworks + dylibs
+(allow file-map-executable
+       (subpath "/System/Library/Frameworks")
+       (subpath "/System/Library/PrivateFrameworks")
+       (subpath "/usr/lib"))
 
 ;;; Allow read access to standard system paths.
 (allow file-read*
@@ -20,13 +32,20 @@
                                  (subpath "/Library/Preferences/Logging")      ; Logging Rethink
                                  (subpath "/System")
                                  (subpath "/private/var/db/dyld")
+                                 (subpath "/private/var/db/timezone")
                                  (subpath "/usr/lib")
                                  (subpath "/usr/share"))))
 
-;;; Allow reading internal profiles on development builds
+;;; Logging
+; 1. Allow reading of internal profiles on development builds.
 (allow file-read*
        (require-all (file-mode #o0004)
                     (subpath "/AppleInternal/Library/Preferences/Logging")
+                    (system-attribute apple-internal)))
+; 2. os_log() custom formatters may be read + mapped in-process.
+;    Only allow on internal builds, otherwise this would be "inject code here (TM)"
+(allow file-read* file-map-executable
+       (require-all (subpath "/usr/local/lib/log")
                     (system-attribute apple-internal)))
 
 (allow file-read-metadata
@@ -76,6 +95,7 @@
        (global-name "com.apple.cfprefsd.agent")
        (global-name "com.apple.cfprefsd.daemon")
        (global-name "com.apple.diagnosticd")
+       (global-name "com.apple.dyld.closured")
        (global-name "com.apple.espd")
        (global-name "com.apple.logd")
        (global-name "com.apple.logd.events")
@@ -100,6 +120,7 @@
 (define (system-graphics)
   ;; Preferences
   (allow user-preference-read
+         (preference-domain "com.apple.gpu")
          (preference-domain "com.apple.opengl")
          (preference-domain "com.nvidia.OpenGL"))
   ;; OpenGL memory debugging
@@ -119,6 +140,7 @@
          (iokit-registry-entry-class "IOFramebufferSharedUserClient"))
   ;; H.264 Acceleration
   (allow iokit-open
+         (iokit-registry-entry-class "AppleIntelMEUserClient")
          (iokit-registry-entry-class "AppleSNBFBUserClient"))
   ;; QuartzCore
   (allow iokit-open
@@ -128,6 +150,9 @@
   ;; OpenGL
   (allow iokit-open
          (iokit-registry-entry-class "AppleMGPUPowerControlClient"))
+  ;; GPU bundles
+  (allow file-read*
+         (subpath "/Library/GPUBundles"))
   ;; DisplayServices
   (allow iokit-set-properties
          (require-all (iokit-connection "IODisplay")

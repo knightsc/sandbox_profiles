@@ -1,0 +1,74 @@
+(version 1)
+(deny default)
+
+(import "system.sb")
+(import "com.apple.corefoundation.sb")
+(import "bsd.sb")
+
+(system-network)
+(corefoundation)
+
+(allow mach-lookup
+    (global-name "com.apple.apsd")
+    (global-name "com.apple.bird.token")
+    (global-name "com.apple.cloudd")
+    (global-name "com.apple.cookied")
+    (global-name "com.apple.coreduet.knowledge.sync.push")
+    (global-name "com.apple.CoreServices.coreservicesd")
+    (global-name "com.apple.coreservices.quarantine-resolver")
+    (global-name "com.apple.coreduetd.knowledge.user")
+    (global-name "com.apple.lsd.mapdb")
+    (global-name "com.apple.SecurityServer")
+    (global-name "com.apple.SystemConfiguration.configd")
+    (global-name "com.apple.windowserver")
+    (global-name "com.apple.windowserver.active"))
+
+(allow mach-register
+    (global-name "com.apple.coreduet.knowledge.sync.push"))
+
+(allow file*
+    (subpath (param "_USER_TEMP_DIR"))
+    (subpath (string-append (param "_HOME") "/Library/Caches/knowledge-agent"))
+    (literal (string-append (param "_HOME") "/Library/Preferences/knowledge-agent.plist"))
+    (literal (string-append (param "_HOME") "/Library/Preferences/com.apple.CoreDuet.plist"))
+    (subpath (string-append (param "_HOME") "/Library/Application Support/Knowledge")))
+
+(allow file-read* file-write*
+    (subpath (string-append (param "_HOME") "/Library/Caches/CloudKit/com.apple.knowledge-agent")))
+
+(allow file-read-metadata
+    (subpath (string-append (param "_HOME") "/Library"))
+    (subpath "/usr"))
+
+(allow file-read-data
+    (literal "/usr/libexec")
+    (subpath "/usr/libexec/knowledge-agent")
+    (literal "/Library/Preferences/.GlobalPreferences.plist")
+    (literal (string-append (param "_HOME") "/Library/Preferences/.GlobalPreferences.plist"))
+    (literal (string-append (param "_HOME") "/Library/Preferences/knowledge-agent.plist"))
+    (literal (string-append (param "_HOME") "/Library/Preferences/com.apple.CoreDuet.plist"))
+    (literal (string-append (param "_HOME") "/Library/Preferences/com.apple.assistant.backedup.plist"))
+    (regex (string-append "^" (regex-quote (param "_HOME")) #"/Library/Preferences/ByHost/\.GlobalPreferences\.[^/]*\.plist$"))
+    (regex (string-append "^" (regex-quote (param "_HOME")) #"/Library/Preferences/ByHost/knowledge-agent\.[^/]*\.plist$"))
+    (regex (string-append "^" (regex-quote (param "_HOME")) #"/Library/Preferences/ByHost/com.apple.CoreDuet.plist\.[^/]*\.plist$")))
+
+(allow file-read-metadata
+    (literal "/AppleInternal")
+    (literal (param "_HOME")))
+
+(allow file-read*
+    (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")              ; for CrashReporter
+    (literal "/Library/MessageTracer/SubmitDiagInfo.default.domains.searchtree"))              ; for MessageTracer
+
+(allow network-outbound
+    (literal "/private/var/run/mDNSResponder"))                                                ; to resolve host names
+
+(allow ipc-posix-shm-read-data
+       (ipc-posix-name "FNetwork.defaultStorageSession"))
+
+(allow network-outbound
+       (remote ip))                                                                            ; to download policy updates
+
+(allow ipc-posix-shm*
+        (ipc-posix-name "CDPM/knowledge-agent"))                                               ; for perf metrics
+

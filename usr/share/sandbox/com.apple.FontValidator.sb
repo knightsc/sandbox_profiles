@@ -15,4 +15,3 @@
 (import "com.apple.fontd.support.sb")
 (import "system.sb")
 
-(allow distributed-notification-post)

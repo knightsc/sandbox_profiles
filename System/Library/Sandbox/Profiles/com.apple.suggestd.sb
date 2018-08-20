@@ -5,6 +5,8 @@
         (subpath (string-append (param "_HOME") home-relative-subpath)))
 (define (home-literal home-relative-literal)
         (literal (string-append (param "_HOME") home-relative-literal)))
+(define (home-prefix home-relative-subpath)
+        (prefix (string-append (param "_HOME") home-relative-subpath)))
 
 (allow file-read* file-write*
     (home-subpath "/Library/Suggestions")
@@ -16,6 +18,8 @@
     (mount-relative-regex "^/\\.TemporaryItems(/|$)") ;; NSData atomic write
     (home-subpath "/Library/Calendars") ;; EventKit
     (home-subpath "/Library/Application Support/AddressBook") ;; this needs to be r/w even if we only read: <rdar://problem/20454859>
+    (home-subpath "/Library/Caches/com.apple.parsecd/CustomFeedback/") ;; Parsec feedback (Trystero uploads) <rdar://problem/33038387> Sandbox exception for Parsec feedback (macOS)
+
 )
 
 (allow file-write-create
@@ -31,14 +35,25 @@
     (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains") ;; MessageTracer
     (home-subpath "/Library/Mail") ;; Mail attachments
     (subpath "/private/var/db/datadetectors/sys") ;; Data Detectors sources
+    (home-subpath "/Library/Application Support/Knowledge") ;; _DKKnowledgeStore
 )
 
 (allow file-read* file-write*
     (literal "/private/var/db/mds/system/mds.lock") ;; Security.framework
 )
 
+;; <rdar://problem/31989235> Lobo: SGOrigin app name unlocalized - need sandbox rule for InfoPlist.strings
+(allow file-read* (home-literal "/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist"))
+(allow file-read* (regex #"\.app$"))
+(allow file-read* (regex #"\.app/Contents$"))
+(allow file-read* (regex #"\.app/Contents/Resources$"))
+(allow file-read* (regex #"/InfoPlist\.strings$"))
+(allow file-read* (regex #"/Info.plist$"))
+(allow file-read* (regex #"\.lproj$"))
+
 (allow mach-lookup
     (global-name "com.apple.accountsd.accountmanager") ;; EventKit
+    (global-name "com.apple.apsd") ;; SGDCloudKitSync (APNS)
     (global-name "com.apple.AddressBook.abd")
     (global-name "com.apple.AddressBook.AddressBookApplicationFrameworkIPC")
     (global-name "com.apple.AddressBook.ContactsAccountsService") ;; [ABAddressBook sharedAddressBook]
@@ -48,14 +63,19 @@
     (global-name "com.apple.CalendarAgent.proxy")
     (global-name "com.apple.ContactsAgent.general")
     (global-name "com.apple.ContactsAgent.addressbook")
+    (global-name "com.apple.cloudd") ;; SGDCloudKitSync (CloudKit)
     (global-name "com.apple.coreduetd") ;; SGDPowerBudget
-    (global-name "com.apple.coreduetd.people") ;; SGDuetBridge
+    (global-name "com.apple.coreduetd.knowledge.user") ;; PersonalizationPortrait
+    (global-name "com.apple.coreduetd.context") ;; SGDPowerBudget
     (global-name "com.apple.corerecents.recentsd") ;; for significant pseudo-contacts
     (global-name "com.apple.CoreServices.coreservicesd") ;; apparently needed by -[NSURL getResourceValue:forKey:error:]
+    (global-name "com.apple.spotlight.SearchAgent")
+    (global-name "com.apple.spotlight.IndexAgent")
     (global-name "com.apple.DiskArbitration.diskarbitrationd") ;; NSData atomic write
     (global-name "com.apple.distributed_notifications@Uv3")
     (global-name "com.apple.lsd.mapdb") ;; apparently needed by -[NSURL getResourceValue:forKey:error:]
     (global-name "com.apple.lsd.modifydb") ;; same, see <rdar://problem/21302822>
+    (global-name "com.apple.metadata.mds") ;; <rdar://problem/28957199>
     (global-name "com.apple.mobileassetd") ;; SGAsset
     (global-name "com.apple.reversetemplated")
     (global-name "com.apple.rtcreportingd")
@@ -63,7 +83,12 @@
     (global-name "com.apple.SecurityServer") ;; Security.framework
     (global-name "com.apple.syncdefaultsd")
     (global-name "com.apple.system.opendirectoryd.api") ;; AddressBook.framework
-    (global-name "com.apple.tccd"))
+    (global-name "com.apple.SystemConfiguration.configd") ;; SGDCloudKitSync (APNS)
+    (global-name "com.apple.tccd")
+    (global-name "com.apple.windowserver.active") ;; AGDCloudKitSync (APNS)
+    (global-name "com.apple.awdd") ;; Trystero training sessions and stats (AWD)
+    (global-name "com.apple.FileCoordination") ;; MailServices for reimport
+    (global-name "com.apple.suggestd.PersonalizationPortrait.DeletionTracking")) ;; PersonalizationPortrait for examining some privileged settings
 
 (allow file-read-metadata
     (literal "/Library/Caches/com.apple.DiagnosticReporting.HasBeenAppleInternal"))
@@ -76,6 +101,13 @@
 (allow user-preference-read (preference-domain "com.apple.security.revocation"))
 (allow file-read* (home-literal "/Library/Preferences/com.apple.security.revocation.plist"))
 (allow file-read* (literal "/Library/Preferences/com.apple.security.revocation.plist"))
+
+;; CrashReporter support
+(allow file-read-metadata file-read-xattr
+    (home-subpath "/Library/Logs/CrashReporter"))
+(allow file-read* file-write*
+    (home-prefix "/Library/Logs/CrashReporter/personalization_")
+    (home-prefix "/Library/Logs/CrashReporter/.personalization_"))
 
 ;;; Homedir readable paths
 (allow file-read* (home-literal "/.CFUserTextEncoding"))
@@ -108,3 +140,7 @@
 
 ;; SGAsset <rdar://problem/26320796>
 (allow user-preference-read (preference-domain "com.apple.SoftwareUpdate"))
+
+;; PersonalizationPortrait rdar://problem/33593450
+(allow user-preference-read (preference-domain "com.apple.assistant.support"))
+

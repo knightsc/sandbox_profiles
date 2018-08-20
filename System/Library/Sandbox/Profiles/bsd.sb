@@ -22,7 +22,7 @@
     ; Allow files accessed by system dylibs and frameworks
     #"/\.CFUserTextEncoding$"
     #"^/usr/share/nls/"
-    #"^/usr/share/zoneinfo/"
+    #"^/usr/share/zoneinfo /var/db/timezone/zoneinfo/"
   ))
 
 (allow ipc-posix-shm (ipc-posix-name "apple.shm.notification_center")) ; Libnotify

@@ -12,6 +12,8 @@
 		<true/>
 		<key>com.apple.Finder</key>
 		<true/>
+		<key>com.apple.FolderActionsDispatcher</key>
+		<true/>
 		<key>com.apple.Kerberos.kadmind</key>
 		<true/>
 		<key>com.apple.Kerberos.kdc</key>
@@ -61,6 +63,10 @@
 		<key>com.apple.mdmclient.daemon.runatboot</key>
 		<true/>
 		<key>com.apple.mtmfs</key>
+		<true/>
+		<key>com.apple.netbiosd</key>
+		<true/>
+		<key>com.apple.nfsd</key>
 		<true/>
 		<key>com.apple.ntalkd</key>
 		<true/>

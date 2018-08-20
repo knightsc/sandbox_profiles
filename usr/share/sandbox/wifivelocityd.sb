@@ -36,6 +36,11 @@
     (regex #"^/dev/ttys")
     (subpath (param "TMP_DIR"))
     (subpath "/private/var/folders")
+    (subpath "/private/tmp")
+    (subpath "/private/var/run")
+    (subpath "/private/var/tmp")
+    (subpath "/Library/Preferences/Logging/Subsystems")
+    (subpath "/Library/Logs")
     (regex #"^/Library/Preferences/SystemConfiguration/preferences\.plist")
     (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.eapolclient\.plist")
     (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.airport\.preferences\.plist")
@@ -55,14 +60,18 @@
     (global-name "com.apple.networkd")
     (global-name "com.apple.network.EAPOLController")
     (global-name "com.apple.DiskArbitration.diskarbitrationd")
-    (global-name "com.apple.blued")
+    (global-name "com.apple.bluetoothd")
     (global-name "com.apple.corecaptured")
     (global-name "com.apple.usymptomsd")
+    (global-name "com.apple.logd.admin")
+    (global-name "com.apple.sysdiagnose.service.xpc")
+    (global-name "com.apple.BluetoothDOServer")
 )
 
 (allow authorization-right-obtain
     (right-name "com.apple.wifivelocity")
     (right-name "config.modify.com.apple.wifivelocity")
+    (right-name "config.remove.com.apple.wifivelocity")
 )
 
 (allow ipc-posix-shm-read-data
@@ -104,13 +113,20 @@
     (literal "/usr/bin/sw_vers")
     (literal "/usr/sbin/nvram")
     (literal "/usr/bin/pmset")
+    (literal "/usr/bin/log")
     (subpath "/System/Library/PrivateFrameworks/WiFiVelocity.framework")
+    (subpath "/System/Library/PrivateFrameworks/BroadcomWLAN.framework")
+    (subpath "/AppleInternal/Library/PrivateFrameworks/BroadcomWLAN.framework")
+    (literal "/usr/bin/dns-sd")
+    (literal "/bin/sh")
+    (literal "/usr/local/bin/security2")
     (with no-sandbox)
 )
 
 (allow iokit-open
 	(iokit-user-client-class "IOBluetoothHCIUserClient")
     (iokit-user-client-class "IOBluetoothHCIPacketLogUserClient")
+	(iokit-user-client-class "IOReportUserClient")
 )
 
 (allow system-fsctl

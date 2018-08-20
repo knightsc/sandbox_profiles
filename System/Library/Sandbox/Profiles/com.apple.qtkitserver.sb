@@ -72,7 +72,7 @@
        (subpath "/Library/QuickTime")
        (subpath "/Library/Filesystems/NetFSPlugins"))
 
-(allow file-read-data
+(allow file-read*
        (subpath "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
        (subpath "/Users/Shared/SC Info")
        (subpath "/private/var")
@@ -187,6 +187,7 @@
        (global-name "com.apple.PowerManagement.control")
        (global-name "com.apple.audio.audiohald")
        (global-name "com.apple.audio.coreaudiod")
+       (global-name "com.apple.audio.AudioComponentRegistrar")
        (global-name "com.apple.dock.server")
        (global-name "com.apple.pasteboard.1")
        (global-name "com.apple.pbs.fetch_services")
@@ -194,6 +195,7 @@
        (global-name "com.apple.tsm.uiserver")
        (global-name "com.apple.UNCUserNotification")
        (global-name "com.apple.windowserver.active")
+       (global-name "com.apple.helpd")
        (global-name "com.apple.DiskArbitration.diskarbitrationd")
        (global-name "com.apple.window_proxies"))
        

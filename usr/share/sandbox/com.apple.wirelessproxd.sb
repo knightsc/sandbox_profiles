@@ -14,16 +14,23 @@
 (allow mach-lookup
        (global-name "com.apple.distributed_notifications@1v3")
        (global-name "com.apple.awdd")
-       (global-name "com.apple.blued"))
+       (global-name "com.apple.bluetoothd")
+       (global-name "com.apple.server.bluetooth.le.pipe.xpc")
+       (global-name "com.apple.server.bluetooth.le.att.xpc")
+       (global-name "com.apple.analyticsd"))
 
 (allow file-read*
 	(literal "/usr")
 	(literal "/usr/sbin")
-	(literal "/usr/sbin/wirelessproxd"))
-    
+	(literal "/usr/sbin/wirelessproxd")
+    (literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist")
+    (literal "/Library/Preferences/.GlobalPreferences.plist"))
+
+(allow file-read-data
+    (literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist")
+    (literal "/Library/Preferences/.GlobalPreferences.plist"))
+
 (allow file-read-metadata
 	(literal "/private/var/root")
-    (literal "/private/var/log/blued.log"))
-	
-(allow file-read* file-write*
-    (literal "/private/var/log/wirelessproxd.log"))
+    (literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist"))
+

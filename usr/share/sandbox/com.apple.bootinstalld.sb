@@ -1,0 +1,88 @@
+;; Copyright (c) 2017 Apple Inc.  All Rights reserved.
+;;
+;; profile for bootinstalld
+;;
+;; WARNING: The sandbox rules in this file currently constitute
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice.
+;;
+
+(version 1)
+
+(deny default)
+(deny file-map-executable iokit-get-properties process-info* nvram*)
+(import "system.sb")
+(import "com.apple.corefoundation.sb")
+(corefoundation)
+
+; Temporary directory support
+(allow file-read* file-write*
+    (subpath (param "TMPDIR"))
+    (subpath (param "DARWIN_CACHE_DIR")))
+
+; User defaults for a few places where we might need to care
+(allow user-preference-read
+    (preference-domain "com.apple.PackageKit")
+    (preference-domain "com.apple.SoftwareUpdate"))
+
+; Read packages and database
+(allow file-read*)
+
+; Store database to fixed path on any volume
+(allow file-write*
+    (mount-relative-literal "/private/var/install/boot-install.db"))
+
+; Allow introspecting our own process info and getting some basic info for other processes
+(allow process-info* (target self))
+(allow process-info-pidinfo)
+(allow process-info-codesignature)
+
+; Package installation
+(allow mach-lookup
+    (global-name "com.apple.installd")
+    (global-name "com.apple.system_installd"))
+; We have to allow all rights the daemon might want to obtain
+(allow authorization-right-obtain
+    (right-name "system.install.app-store-software")
+    (right-name "system.install.app-store-software.standard-user")
+    (right-name "system.install.apple-config-data")
+    (right-name "system.install.apple-software")
+    (right-name "system.install.apple-software.standard-user")
+    (right-name "system.install.software")
+    (right-name "system.install.software.iap")
+    (right-name "system.install.software.mdm-provided"))
+
+
+; Package JavaScript
+(allow sysctl-read)
+(allow iokit-open)
+(allow iokit-get-properties)
+(allow process-info-listpids)
+
+; LaunchServices (for PackageKit)
+(allow mach-lookup
+    (global-name "com.apple.lsd.mapdb")
+    (global-name "com.apple.lsd.modifydb"))
+
+; Security (for PackageKit)
+(allow file-read-metadata (literal "/"))
+(allow mach-lookup
+    (global-name "com.apple.SecurityServer")
+    (global-name "com.apple.distributed_notifications@1v3")
+    (global-name "com.apple.ocspd"))
+(allow ipc-posix-shm-read-data ipc-posix-shm-write-data
+    (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+; CoreServices
+(allow file-map-executable
+    (path "/System/Library/PrivateFrameworks/CoreServicesInternal.framework/Versions/A/CoreServicesInternal"))
+
+; Stash + Reboot
+(allow file-write-create (literal "/private/var/root/Library/Caches/bootinstalld"))
+(allow file-write-unlink (literal "/private/var/db/.StagedAppleUpgrade"))
+(allow file-write-create (literal "/private/var/db/.AppleUpgrade"))
+(allow mach-lookup (global-name "com.apple.SystemConfiguration.configd"))
+(allow process-fork)
+(allow process-exec (literal "/sbin/reboot"))
+(allow nvram-get (nvram-variable "BSD Name"))
+(allow nvram-set (nvram-variable "8D63D4FE-BD3C-4AAD-881D-86FD974BC1DF:boot-info-payload"))

@@ -99,8 +99,8 @@
 
 ;; temp directories
 (allow file-read* file-write*
-       (regex #"^(/private)?/var/folders/[^/]+/[^/]+/C($|/)") ; -- tighten this to CK-specific dirs with 17578391
-       (regex #"^(/private)?/var/folders/[^/]+/[^/]+/T($|/)") ; -- tighten this to CK-specific dirs with 17578391
+       (regex #"^(/private)?/var/folders/[^/]+/[^/]+/[^/]+/com\.apple\.cloudd(.[0-9]+)?($|/)")
+       (regex #"^(/private)?/var/folders/[^/]+/[^/]+/[^/]+/mds($|/)")
 )
 
 
@@ -135,8 +135,6 @@
 ;; Reading preference is hard
 (allow user-preference-read
        (preference-domain "com.apple.springboard")
-       (preference-domain "com.apple.UIKit")
-       (preference-domain "com.apple.keyboard")
 )
 
 
@@ -183,6 +181,7 @@
        (global-name "com.apple.duetactivityscheduler")
        (global-name "com.apple.ak.auth.xpc")
        (global-name "com.apple.protectedcloudstorage.protectedcloudkeysyncing")
+       (global-name "com.apple.coreservices.launchservicesd")
 )
 (allow file-issue-extension
        (require-all
@@ -210,6 +209,7 @@
 ;; For debug logging, we're checking any DNS overrides
 (allow user-preference-read
        (preference-domain "com.apple.jett.Switch") ;; OS X only
+       (preference-domain "com.apple.protectedcloudstorage.protectedcloudkeysyncing")
 )
 (allow file-read*
        (literal "/private/etc/hosts")
@@ -223,6 +223,10 @@
        (global-name "com.apple.apsd")
        (global-name "com.apple.distributed_notifications@Uv3")
        (global-name "com.apple.tccd")
+       (global-name "com.apple.cdp.daemon")
+
+       ;; <rdar://problem/31765547> Add mach-lookup exception for 'com.apple.analyticsd
+       (global-name "com.apple.analyticsd")
 )
 
 
@@ -240,6 +244,10 @@
 ;; For ABGetSharedAddressBook on OS X (see <rdar://problem/19965241>)
 (allow file-read* file-write*
         (home-subpath "/Library/Application Support/AddressBook")
+        (regex #"^/private/var/folders/[^/]+/[^/]+/T/\.AddressBookLocks($|/)")
+)
+(allow mach-lookup
+        (global-name "com.apple.AddressBook.ContactsAccountsService")
 )
 
 (allow mach-lookup
@@ -285,16 +293,29 @@
        (global-name "com.apple.ocspd")
        (global-name "com.apple.windowserver.active")
        (global-name "com.apple.awdd")
+       (global-name "com.apple.securityd.general")
        (global-name "com.apple.securityd.xpc") ;; OS X only
        (global-name "com.apple.UNCUserNotification") ;; OS X only
        (global-name "com.apple.AssetCacheLocatorService")
-       
+
        ;; For CKDMescalSession (<rdar://problem/17676594>)
        (global-name "com.apple.fairplayd")
        (global-name "com.apple.fairplayd.versioned")
        (global-name "com.apple.DiskArbitration.diskarbitrationd")
+
+       ;; AutoBugCapture
+       (global-name "com.apple.symptom_diagnostics")
 )
 
 (allow iokit-open
        (iokit-user-client-class "IOMobileFramebufferUserClient")
+)
+
+(allow mach-lookup
+    (global-name "com.apple.cfnetwork.cfnetworkagent")
+)
+
+;; Used to grab logs to support MoiC effort. Can be removed after Emet
+(allow mach-lookup
+    (global-name "com.apple.imagent.desktop.auth")
 )

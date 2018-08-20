@@ -2,15 +2,17 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>BuildAliasOf</key>
+	<string>rootless_bincompat</string>
 	<key>BuildVersion</key>
-	<string>241</string>
+	<string>1289</string>
 	<key>CFBundleShortVersionString</key>
-	<string>12.0</string>
+	<string>15.0</string>
 	<key>CFBundleVersion</key>
-	<string>12.0</string>
+	<string>15.0</string>
 	<key>ProjectName</key>
 	<string>rootless_bincompat</string>
 	<key>SourceVersion</key>
-	<string>12000000000000</string>
+	<string>15000000000000</string>
 </dict>
 </plist>

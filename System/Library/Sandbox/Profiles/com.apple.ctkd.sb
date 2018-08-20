@@ -20,6 +20,8 @@
 
 (allow mach-lookup
         (global-name "com.apple.ctkd.slot-client")
+        (global-name "com.apple.ctkd.token-client")
+        (global-name "com.apple.ctkd.watcher-client")
         (global-name "com.apple.distributed_notifications@1v3")
         (global-name "com.apple.distributed_notifications@Uv3")
         (global-name "com.apple.pluginkit.pkd")

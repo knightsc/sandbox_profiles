@@ -1,0 +1,61 @@
+;; Copyright (c) 2017 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice.
+;;
+
+(version 1)
+(deny default)
+
+(import "system.sb")
+
+(import "com.apple.corefoundation.sb")
+
+;;; initialize CF sandbox actions
+(corefoundation)
+
+;; For resolving symlinks, realpath(3), and equivalents.
+(allow file-read-metadata)
+
+(allow process-info* (target self))
+
+(allow mach-lookup
+	(global-name "com.apple.CoreServices.coreservicesd")
+	(global-name "com.apple.coreservices.launchservicesd")
+	(global-name "com.apple.windowserver.active")
+	(global-name "com.apple.analyticsd")
+)
+
+(allow file-map-executable
+	(path "/System/Library/PrivateFrameworks/CoreServicesInternal.framework/Versions/A/CoreServicesInternal")
+	(subpath "/System/Library/Extensions")
+)
+
+;; Preferences
+(allow file-read*
+	(literal "/private/var/db/cmiodalassistants/Library/Preferences/com.apple.cmio.plist")
+	(literal "/private/var/db/cmiodalassistants/Library/Preferences/.GlobalPreferences.plist")
+	(literal "/Library/Preferences/.GlobalPreferences.plist")
+	(regex #"^/private/var/db/cmiodalassistants/Library/Preferences/ByHost/\.GlobalPreferences\..*\.plist$")
+)
+
+;; Preference domain.
+(allow user-preference-read
+	(preference-domain "com.apple.cmio")
+	(preference-domain "com.apple.coremedia")
+)
+
+;; Camera
+(allow iokit-open
+	(iokit-user-client-class "IOFireWireUserClient")
+	(iokit-user-client-class "RootDomainUserClient")
+)
+
+(allow iokit-open
+	(iokit-registry-entry-class "RootDomainUserClient")
+)
+
+;;(allow iokit-get-properties)
+
+

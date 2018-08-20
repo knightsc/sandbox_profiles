@@ -1,0 +1,123 @@
+;;; Copyright (c) 2017 Apple Inc.  All Rights reserved.
+;;;
+;;; WARNING: The sandbox rules in this file currently constitute
+;;; Apple System Private Interface and are subject to change at any time and
+;;; without notice.
+;;;
+(version 1)
+
+(deny default)
+(deny file-map-executable iokit-get-properties process-info* nvram*)
+(deny dynamic-code-generation)
+
+;; Debugging lines. Enable these and disable the three lines above if you need to make changes or otherwise tinker with this.
+;(allow default (with report))
+;(allow file-map-executable iokit-get-properties process-info* nvram* (with report))
+;(allow dynamic-code-generation (with report))
+
+(import "system.sb")
+(import "com.apple.corefoundation.sb")
+(corefoundation)
+
+;; Necessary-to-parsecd bits
+(allow iokit-get-properties (iokit-property "Protocol Characteristics"))
+(allow file-map-executable (subpath "/System/Library"))
+(allow nvram-get (nvram-variable "BSD Name"))
+
+(allow mach-lookup
+    (global-name "com.apple.locationd.desktop.synchronous")
+    (global-name "com.apple.accountsd.accountmanager")
+    (global-name "com.apple.commerce")
+    (global-name "com.apple.nsurlsessiond")
+    (global-name "com.apple.cookied")
+    (global-name "com.apple.SecurityServer")
+    (global-name "com.apple.windowserver.active")
+    (global-name "com.apple.VideoSubscriberAccount.videosubscriptionsd")
+    (global-name "com.apple.mobileassetd")
+    (global-name "com.apple.locationd.desktop.registration")
+    (global-name "com.apple.DataDetectorsSourceAccess")
+    (global-name "com.apple.coreservices.launchservicesd")
+    (global-name "com.apple.pasteboard.1")
+    (global-name "com.apple.DiskArbitration.diskarbitrationd"))
+
+(system-network)
+(allow network-outbound
+    (literal "/private/var/run/mDNSResponder")
+    (remote ip))
+
+(allow process-info-pidinfo)
+(allow ipc-posix-shm-read-data (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+(allow ipc-posix-shm-write-data (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+;;; Homedir-relative path filters
+(define (home-regex home-relative-regex)
+  (regex (string-append "^" (regex-quote (param "HOME")) home-relative-regex)))
+
+(define (home-subpath home-relative-subpath)
+  (subpath (string-append (param "HOME") home-relative-subpath)))
+
+(define (home-prefix home-relative-prefix)
+  (prefix (string-append (param "HOME") home-relative-prefix)))
+
+(define (home-literal home-relative-literal)
+  (literal (string-append (param "HOME") home-relative-literal)))
+
+;; Process information
+(allow process-info* (target self))
+
+;; For resolving symlinks, realpath(3), and equivalents.
+(allow file-read-metadata)
+
+;; For validating the entitlements of clients.
+(allow process-info-codesignature)
+
+;; parsecd’s CFPreferences/NSUserDefaults operational requirements
+(allow user-preference-read user-preference-write
+    (preference-domain "com.apple.parsecd"))
+(allow user-preference-read
+    (preference-domain "kCFPreferencesAnyApplication")
+    (preference-domain "com.apple.GEO")
+    (preference-domain "com.apple.HIToolbox")
+    (preference-domain "com.apple.lookup.shared")
+    (preference-domain "com.apple.DictionaryServices"))
+
+;; Filesystem Access
+(allow file-read*
+    (home-subpath "/Library")
+    (home-literal "/.CFUserTextEncoding")
+    (subpath "/private/var/db/datadetectors/sys")
+    (subpath "/private/var/db/mds/system")
+    (subpath "/Library")
+    (subpath "/usr/local/lib/log")
+    (path "/private/var/db/DetachedSignatures"))
+
+(allow file-write-data
+    (home-subpath "/Library/Caches/com.apple.DictionaryServices"))
+
+;; Read/write access to temporary and cache directories
+(allow file-read* file-write*
+    (subpath (param "DARWIN_TMP_DIR"))
+    (subpath (param "DARWIN_CACHE_DIR")))
+
+;; Read/write access to parsecd’s cache.
+(let ((cache-path-filter (home-subpath "/Library/Caches/com.apple.parsecd")))
+  (allow file-read* file-write* cache-path-filter)
+  (allow file-issue-extension
+    (require-all
+      (extension-class "com.apple.app-sandbox.read" "com.apple.app-sandbox.read-write")
+      cache-path-filter)))
+
+;; Read/write access to parsecd's downloads path in com.apple.nsurlsessiond/Downloads.
+(let ((cache-path-filter (home-subpath "/Library/Caches/com.apple.nsurlsessiond/Downloads/com.apple.parsecd")))
+    (allow file-read* file-write* cache-path-filter)
+    (allow file-issue-extension
+        (require-all
+        (extension-class "com.apple.app-sandbox.read" "com.apple.app-sandbox.read-write")
+        cache-path-filter)))
+
+(let ((cache-path-filter (subpath (param "DARWIN_TMP_DIR"))))
+    (allow file-read* file-write* cache-path-filter)
+    (allow file-issue-extension
+        (require-all
+        (extension-class "com.apple.app-sandbox.read" "com.apple.app-sandbox.read-write")
+        cache-path-filter)))

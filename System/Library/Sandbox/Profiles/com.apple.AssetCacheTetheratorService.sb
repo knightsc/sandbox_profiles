@@ -9,7 +9,9 @@
        (literal "/Library/Preferences/.GlobalPreferences.plist")                                               ; for reading NSUserDefaults
        (literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist")                              ; for reading NSUserDefaults
        (literal "/Library/Preferences/com.apple.usbmuxd.plist")                                                ; for reading usbmux prefs
-       (literal "/Library/Preferences/com.apple.MobileDevice.plist"))                                          ; for reading MobileDevice prefs
+       (literal "/Library/Preferences/com.apple.MobileDevice.plist")                                           ; for reading MobileDevice prefs
+       (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")                           ; for CrashReporter
+       (literal "/Library/MessageTracer/SubmitDiagInfo.default.domains.searchtree"))                           ; for MessageTracer
 
 (allow file-write*
        (literal "/Library/Preferences/SystemConfiguration/com.apple.nat.plist")                                ; for writing Internet Sharing prefs
@@ -21,7 +23,8 @@
 
 (allow mach-lookup
        (global-name "com.apple.SystemConfiguration.configd")                                                   ; for using Internet Sharing
-       (global-name "com.apple.wifi.sharekit"))                                                                ; for using Internet Sharing
+       (global-name "com.apple.wifi.sharekit")                                                                 ; for using Internet Sharing
+       (global-name "com.apple.PowerManagement.control"))                                                      ; for power assertions
 
 (allow network-outbound
        (literal "/private/var/run/usbmuxd"))                                                                   ; for using usbmux

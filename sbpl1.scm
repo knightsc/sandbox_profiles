@@ -202,6 +202,7 @@
 (define (debug-mode) (system-attribute sandbox-debug-mode))
 (define iokit-user-client-class iokit-registry-entry-class)
 (define iokit-user-client-class-regex iokit-registry-entry-class-regex)
+(define managed-preference* managed-preference-read)
 
 ;;; Support for old syntax for unix domain sockets
 ;;; e.g. (allow network-outbound

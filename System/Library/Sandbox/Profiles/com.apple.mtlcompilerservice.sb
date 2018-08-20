@@ -5,6 +5,9 @@
 
 (import "system.sb")
 
-(allow file-read-data)
-(allow file-read-metadata)
+(allow file-read-metadata
+    (subpath "/Library")
+    (subpath "/System"))
 
+(allow file-read*
+    (subpath "/Library/GPUBundles"))

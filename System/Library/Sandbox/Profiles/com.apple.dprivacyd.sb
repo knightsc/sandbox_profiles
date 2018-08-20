@@ -25,7 +25,8 @@
     (subpath "/private/var/root")
     (subpath "/Library/Preferences")
     (subpath "/Library")
-    (subpath "/Library/Application\ Support"))
+    (subpath "/Library/Application\ Support")
+    (subpath "/usr"))
 
 (allow file-write*
     (subpath "/Library/Logs/DiagnosticReports"))

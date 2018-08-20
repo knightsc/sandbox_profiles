@@ -1,0 +1,18 @@
+(version 1)
+(deny default)
+(import "bsd.sb")
+(import "com.apple.corefoundation.sb")
+(corefoundation)
+(allow file-read* file-write*
+       (literal "/Library/Preferences/com.apple.AssetCache.plist")
+       (regex #"^(/private)?/var/folders/[^/]+/[^/]+/C($|/)")
+       (regex #"^(/private)?/var/folders/[^/]+/[^/]+/T($|/)")
+       (regex #"/Library/Application Support/Apple/AssetCache$")
+       (regex #"/Library/Application Support/Apple/AssetCache/Data$")
+       (literal "/Library/Application Support/Apple/AssetCache/.activated"))
+(allow file-write-create
+       (regex #"/Library$")
+       (regex #"/Library/Application Support$")
+       (regex #"/Library/Application Support/Apple$"))
+(allow mach-lookup
+       (global-name "com.apple.AssetCache.builtin"))

@@ -1,0 +1,83 @@
+;; Sandbox profile for /System/Library/CoreServices/mapspushd
+;;
+;; Copyright (c) 2017 Apple Inc.  All Rights reserved.
+;;
+(version 1)
+
+;; Strictly enforce the sandbox
+(deny default)
+(deny dynamic-code-generation file-map-executable nvram* process-info* socket-ioctl)
+
+(import "system.sb")
+
+;; Useful function macros for library-relative paths
+(define (library-regex library-relative-regex)
+        (regex (string-append "^" (regex-quote (param "_LIBRARY")) library-relative-regex)))
+(define (library-subpath library-relative-subpath)
+        (subpath (string-append (param "_LIBRARY") library-relative-subpath)))
+(define (library-literal library-relative-literal)
+        (subpath (string-append (param "_LIBRARY") library-relative-literal)))
+
+
+;;; Add "(allow …)” rules below (anything you find during testing)
+
+(allow process-info-pidinfo)
+(allow process-info-pidfdinfo (target self))
+(allow process-info-pidfileportinfo (target self))
+(allow process-info-setcontrol (target self))
+(allow process-info-dirtycontrol (target self))
+(allow process-info-rusage (target self))
+
+(allow network-outbound (literal "/private/var/run/mDNSResponder"))
+
+(allow iokit-open (iokit-user-client-class "RootDomainUserClient"))
+
+(allow file-read-metadata)
+
+(allow system-fsctl (fsctl-command (_IO "h" 47))) ;; HFSIOC_SET_HOTFILE_STATE
+
+(allow file-read* (literal "/usr/local/lib/log"))
+
+(allow file-map-executable (subpath "/System/Library"))
+
+(allow file-read*
+    (library-subpath "/Caches/GeoServices")
+    (library-subpath "/Caches/Maps")
+    (library-subpath "/Maps/ReportAProblem"))
+
+(allow file-read* file-write*
+    (subpath "/Library/Caches/com.apple.MapsSupport")
+    (library-subpath "/Containers/com.apple.Maps/Data/Library/Maps")
+    (library-subpath "/Caches/com.apple.MapsSupport")
+    (library-subpath "/Logs/Maps"))
+
+(allow user-preference-read
+    (preference-domain "com.apple.GEO.plist"))
+
+(allow file-read*
+    (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
+    (literal "/Library/Preferences/.GlobalPreferences.plist")
+    (library-literal "/Preferences/.GlobalPreferences.plist")
+    (library-regex #"/Preferences/ByHost/\.GlobalPreferences\..*\.plist$")
+    (library-literal "/Preferences/com.apple.GEO.plist"))
+
+(allow file-read* file-write*
+    (subpath (param "_DARWIN_USER_TEMP_DIR"))
+    (subpath (param "_DARWIN_USER_CACHE_DIR")))
+
+(allow mach-lookup
+    (global-name "com.apple.apsd")
+    (global-name "com.apple.cookied")
+    (global-name "com.apple.CoreServices.coreservicesd")
+    (global-name "com.apple.distributed_notifications@Uv3")
+    (global-name "com.apple.identityservicesd.desktop.auth")
+    (global-name "com.apple.locationd.desktop.registration")
+    (global-name "com.apple.locationd.desktop.synchronous")
+    (global-name "com.apple.logind")
+    (global-name "com.apple.lsd.mapdb")
+    (global-name "com.apple.marco")
+    (global-name "com.apple.metadata.mds.legacy")
+    (global-name "com.apple.metadata.mds")
+    (global-name "com.apple.nehelper")
+    (global-name "com.apple.SecurityServer")
+    (global-name "com.apple.windowserver.active"))

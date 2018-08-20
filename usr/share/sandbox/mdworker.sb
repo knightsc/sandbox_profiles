@@ -63,6 +63,7 @@
 (allow distributed-notification-post)
 ;;(allow mach-lookup)
 
+(allow mach-lookup (global-name "com.apple.audio.AudioComponentRegistrar"))
 (allow mach-lookup (global-name "com.apple.coreservices.quarantine-resolver"))
 (allow mach-lookup (global-name "com.apple.DiskArbitration.diskarbitrationd"))
 (allow mach-lookup (global-name "com.apple.FontObjectsServer"))
@@ -95,7 +96,9 @@
 (allow sysctl*)
 (allow system-sched)
 
-;;(allow file-fsctl file-ioctl)
+(allow system-fsctl
+    (fsctl-command (_IO "J" 14)))            ;;_IOR('J', 14, apfs_clone_info_t)
+
 (allow file-read-metadata)
 
 (allow file-read* (regex #"\.app(/$)"))
@@ -203,6 +206,7 @@
         (allow file-read* (home-subpath "/Library/Audio/Plug-Ins"))
         (allow file-read* (home-subpath "/Library/Components"))
         (allow file-read* (home-subpath "/Library/Keychains"))
+        (allow file-read* (home-literal "/Library/Preferences/com.apple.security.plist"))
         (allow file-read* (home-subpath "/Library/Preferences/com.apple.security.revocation.plist"))
         (allow file-read* (home-literal "/Library/Preferences/com.apple.HIToolbox.plist"))
         (allow file-read* (home-literal "/Library/Preferences/mdworker.plist"))

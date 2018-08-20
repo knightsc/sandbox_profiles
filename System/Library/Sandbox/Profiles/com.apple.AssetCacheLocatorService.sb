@@ -17,16 +17,15 @@
        (home-literal "/Library/Preferences/com.apple.security.plist")
        (home-literal "/Library/Preferences/com.apple.security.revocation.plist")
        (subpath "/private/var/db/mds"))
-(allow file-read-metadata
-       (literal "/Applications/Server.app/Contents/ServerRoot/usr/libexec/AssetCache/AssetCache"))
 (allow file-read* file-write*
        (subpath (param "USER_CACHE_PATH"))
        (subpath (param "USER_TEMP_PATH")))
 (allow ipc-posix-shm-read-data ipc-posix-shm-write-data
        (ipc-posix-name "com.apple.AppleDatabaseChanged"))
 (allow mach-lookup
-       (global-name "com.apple.AssetCacheC")
        (global-name "com.apple.AssetCacheC.builtin")
+       (global-name "com.apple.cfnetwork.AuthBrokerAgent")
+       (global-name "com.apple.cfnetwork.cfnetworkagent")
        (global-name "com.apple.DiskArbitration.diskarbitrationd")
        (global-name "com.apple.SecurityServer")
        (global-name "com.apple.SystemConfiguration.DNSConfiguration")

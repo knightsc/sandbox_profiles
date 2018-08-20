@@ -47,6 +47,9 @@
 (allow sysctl*)
 (allow system-sched)
 
+(allow system-fsctl
+(fsctl-command (_IO "J" 14)))            ;;_IOR('J', 14, apfs_clone_info_t)
+
 (allow file-read* (extension "com.apple.spotlight.importer.readonly"))
 
 (allow ipc-posix-shm-read-data (ipc-posix-name-regex #"^/tmp/com\.apple\.csseed\.[0-9]+$"))

@@ -108,8 +108,7 @@
 
     ;; Individual revisions vended by revisiond (read-only access).
     (allow file-read* (require-all
-        ;; Restore the following with <rdar://problem/16635735>
-        ;; (vnode-type REGULAR-FILE DIRECTORY SYMLINK)
+        (vnode-type REGULAR-FILE DIRECTORY SYMLINK)
         (mount-relative-regex #"^/\.DocumentRevisions-V100/(AllUIDs|PerUID)/")
         (extension "com.apple.revisiond.revision"
                    "com.apple.app-sandbox.read")
@@ -117,8 +116,7 @@
 
     ;; Access to revisiond's staging area for adding new document revisiond (read-write access).
     (allow file-read* file-write* (require-all
-         ;; Restore the following with <rdar://problem/16635735>
-         ;; (vnode-type REGULAR-FILE DIRECTORY SYMLINK)
+         (vnode-type REGULAR-FILE DIRECTORY SYMLINK)
          (mount-relative-regex #"^/\.DocumentRevisions-V100/staging/")
          (extension "com.apple.revisiond.staging"
                     "com.apple.app-sandbox.read-write")
@@ -202,6 +200,7 @@
        (global-name "com.apple.ProgressReporting")
 ;; OS X only: QuickLook for thumbnails
        (global-name "com.apple.quicklook")
+       (global-name "com.apple.quicklook.ThumbnailsAgent")
 ;; OS X only: NSURL bookmarkDataWithOptions calls LaunchServices which calls IconServices rdar://17761890
 	(global-name "com.apple.iconservices")
 	(global-name "com.apple.iconservices.store")
@@ -233,6 +232,12 @@
 ;; Used by sharing acceptation flow to select file in Finder (25639025)
         (global-name "com.apple.coreservices.launchservicesd")
         (global-name "com.apple.coreservices.appleevents")
+;; fileproviderd
+        (global-name "com.apple.FileProvider")
+;; AutoBugCapture
+        (global-name "com.apple.symptom_diagnostics")
+;; Anisette (see rdar://problem/34819241)
+        (global-name "com.apple.ak.anisette.xpc")
 )
 
 ;; Used by sharing acceptation flow to select file in Finder (25639025)

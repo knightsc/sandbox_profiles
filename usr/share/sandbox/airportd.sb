@@ -23,7 +23,9 @@
 )
 
 (allow distributed-notification-post)
- 
+
+(allow file-read-metadata)
+
 (allow file*
     (literal "/dev/io8log")
     (literal "/dev/io8logmt")
@@ -33,8 +35,11 @@
     (regex #"^/Library/Preferences/SystemConfiguration/preferences\.plist")
     (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.airport\.preferences\.plist")
     (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.wifi\.message-tracer\.plist")
+    (subpath "/private/var/log")
+    (literal "/private/var/run/wifi")
+    (subpath (param "TMP_DIR"))
 )
-    
+
 (allow file-read*
     (subpath "/Library/Keychains")
     (literal "/Library/Preferences/com.apple.security.plist")
@@ -55,27 +60,19 @@
     (literal "/usr/libexec")
     (subpath "/usr/libexec/airportd")
     (literal "/usr/libexec/InternetSharing")
-    (literal "/private/tmp")
+    (literal "/private/var/log")
     (literal "/private/var/db/DetachedSignatures")
     (literal "/dev/random")
-)
-
-(allow file-read-metadata
-    (literal "/")
-    (literal "/Library")
-    (literal "/private")
-    (literal "/private/var")
-    (literal "/private/var/db")
-    (literal "/private/var/root")
-    (literal "/private/var/root/Library")
-    (literal "/private/var/run/systemkeychaincheck.done")
+    (literal "/Library/Caches/com.apple.DiagnosticReporting.HasBeenAppleInternal")
+	(literal "/Library/MessageTracer/SubmitDiagInfo.default.domains.searchtree")
+	(literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
 )
 
 (allow file-write*
     (literal "/private/var/db/mds/system/mds.lock")
     (literal "/private/var/log/wifi.log")
-    (regex #"^/private/tmp/wifi")
-    (regex #"^/private/tmp/AWDL")
+    (regex #"^/private/var/log/wifi")
+    (regex #"^/private/var/log/AWDL")
     (literal "/private/var/log/corewifi.log")
     (subpath "/Library/Keychains")
     (subpath "/private/var/db/mds")
@@ -123,6 +120,8 @@
     (global-name "com.apple.corecaptured")
     (global-name "com.apple.locationd.desktop.registration")
     (global-name "com.apple.locationd.desktop.synchronous")
+    (global-name "com.apple.securityd.xpc")
+    (global-name "com.apple.analyticsd")
 )
 
 (allow mach-per-user-lookup)

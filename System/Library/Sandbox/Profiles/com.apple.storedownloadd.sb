@@ -37,6 +37,7 @@
        (regex #"/Library/Preferences/\.GlobalPreferences\.plist$")
        (regex #"/Library/Preferences/ByHost/\.GlobalPreferences\.")
        (regex #"/Library/Preferences/com.apple.security\.plist$")
+       (regex #"/Library/Preferences/com\.apple\.seeding\.plist$")
 	   (regex #"/\.CFUserTextEncoding$")
        (regex #"/Library/Caches/com\.apple\.commerce/updates-com\.apple\.appstore\.updateQueue\.plist$"))
 
@@ -96,6 +97,8 @@
        (global-name "com.apple.storedownloadd"))
 
 (allow mach-lookup
+       (global-name "com.apple.adid")
+       (global-name "com.apple.fpsd")
        (global-name "com.apple.UNCUserNotification")
        (global-name "com.apple.coreservices.launcherror-handler")
        (global-name "com.apple.softwareupdated")
@@ -145,9 +148,11 @@
 	   (global-name "com.apple.pluginkit.pkd")
        (global-name "com.apple.CrashReporterSupportHelper")
        (global-name "com.apple.cfnetwork.AuthBrokerAgent")
+       (global-name "com.apple.cfnetwork.cfnetworkagent")
        (global-name "com.apple.lsd.mapdb")
        (global-name "com.apple.lsd.modifydb")
        (global-name "com.apple.duetactivityscheduler")
+       (global-name "com.apple.rtcreportingd")
        (global-name "com.apple.system_installd"))
 
 (allow authorization-right-obtain

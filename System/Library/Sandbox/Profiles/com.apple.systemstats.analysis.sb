@@ -1,0 +1,102 @@
+;;; Copyright (c) 2017 Apple Inc.  All Rights reserved.
+;;;
+;;; WARNING: The sandbox rules in this file currently constitute
+;;; Apple System Private Interface and are subject to change at any time and
+;;; without notice.
+;;;
+;;; For instructions on how to sandbox a daemon, check out the core os wiki.
+;;; https://confluence.sd.apple.com/display/OSSEC/Sandbox+Manual
+(version 1)
+
+(deny default)
+(deny process-info* nvram*)
+;; (allow job-creation)
+
+(import "system.sb")
+(import "com.apple.corefoundation.sb")
+(corefoundation)
+
+(allow process-info* (target self))
+
+;; For resolving symlinks, realpath(3), and equivalents.
+(allow file-read-metadata)
+
+;; For validating the entitlements of clients.
+(allow process-info-codesignature)
+
+;; For spawning the helper process
+(allow process-fork)
+(allow file-read* process-exec
+       (literal (param "SYSTEMSTATS_EXECUTABLE")))
+
+;; systemstats preference domain.
+(allow user-preference-read user-preference-write
+       (preference-domain "com.apple.systemstats"))
+
+(allow user-preference-read
+       (preference-domain "kCFPreferencesAnyApplication"))
+
+;; Read access to the binary and its path
+(allow file-read* (literal "/"))
+(allow file-read* (literal "/usr"))
+(allow file-read* (literal "/usr/sbin"))
+(allow file-read* (literal "/usr/sbin/systemstats"))
+
+;; Read access to CoreAudio and CoreMedia plugins
+(allow file-read* (subpath "/Library/Audio/Plug-Ins/HAL"))
+(allow file-read* (subpath "/Library/CoreMediaIO/Plug-Ins/DAL"))
+
+;; Read/write access to the systemstats data store.
+(allow file-read* file-write*
+       (subpath (param "SYSTEMSTATS_DIR")))
+
+;; IOKit and IOReporter access for the logger
+(allow iokit-get-properties)
+
+;; Opening services for AppleSMC and AppleGraphicsControl. Perhaps more in the future.
+(allow iokit-open)
+
+;; Logger lists pids to find out which ones to log about, or which of our dependencies are alive
+(allow process-info-listpids)
+
+;; Logger needs the process info to know their name and coalition id
+(allow process-info-pidinfo)
+
+;; Logger needs to log resource usage of some processes at the pid boundary if we don't get the data from sysmond
+(allow process-info-rusage)
+
+;; Logger needs to read some sleep/wake info that is passed to us via sysctl
+;; Also needed for info about the swapper and memory pressure
+;; Also used for xcpm properties from the kernel
+(allow sysctl-read)
+
+;; Some drivers and ioreporters initialize state by poking at nvram variables
+(allow nvram-get)
+
+;; Permit device nodes to be enumerated. We depend on many drivers, and some of them may need this.
+(allow file-read* (literal "/dev"))
+
+;; Logger needs to verify that we're on an xcpm platform
+(allow file-read* file-write* file-ioctl (literal "/dev/xcpm"))
+
+;; Logger needs to monitor whether the camera is on. Apparently the same entitlement as enabling the camera
+(allow device-camera)
+
+;; Logger needs this to monitor CoreWLAN to monitor wifi interfaces
+(allow mach-lookup
+;;       (global-name "com.apple.wifi.sharekit")
+       (global-name "com.apple.airportd")
+       (global-name "com.apple.sysmond")
+       (global-name "com.apple.iohideventsystem")
+       (global-name "com.apple.backlightd")
+       (global-name "com.apple.cmio.AppleCameraAssistant")
+       (global-name "com.apple.cmio.VDCAssistant")
+       (global-name "com.apple.audio.audiohald")
+       (global-name "com.apple.PowerManagement.control")
+       (global-name "com.apple.coreservices.launchservicesd")
+       (global-name "com.apple.lsd.mapdb"))
+
+(allow ipc-posix-shm-read-data
+       (ipc-posix-name-regex #"^/tmp/com.apple.csseed.[0-9]+$"))
+
+;; (allow default (with report))

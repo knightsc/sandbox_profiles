@@ -25,11 +25,18 @@
 
 (allow file-read* file-write*
     (subpath "/System/Library/Assets")
+    (subpath "/System/Library/AssetsV2")
+    (subpath "/Library/Caches/com.apple.nsurlsessiond")
+    (subpath "/private/var/root/Library/Caches/com.apple.nsurlsessiond")
     (subpath "/System/Library/PreinstalledAssets")
+    (subpath "/System/Library/PreinstalledAssetsV2")
     (literal "/private/var/root/Library/Preferences/com.apple.MobileAsset.plist")
     (literal "/private/var/root/Library/Preferences/com.apple.cache_delete.plist")
     (literal "/dev/ptmx")
     (literal "/private/var/db/mds/system/mds.lock")
+    (literal "/private/var/db/mds/messages/se_SecurityMessages")
+
+    (regex #"/private/var/db/mds/messages/.*/se_SecurityMessages")
 )
 
 (allow ipc-posix-shm-read-data
@@ -44,6 +51,7 @@
 )
 
 (allow file-read*
+    (literal "/")
     (literal "/Library/Preferences/.GlobalPreferences.plist")
     (literal "/Library/Preferences/SystemConfiguration/preferences.plist")
     (literal "/usr/libexec")
@@ -74,6 +82,9 @@
        (global-name "com.apple.lsd.mapdb")
        (global-name "com.apple.lsd.modifydb")
        (global-name "com.apple.CrashReporterSupportHelper")
+
+       (global-name "com.apple.cookied")
+       (global-name "com.apple.coreservices.quarantine-resolver")
 )
 
 ;; from application.sb

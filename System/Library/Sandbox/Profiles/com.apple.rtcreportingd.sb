@@ -25,14 +25,9 @@
        (home-subpath "/Library/Logs/RTCReports")
        (home-subpath "/logs/mediaserverd")
        (literal "/Library/Application Support/CrashReporter/DiagnosticMessagesHistory.plist")
+       (literal "/private/var/db/mds/system/mds.lock")
        (darwin-user-temp-subpath #"/TemporaryItems")
        (mount-relative-regex #"^/\.TemporaryItems(/|$)"))   ;; NSData atomic write
-
-(allow file-issue-extension
-       (home-literal "/Library/Caches/rtcreportingd")
-       (require-all
-           (extension-class "com.apple.rtcreporting.upload")
-           (home-subpath "/Library/Containers/com.apple.FaceTime/Data/logs/mediaserverd")))
 
 (allow file-read*
        (literal "/Library/Keychains/System.keychain")
@@ -50,7 +45,7 @@
        (literal "/private/var/db/mds/system/mdsDirectory.db")
        (literal "/private/var/db/mds/system/mdsObject.db")
        (literal "/usr/libexec")
-       (subpath "/usr/libexec/rtcreportingd"))
+       (literal "/usr/libexec/rtcreportingd"))
 
 (allow user-preference-read (preference-domain "com.apple.rtcreportingd"))
 
@@ -65,12 +60,15 @@
        (global-name "com.apple.CoreServices.coreservicesd")
        (global-name "com.apple.DiskArbitration.diskarbitrationd")   ;; NSData atomic write
        (global-name "com.apple.SecurityServer")
+       (global-name "com.apple.awdd")
+       (global-name "com.apple.cfnetwork.cfnetworkagent")
        (global-name "com.apple.cookied")
+       (global-name "com.apple.distributed_notifications@1v3")
        (global-name "com.apple.ocspd"))
 
+(allow system-fsctl
+       (fsctl-command (_IO "h" 47)))  ; HFSIOC_SET_HOTFILE_STATE
+
 (system-network)
-(allow network-outbound
-       (literal "/private/var/run/mDNSResponder")
-       (remote tcp "*:443")
-       (remote udp "*:16384")
-       (remote udp "*:16387"))
+(allow network-outbound)
+(allow network-inbound (local udp))

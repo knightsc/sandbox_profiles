@@ -35,21 +35,20 @@
             (home-subpath "/Library/Caches/com.apple.CacheDelete"))))
 
 (allow file-write*
-    (regex "/private/var/folders/.*/mds/mds.lock"))
+    (regex #"^/private/var/folders/[^/]+/[^/]+/C/[^/]+/mds/mds\.lock$"))
 
 
 (allow file-read*
 	(literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
     (literal "/Library/Preferences/.GlobalPreferences.plist")
-    (regex "/Users/.*/Library/Preferences/.GlobalPreferences.plist")
-    (regex "/Users/.*/Library/Preferences/ByHost/.GlobalPreferences\..*\.plist")
-    (regex "/AppleInternal/Library/CacheDelete")
-    (regex "/AppleInternal/Library/CacheDelete/.*")
-    (regex "/Applications/.*")
-    (regex "/private/var/folders/.*/mds/mds.lock")
-    (regex "/private/var/folders/.*/com.apple.LaunchServices-.*\.csstore")
-    (regex "*\.appex")
-	(subpath "/System/Library/CacheDelete"))
+    (regex "^/Users/[^/]+/Library/Preferences/\.GlobalPreferences\.plist$")
+    (regex "^/Users/[^/]+/Library/Preferences/ByHost/\.GlobalPreferences\..*\.plist$")
+    (regex "^/Applications/.*$")
+    (regex "^/private/var/folders/.*/mds/mds\.lock$")
+    (regex "^/private/var/folders/.*/com.apple.LaunchServices-.*\.csstore$")
+    (regex "^.*/[^/]*\.appex$")
+    (subpath "/System/Library/CacheDelete")
+    (subpath "/AppleInternal/Library/CacheDelete"))
 
 ;;; Various patterns used by cache-delete services.
 (allow mach-lookup
@@ -61,8 +60,12 @@
     (global-name "com.apple.lsd.modifydb")
     (global-name "com.apple.lsd.mapdb")
     (global-name "com.apple.diskspaced")
+    (global-name "com.apple.DiskArbitration.diskarbitrationd")
+    (global-name "com.apple.diskmanagementd")
     (global-name "com.apple.windowserver.active")
     (global-name "com.apple.cookied"))
+
+(allow iokit-open (iokit-user-client-class "AppleAPFSUserClient"))
 
 (allow file-read-metadata)
 
@@ -76,7 +79,12 @@
 
     (fsctl-command (_IO "h" 28))    ; #define	HFSIOC_GET_LOW_DISK	_IOR('h', 28, u_int32_t)
 
+    (fsctl-command (_IO "J" 18))    ; APFSIOC_GET_NEAR_LOW_DISK
+
     (fsctl-command (_IO "h" 29))    ; #define	HFSIOC_GET_DESIRED_DISK	_IOR('h', 29, u_int32_t)
+
+    ;;; Required for fs_snapshot_list
+    (fsctl-command #x4a12)
 )
 
 (allow ipc-posix-sem)
@@ -93,6 +101,12 @@
     (path "/Library/Preferences/com.apple.security.plist")
     (path "/private/var/db/mds/messages/se_SecurityMessages")
     (path "/private/var/db/mds/system/mdsDirectory.db"))
+
+;;; Required to list the snapshots on all of the
+;;;  user-visible volumes
+(allow file-read*
+    (path "/")
+    (regex #"^/Volumes/[^/]$"))
 
 (if (positive? (string-length (param "_HOME")))
     (begin

@@ -1,0 +1,100 @@
+;;;
+;;; Sandbox profile for /System/Library/Frameworks/CryptoTokenKit.framework/ctkbind.bundle/Contents/MacOS/ctkbind
+;;;
+;;; Copyright (c) 2016 Apple Inc.  All Rights reserved.
+;;;
+;;; WARNING: The sandbox rules in this file currently constitute
+;;; Apple System Private Interface and are subject to change at any time and
+;;; without notice. The contents of this file are also auto-generated and
+;;; not user editable; it may be overwritten at any time.
+
+(version 1)
+
+(deny default)
+
+(import "system.sb")
+
+(define (home-subpath home-relative-subpath)
+        (subpath (string-append (param "HOME_DIR") home-relative-subpath)))
+
+(define (home-literal home-relative-literal)
+        (literal (string-append (param "HOME_DIR") home-relative-literal)))
+
+(allow file-read-data)
+
+(allow file-read-metadata)
+
+(allow file-read*
+        (subpath (param "DARWIN_USER_TEMP_DIR"))
+        (subpath (param "DARWIN_USER_CACHE_DIR"))
+        (subpath "/Library/Caches/com.apple.iconservices.store")
+        (subpath "/Library/Keyboard Layouts")
+        (subpath "/private/var/db")
+        (home-subpath "/Library/Keyboard Layouts")
+        (literal "/Library/Preferences/com.apple.security.plist")
+        (home-literal "/Library/Keychains/login.keychain-db")
+        (home-literal "/.CFUserTextEncoding"))
+
+(allow file-write*
+        (subpath (param "DARWIN_USER_CACHE_DIR"))
+        (subpath "/private/var/db/mds/system"))
+
+(allow mach-lookup
+        (global-name "com.apple.audio.SystemSoundServer-OSX")
+        (global-name "com.apple.coreservices.appleevents")
+        (global-name "com.apple.coreservices.launchservicesd")
+        (global-name "com.apple.CoreServices.coreservicesd")
+        (global-name "com.apple.CryptoTokenKit.AuthenticationHintsProvider.agent.libxpc")
+        (global-name "com.apple.CryptoTokenKit.AuthenticationHintsProvider.daemon.libxpc")
+        (global-name "com.apple.ctkd.token-client")
+        (global-name "com.apple.ctkd.watcher-client")
+        (global-name "com.apple.cvmsServ")
+        (global-name "com.apple.decalog4.incoming")
+        (global-name "com.apple.distributed_notifications@Uv3")
+        (global-name "com.apple.dock.fullscreen")
+        (global-name "com.apple.dock.server")
+        (global-name "com.apple.fonts")
+        (global-name "com.apple.FSEvents")
+        (global-name "com.apple.iconservices")
+        (global-name "com.apple.iconservices.store")
+        (global-name "com.apple.inputmethodkit.getxpcendpoint")
+        (global-name "com.apple.inputmethodkit.launchagent")
+        (global-name "com.apple.inputmethodkit.launcher")
+        (global-name "com.apple.lsd.mapdb")
+        (global-name "com.apple.pasteboard.1")
+        (global-name "com.apple.quicklook.ui.helper.active")
+        (global-name "com.apple.SecurityServer")
+        (global-name "com.apple.system.opendirectoryd.api")
+        (global-name "com.apple.SystemConfiguration.configd")
+        (global-name "com.apple.touchbar.agent")
+        (global-name "com.apple.tsm.uiserver")
+        (global-name "com.apple.window_proxies")
+        (global-name "com.apple.tccd.system")
+        (global-name "com.apple.ocspd")
+        (global-name "com.apple.windowserver.active"))
+
+(allow ipc-posix-shm-read-data ipc-posix-shm-write-data
+        (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+(allow authorization-right-obtain
+        (right-name "com.apple.ctk.pair")
+        (right-name "com.apple.ctkbind.admin"))
+
+(allow user-preference-read
+        (preference-domain "com.apple.AppleMultitouchTrackpad")
+        (preference-domain "com.apple.ctkbind")
+        (preference-domain "com.apple.HIToolbox")
+        (preference-domain "com.apple.universalaccess")
+        (preference-domain "kCFPreferencesAnyApplication"))
+
+(allow user-preference-read user-preference-write
+        (preference-domain "com.apple.ctkbind")
+        (preference-domain "com.apple.security.smartcard")
+        (preference-domain "com.apple.security.tokenlogin"))
+
+(allow iokit-open
+        (iokit-registry-entry-class "IGAccelCommandQueue")
+        (iokit-registry-entry-class "IGAccelDevice")
+        (iokit-user-client-class "AppleKeyStoreUserClient")
+        (iokit-user-client-class "IGAccelSharedUserClient")
+        (iokit-user-client-class "IOSurfaceRootUserClient"))

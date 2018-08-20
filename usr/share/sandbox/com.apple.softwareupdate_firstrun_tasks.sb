@@ -21,6 +21,7 @@
        (global-name "com.apple.SystemConfiguration.DNSConfiguration")
        (global-name "com.apple.networkd")
        (global-name "com.apple.system.logger")
+       (global-name "com.apple.suhelperd")
 )
 
 (allow file-read*

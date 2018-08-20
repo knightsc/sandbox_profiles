@@ -30,5 +30,4 @@
 (allow file-read* file-write*
 	(literal (string-append (param "_HOME") "/Library/Preferences/networkserviceproxy.plist"))
 	(literal "/private/var/mobile/Library/Logs/awd")
-	(literal "/private/var/mobile/Library/Logs/awd/awd-NetworkServiceProxy.log")
-	(regex "/private/var/folders/.*"))
+	(literal "/private/var/mobile/Library/Logs/awd/awd-NetworkServiceProxy.log"))

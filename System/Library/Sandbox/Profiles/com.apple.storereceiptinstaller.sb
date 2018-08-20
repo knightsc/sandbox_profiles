@@ -9,6 +9,7 @@
        (literal "/private/var/root/Library/Preferences")
 	   (literal "/Library/Preferences/.GlobalPreferences.plist")
 	   (literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist")
+	   (regex #"^/private/var/root/Library/Preferences/ByHost/\.GlobalPreferences\..*\.plist$")
        (literal "/Library/Preferences/"))
 
 (allow file-read* file-write*
@@ -40,6 +41,8 @@
 (allow distributed-notification-post)
 
 (allow mach-lookup
+       (global-name "com.apple.lsd.mapdb")
+       (global-name "com.apple.lsd.modifydb")
        (global-name "com.apple.CoreServices.coreservicesd")
        (global-name "com.apple.DiskArbitration.diskarbitrationd")) ;used by [[NSWorkspace sharedWorkspace] setIcon:forFile:options:];
 

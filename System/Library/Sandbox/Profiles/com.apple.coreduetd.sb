@@ -3,8 +3,10 @@
 ;;(allow default (with report))
 
 (import "system.sb")
+(import "bsd.sb")
 (import "com.apple.corefoundation.sb")
 
+(system-network)
 ;;; initialize CF sandbox actions
 (corefoundation)
 
@@ -38,10 +40,13 @@
         (global-name "com.apple.coreservices.launchservicesd")
         (global-name "com.apple.lsd.mapdb")
         (global-name "com.apple.metadata.mds")
+        (global-name "com.apple.apsd")
+        (global-name "com.apple.cookied")
         (global-name "com.apple.coreduetd.knowledge")
         (global-name "com.apple.coreduetd.people")
         (global-name "com.apple.coreduetd.knowledgebase")
         (global-name "com.apple.coreduetd.batterysaver")
+        (global-name "com.apple.coreservices.quarantine-resolver")
         (global-name "com.apple.iokit.powerdxpc")
         (global-name "com.apple.coreduetd.context")
         (global-name "com.apple.SystemConfiguration.configd")
@@ -51,9 +56,24 @@
         (global-name "com.apple.mediaremoted.xpc")
         (global-name "com.apple.CoreLocation.agent")
         (global-name "com.apple.locationd.desktop.registration")
-        (global-name "com.apple.locationd.desktop.synchronous"))
+        (global-name "com.apple.locationd.desktop.synchronous")
+        (global-name "com.apple.SharingServices")
+        (global-name "com.apple.SystemConfiguration.configd"))
+
+(allow mach-register
+        (global-name "com.apple.coreduet.knowledge.sync.push"))
 
 (allow ipc-posix-shm*
         (ipc-posix-name "coreduetd")
         (ipc-posix-name "/CDCSS")
         (ipc-posix-name "com.apple.coreduetd"))
+
+(allow network-outbound
+    (literal "/private/var/run/mDNSResponder"))                                                ; to resolve host names
+
+(allow ipc-posix-shm-read-data
+    (ipc-posix-name "FNetwork.defaultStorageSession"))
+
+(allow network-outbound
+       (remote ip))
+

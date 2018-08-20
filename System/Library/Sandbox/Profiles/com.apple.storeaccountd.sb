@@ -103,10 +103,14 @@
        (global-name "com.apple.storeaccountd"))
 
 (allow mach-lookup
+       (global-name "com.apple.adid")
+       (global-name "com.apple.fpsd")
        (global-name "com.apple.UNCUserNotification")
        (global-name "com.apple.coreservices.launcherror-handler")
        (global-name "com.apple.softwareupdated")
        (global-name "com.apple.SystemConfiguration.configd")
+       (global-name "com.apple.commerce")
+       (global-name "com.apple.commerced")
        (global-name "com.apple.storeassetd")
        (global-name "com.apple.storeassetd.daemon")
        (global-name "com.apple.storeaccountd")
@@ -151,6 +155,7 @@
        (global-name "com.apple.accountsd.accountmanager")
        (global-name "com.apple.CrashReporterSupportHelper")
        (global-name "com.apple.cfnetwork.AuthBrokerAgent")
+       (global-name "com.apple.cfnetwork.cfnetworkagent")
        (global-name "com.apple.backupd.sandbox.xpc")
        (global-name "com.apple.marco")
        (global-name "com.apple.ctkd.token-client")

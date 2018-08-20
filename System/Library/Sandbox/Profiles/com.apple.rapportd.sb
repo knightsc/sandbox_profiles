@@ -1,0 +1,61 @@
+;
+;	Copyright (C) 2017 Apple Inc. All Rights Reserved.
+;
+;	Sandbox profile for rapportd.
+;
+
+(version 1)
+(deny default)
+
+(import "com.apple.corefoundation.sb")
+(import "system.sb")
+
+(allow distributed-notification-post)
+(allow file-read*
+	(subpath "/"))
+(allow file-write*
+	(subpath "/Library/Application Support/Rapport")
+	(regex #"^/Library/Keychains/System.keychain")
+	(literal "/private/var/db/mds/system/mds.lock")
+	(regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mds\.lock$")
+	(regex #"^(/private)?/var/folders/[^/]+/[^/]+/C($|/)")
+	(regex #"^(/private)?/var/folders/[^/]+/[^/]+/T($|/)")
+)
+(allow iokit-open
+	(iokit-user-client-class "RootDomainUserClient")
+)
+(allow mach-lookup
+	(global-name "com.apple.airportd")
+	(global-name "com.apple.ak.auth.xpc")
+	(global-name "com.apple.analyticsd")
+	(global-name "com.apple.accountsd.accountmanager")
+	(global-name "com.apple.AutoUnlock.AuthenticationHintsProvider")
+	(global-name "com.apple.awdd")
+	(global-name "com.apple.bluetoothd")
+	(global-name "com.apple.cloudd")
+	(global-name "com.apple.coreduetd.context")
+	(global-name "com.apple.coreduetd.knowledgebase")
+	(global-name "com.apple.coresymbolicationd")
+	(global-name "com.apple.distributed_notifications@1v3")
+	(global-name "com.apple.distributed_notifications@Uv3")
+	(global-name "com.apple.icloud.fmfd")
+	(global-name "com.apple.identityservicesd.desktop.auth")
+	(global-name "com.apple.logind")
+	(global-name "com.apple.managedconfiguration.profiled")
+	(global-name "com.apple.marco")
+	(global-name "com.apple.networkd")
+	(global-name "com.apple.ocspd")
+	(global-name "com.apple.PairingManager")
+	(global-name "com.apple.securityd.xpc")
+	(global-name "com.apple.SecurityServer")
+	(global-name "com.apple.server.bluetooth")
+	(global-name "com.apple.SharingServices")
+	(global-name "com.apple.SystemConfiguration.configd")
+	(global-name "com.apple.wifi.manager")
+	(global-name "com.apple.wirelessproxd")
+)
+(allow network*)
+(allow system-socket)
+(allow user-preference-read user-preference-write
+	(preference-domain "com.apple.rapport")
+)

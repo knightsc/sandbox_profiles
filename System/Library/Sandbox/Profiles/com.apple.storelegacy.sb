@@ -136,7 +136,8 @@
        (global-name "com.apple.CrashReporterSupportHelper")
        (global-name "com.apple.lsd.mapdb")
        (global-name "com.apple.lsd.modifydb")
-       (global-name "com.apple.cfnetwork.AuthBrokerAgent"))
+       (global-name "com.apple.cfnetwork.AuthBrokerAgent")
+       (global-name "com.apple.cfnetwork.cfnetworkagent"))
 
 (allow authorization-right-obtain
        (right-name "system.install.app-store-software")

@@ -9,14 +9,6 @@
        (literal "/Library/Preferences/.GlobalPreferences.plist")
        (with no-report))
 
-;;; <rdar://problem/13449326>
-(let allow-paths ((i 0))
-  (let ((path (param (string-append "HOME_" (number->string i)))))
-    (if path
-        (begin
-          (allow file-read* file-write-unlink (subpath path))
-          (allow-paths (+ i 1))))))
-
 (allow authorization-right-obtain
        (right-name "com.apple.ReportPanic.fixRight"))
 

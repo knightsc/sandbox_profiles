@@ -1,0 +1,92 @@
+;;;
+;;; Sandbox profile for /System/Library/Frameworks/CryptoTokenKit.framework/ctkahp.bundle
+;;;
+;;; Copyright (c) 2017 Apple Inc.  All Rights reserved.
+;;;
+;;; WARNING: The sandbox rules in this file currently constitute
+;;; Apple System Private Interface and are subject to change at any time and
+;;; without notice. The contents of this file are also auto-generated and
+;;; not user editable; it may be overwritten at any time.
+
+(version 1)
+
+(deny default)
+
+(import "system.sb")
+
+(allow file-read*
+       (literal "/private/etc/SmartcardLogin.plist")
+       (literal "/private/etc/cacloginconfig.plist")
+       (subpath (param "DARWIN_USER_TEMP_DIR"))
+       (subpath (param "DARWIN_USER_CACHE_DIR"))
+       (subpath "/private/var/db/mds")
+       (subpath "/private/var/db/"))
+
+(allow file-read-data
+       (literal "/")
+       (literal "/Library/Preferences/com.apple.security.plist"))
+
+(allow file-write*
+       (subpath (param "DARWIN_USER_CACHE_DIR"))
+       (subpath "/private/var/db/mds/system/"))
+
+(allow file-read-metadata)
+
+(allow process-fork)
+
+(allow process-exec
+       (literal "/System/Library/Frameworks/CryptoTokenKit.framework/UserSelector")
+       (subpath "/Library/CryptoTokenKit"))
+
+(allow mach-lookup
+       (global-name "com.apple.distributed_notifications@1v3")
+       (global-name "com.apple.distributed_notifications@Uv3")
+       (global-name "com.apple.ctkd.token-client")
+       (global-name "com.apple.ctkd.watcher-client")
+       (global-name "com.apple.SecurityServer")
+       (global-name "com.apple.CryptoTokenKit.AuthenticationHintsProvider")
+       (global-name "com.apple.CryptoTokenKit.AuthenticationHintsProvider.agent.libxpc")
+       (global-name "com.apple.system.opendirectoryd.api")
+       (global-name "com.apple.CoreServices.coreservicesd")
+       (global-name "com.apple.CoreAuthentication.agent.libxpc")
+       (global-name "com.apple.CoreAuthentication.agent")
+       (global-name "com.apple.CoreAuthentication.daemon")
+       (global-name "com.apple.CoreAuthentication.daemon.libxpc")
+       (global-name "com.apple.ocspd"))
+
+(allow user-preference-read
+    (preference-domain "kCFPreferencesAnyApplication"))
+
+(allow user-preference-read user-preference-write
+      (preference-domain "com.apple.security")
+      (preference-domain "com.apple.security.smartcard"))
+
+(allow ipc-posix-shm-read-data ipc-posix-shm-write-data
+       (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+(allow authorization-right-obtain
+       (right-name "com.apple.ctk.pair"))
+
+(allow iokit-open
+       (iokit-user-client-class "AppleKeyStoreUserClient"))
+
+(allow network-outbound (remote ip))
+(allow mach-lookup
+       (global-name "com.apple.cfnetwork.AuthBrokerAgent")
+       (global-name "com.apple.cfnetwork.cfnetworkagent")
+       (global-name "com.apple.nesessionmanager")
+       (global-name "com.apple.nsurlsessiond")
+       (global-name "com.apple.NetworkDiagnostic.agent")
+       (global-name "com.apple.WebKit.PluginAgent"))
+(system-network)
+
+(allow mach-lookup (global-name "org.h5l.kcm"))
+(allow authorization-right-obtain (right-name "com.apple.KerberosAgent"))
+(allow file-read*
+       (literal "/Library/Preferences/edu.mit.Kerberos")
+       (literal "/Library/Preferences/com.apple.Kerberos.plist")
+       (literal "/private/etc/krb5.conf")
+       (regex #"^/Library/Preferences/com\.apple\.GSS\..*\.plist$"))
+
+(allow network-outbound (subpath "/private/var/run"))
+

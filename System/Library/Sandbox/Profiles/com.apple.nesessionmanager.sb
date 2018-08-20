@@ -45,7 +45,6 @@
 (allow file-read*
 	(literal "/usr/libexec")
 	(literal "/usr/libexec/neagent")
-	(literal "/usr/libexec/discoveryd")
 	(literal "/usr/libexec/nesessionmanager")
 	(literal "/usr/sbin/mDNSResponder"))
 

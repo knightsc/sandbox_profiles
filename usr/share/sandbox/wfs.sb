@@ -1,0 +1,46 @@
+;;
+;; WebDAV File Sharing
+;; Parameterized sandbox profile for user-specific httpd instances
+;;
+
+(version 1)
+(deny default)
+(import "bsd.sb")
+
+(allow file-ioctl)
+
+(allow file-read*
+(subpath (param "userHomeDir"))
+(literal "/")
+(literal "/usr/libexec/wfs/webdavsharing_virtual_root")
+(subpath "/etc/apache2")
+(literal "/private/etc/protocols")
+(subpath "/usr/libexec/apache2")
+(subpath "/"))
+
+(import "/etc/wfs/wfs_file-write.sb")
+
+(allow network* (local ip))
+
+(allow network*
+(remote tcp (param "userHostPort"))
+(local tcp (param "userHostPort")))
+
+(allow process-exec
+(literal "/usr/libexec/wfs/webdavsharing_virtual_root")
+(literal "/usr/sbin/httpd")
+(literal "/bin/sh")
+(subpath "/usr/bin"))
+
+(allow process-fork)
+
+(allow mach-per-user-lookup)
+
+(allow signal)
+
+(allow mach-lookup)
+
+(allow network-outbound)
+
+(allow system-socket)
+

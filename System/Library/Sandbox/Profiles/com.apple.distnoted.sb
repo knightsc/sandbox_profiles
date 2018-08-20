@@ -1,0 +1,11 @@
+(version 1)
+(deny default)
+
+(import "system.sb")
+(allow mach-lookup
+    (global-name "com.apple.distributed_notifications@1v3")
+    (global-name "com.apple.distributed_notifications@Uv3")
+    (global-name "com.apple.distributed_notifications@0v3")
+    (local-name "com.apple.distributed_notifications@1v3")
+    (local-name "com.apple.distributed_notifications@Uv3")
+    (local-name "com.apple.distributed_notifications@0v3"))

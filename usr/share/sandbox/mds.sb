@@ -40,7 +40,6 @@
     (literal "/private/var/db/mds/system/mds.lock")
     (literal "/private/var/run/mds.pid")
     (literal "/private/var/run/utmpx")
-    (literal "/private/var/db/InstallResults.plist")
     (subpath "/private/var/folders/zz/zyxvpxvq6csfxvn_n0000000000000")
     (regex #"^/private/var/run/mds($|/)")
     (regex #"/Saved Spotlight Indexes($|/)")

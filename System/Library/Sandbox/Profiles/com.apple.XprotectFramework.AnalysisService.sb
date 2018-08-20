@@ -18,7 +18,6 @@
 
 
 (allow file-read*)
-(allow file-write-xattr (xattr "com.apple.quarantine"))
 (allow file-write-create (literal "/private/var/db/lsd"))
 (allow file-write* (subpath "/private/var/db/lsd"))
 (allow file-write*
@@ -42,12 +41,8 @@
     (global-name "com.apple.SecurityServer")
     (global-name "com.apple.ocspd")
     (global-name "com.apple.nsurlstorage-cache")
-    (global-name "com.apple.CoreServices.coreservicesd"))
-
-
-;;This can probably leave once rdar://problem/21932990 lands
-(allow ipc-posix-shm-read-data
-    (ipc-posix-name-regex #"/tmp/com\.apple\.csseed\."))
+    (global-name "com.apple.CoreServices.coreservicesd")
+    (global-name "com.apple.dz.dznd"))
 
 ;;More Security framework allows
 (allow ipc-posix-shm-read* ipc-posix-shm-write-data

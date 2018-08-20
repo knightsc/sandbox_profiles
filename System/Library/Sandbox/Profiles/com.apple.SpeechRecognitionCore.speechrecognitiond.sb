@@ -61,7 +61,8 @@
         (global-name "com.apple.CoreServices.coreservicesd")
         (global-name "com.apple.coreservices.launchservicesd")
         (global-name "com.apple.distributed_notifications@1v3")
-        (global-name "com.apple.distributed_notifications@Uv3"))
+        (global-name "com.apple.distributed_notifications@Uv3")
+        (global-name "com.apple.audio.AudioComponentRegistrar"))
 
 (allow iokit-open
         (iokit-user-client-class "IOAudioControlUserClient")

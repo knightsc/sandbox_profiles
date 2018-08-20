@@ -1,4 +1,4 @@
-; Copyright (c) 2010 Apple Inc. All rights reserved.
+; Copyright (c) 2010-2017 Apple Inc. All rights reserved.
 ; mdssvc sandbox profile
 
 (version 1)
@@ -6,6 +6,7 @@
 (deny default)
 
 (import "system.sb")
+(import "opendirectory.sb")
 
 (allow file-read*
        (literal "/usr/libexec")
@@ -22,6 +23,8 @@
     (global-name "com.apple.metadata.mds")
     (global-name "com.apple.metadata.mds.legacy")
 )
+
+(allow file-read-metadata)
 
 (allow network-outbound
     (literal "/private/var/rpc/ncalrpc/srvsvc"))

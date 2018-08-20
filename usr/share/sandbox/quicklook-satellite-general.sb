@@ -28,13 +28,18 @@
 
 (allow iokit-open (iokit-user-client-class "IOAudioEngineUserClient"))
 
+(allow mach-lookup (global-name "com.apple.audio.AudioComponentRegistrar"))
+
 ;; Movie
 (allow file-read* (home-subpath "/Library/Video/Plug-Ins"))
 
 (preference-read "com.apple.coremedia")
 
+;; Image
+(allow mach-lookup (global-name "com.apple.mobileassetd"))
+
 ;; EPS
-(allow file-read* file-write* (regex #"^/private/var/folders/.+/com\.apple\.psnormalizer\.fontcache\.[^/]+$"))
+(allow file-read* file-write* (regex #"^/private/var/folders/[^/]+/[^/]+/C/[^/]+/com\.apple\.psnormalizer\.fontcache\.[^/]+$"))
 
 ;; Web
 (allow file-read* (subpath "/Applications/Safari.app")) ;; to read Safari's icon

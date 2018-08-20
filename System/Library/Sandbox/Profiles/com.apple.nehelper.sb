@@ -17,13 +17,13 @@
 		#"^/Library/Keychains/\."
 		#"^(/private)?/var/db/mds/system/mds.lock$"
 	)
-	(regex #"^/Library/Preferences/com\.apple\.networkextension(\.necp|\.control|\.cache)?\.plist")
-	(regex #"^/Library/Preferences/com\.apple\.networkd(\.sysctl)?\.plist")
+	(regex #"^/Library/Preferences/com\.apple\.networkextension(\.[_a-zA-Z0-9-]+)?\.plist")
+	(regex #"^/Library/Preferences/com\.apple\.networkd(\.[_a-zA-Z0-9-]+)?\.plist")
 	(regex #"^/Library/Preferences/Logging/Subsystems/com\.apple\.network\.plist")
 	(regex #"^/Library/Preferences/Logging/Subsystems/com\.apple\.networkextension\.plist")
 	(regex #"^/Library/Preferences/SystemConfiguration/preferences\.plist")
 	(regex #"^/Library/Preferences/SystemConfiguration/VPN-[^/]+\.plist")
-	(regex #"^/private/var/folders/[^/]+/[^/]+/[A-Z]/TemporaryItems(/|$)"))
+	(subpath (param "TEMPDIR")))
 
 (allow mach-register
 	(global-name "com.apple.nehelper")
@@ -65,7 +65,13 @@
 	(global-name "com.apple.lsd.modifydb")
 	(global-name "com.apple.logd.admin")
 	(global-name "com.apple.lsd.mapdb")
+	(global-name "com.apple.mobileassetd")
+	(global-name "com.apple.mobileassetd.v2")
 	(global-name "com.apple.securityd.xpc"))
+
+;;; MobileAsset
+(allow user-preference-read (preference-domain "com.apple.MobileAsset"))
+(allow user-preference-read (preference-domain "com.apple.SoftwareUpdate"))
 
 (allow sysctl-read)
 

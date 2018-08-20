@@ -16,8 +16,6 @@
 
 (allow iokit-open (iokit-user-client-class "RootDomainUserClient"))
 
-(allow distributed-notification-post)
-
 (allow mach-per-user-lookup)
 
 (allow mach-lookup
@@ -33,7 +31,6 @@
     (global-name "com.apple.distributed_notifications@Uv3")
     (global-name "com.apple.distributed_notifications@1v3")
     (global-name "com.apple.SystemConfiguration.configd")
-    (global-name "com.apple.lsd.mapdb")
     (global-name "com.apple.mobileassetd")
 )
 
@@ -126,7 +123,7 @@
 )
 
 (allow file-write* file-read*
-    (regex #"/private/var/folders/.*/.*/C/com.apple.FontRegistry/*")
+    (regex #"/private/var/folders/[^/]+/[^/]+/C/com.apple.FontRegistry/*")
 )
 
 (allow-read-access-and-issue-extensions (param "__HOME"))
@@ -141,6 +138,7 @@
 ; And override everything else if we get given an extension
 (allow file-read* (extension "com.apple.app-sandbox.read"))
 (allow file-read* (extension "com.apple.app-sandbox.read-write"))
+(allow file-issue-extension (extension "com.apple.app-sandbox.read"))
 
 ; Bookmark with SecurityScope
 (allow mach-lookup (global-name "com.apple.scopedbookmarksagent.xpc"))

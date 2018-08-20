@@ -63,10 +63,15 @@
 	(iokit-user-client-class "RootDomainUserClient")
 	(iokit-user-client-class "IOReportUserClient")
 	(iokit-user-client-class "IOBluetoothHCIUserClient")
-    (iokit-user-client-class "IOBluetoothRFCOMMConnectionUserClient")
-    (iokit-user-client-class "IOBluetoothRFCOMMChannelUserClient")
-    (iokit-user-client-class "IOBluetoothL2CAPChannelUserClient")
-    (iokit-user-client-class "IOBluetoothDeviceUserClient")
+	(iokit-user-client-class "IOBluetoothRFCOMMConnectionUserClient")
+	(iokit-user-client-class "IOBluetoothRFCOMMChannelUserClient")
+	(iokit-user-client-class "IOBluetoothL2CAPChannelUserClient")
+	(iokit-user-client-class "IOBluetoothDeviceUserClient")
+	(iokit-user-client-class "IOTimeSyncUserClient")
+	(iokit-user-client-class "IOTimeSyncClockManagerUserClient")
+	(iokit-user-client-class "IOTimeSyncgPTPManagerUserClient")
+	(iokit-user-client-class "IOTimeSyncDomainUserClient")
+	(iokit-user-client-class "IOTimeSyncNetworkPortUserClient")
 )
 
 (allow iokit-set-properties
@@ -84,12 +89,15 @@
 	(global-name "com.apple.pluginkit.pkd")
 	(global-name "com.apple.spindump")
 	(global-name "com.apple.PairingManager")
-	       
+	(global-name "com.apple.analyticsd")
+	(global-name "com.apple.PowerManagement.control")
+	
 	(global-name "com.apple.audio.audiohald")
-
+	(global-name "com.apple.audio.AudioComponentRegistrar")
+	
 	(global-name "com.apple.wirelessproxd")
 	(global-name "com.apple.windowserver.active")
-
+	
 	(global-name "com.apple.AirPlayXPCHelper")
 	(global-name "com.apple.coremedia.endpoint.xpc")
 	(global-name "com.apple.coremedia.endpointstream.xpc")
@@ -98,14 +106,19 @@
 	(global-name "com.apple.coremedia.endpointmanager.xpc")
 	(global-name "com.apple.AirPlayAgent.xpc")
 	(global-name "com.apple.AirPlayUIAgent.xpc")
-
+	
 	(global-name "com.apple.coresymbolicationd")
 	(global-name "com.apple.awdd")
 	(global-name "com.apple.SharingServices")
-	(global-name "com.apple.blued")
+	(global-name "com.apple.bluetoothd")
 	(global-name "com.apple.bluetoothaudiod")
 	(global-name "com.apple.BluetoothDOServer")
-    (global-name "com.apple.airportd")
+	(global-name "com.apple.airportd")
+	
+	(global-name "com.apple.mediaremoted.xpc")
+	
+	(global-name "com.apple.distributed_notifications@1v3")
+	(global-name "com.apple.distributed_notifications@Uv3")
 )
 
 ;;
@@ -116,6 +129,7 @@
 	(literal "/Library/Preferences/.GlobalPreferences.plist")
 	(literal "/Library/Preferences/com.apple.security.plist")
 	(literal "/Library/Preferences/com.apple.Bluetooth.plist")
+	(literal "/Library/Preferences/com.apple.alf.plist")
 	(regex #"^/private/var/root/Library/Preferences/ByHost/\.GlobalPreferences\..*\.plist$")
 )
 
@@ -124,6 +138,7 @@
 	(preference-domain "com.apple.coremedia")
 	(preference-domain "com.apple.security")
 	(preference-domain "com.apple.Bluetooth")
+	(preference-domain "com.apple.alf")
 )
 
 (allow user-preference-write
@@ -134,10 +149,16 @@
 	(ipc-posix-name-regex #"^/tmp/com\.apple\.csseed\.[0-9]+$")
 	(ipc-posix-name "FNetwork.defaultStorageSession")
 	(ipc-posix-name "com.apple.AppleDatabaseChanged")
+	(ipc-posix-name-regex #"^AudioIO[0-9A-F]+$")
 )
 
 (allow ipc-posix-shm-write-data
 	(ipc-posix-name "com.apple.AppleDatabaseChanged")
+	(ipc-posix-name-regex #"^AudioIO[0-9A-F]+$")
+)
+
+(allow ipc-posix-shm-read-metadata
+	(ipc-posix-name-regex #"^AudioIO[0-9A-F]+$")
 )
 
 (allow system-socket)

@@ -10,10 +10,8 @@
 (define (denied? op)
   (sbpl-operation-can-return? op 'deny))
 
-;; Never allow a sandboxed process to open a launchd socket.
-(deny network-outbound
-      (literal "/private/var/tmp/launchd/sock")
-      (regex #"^/private/tmp/launchd-[0-9]+\.[^/]+/sock$"))
-
 ;; Always allow a process to signal itself.
 (allow signal (target self))
+
+;; Always allow a process to get its own task-name port.
+(allow mach-task-name (target self))

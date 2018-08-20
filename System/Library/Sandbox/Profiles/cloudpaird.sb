@@ -135,7 +135,7 @@
     (global-name "com.apple.BluetoothDOServer")
 	(global-name "com.apple.xpchelper")
 	(global-name "com.apple.bluetoothUIServer")
-    (global-name "com.apple.blued")
+    (global-name "com.apple.bluetoothd")
     (global-name "com.apple.cloudd")
     (global-name "com.apple.apsd")
     (global-name "com.apple.logind")

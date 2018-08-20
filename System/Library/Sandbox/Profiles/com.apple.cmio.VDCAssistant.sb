@@ -1,0 +1,74 @@
+;; Copyright (c) 2017 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice.
+;;
+
+(version 1)
+(deny default)
+
+(import "system.sb")
+(system-graphics)
+
+(import "com.apple.corefoundation.sb")
+
+;;; initialize CF sandbox actions
+(corefoundation)
+
+;; For resolving symlinks, realpath(3), and equivalents.
+(allow file-read-metadata)
+
+(allow process-info* (target self))
+
+;; For validating the entitlements of clients.
+(allow process-info-codesignature)
+
+(allow mach-lookup
+	(global-name "com.apple.CoreServices.coreservicesd")
+	(global-name "com.apple.coreservices.launchservicesd")
+	(global-name "com.apple.windowserver.active")
+	(global-name "com.apple.analyticsd")
+	(subpath "/Library/Video/Plug-Ins")
+)
+
+(allow file-map-executable
+	(path "/System/Library/PrivateFrameworks/CoreServicesInternal.framework/Versions/A/CoreServicesInternal")
+	(subpath "/System/Library/Extensions")
+	(subpath "/Library/Video/Plug-Ins")
+)
+
+;; Preferences
+(allow file-read*
+	(subpath "/Library/Video/Plug-Ins")
+	(literal "/private/var/db/cmiodalassistants/Library/Preferences/com.apple.cmio.plist")
+	(literal "/private/var/db/cmiodalassistants/Library/Preferences/.GlobalPreferences.plist")
+	(literal "/Library/Preferences/.GlobalPreferences.plist")
+	(regex #"^/private/var/db/cmiodalassistant/Library/Preferences/ByHost/\.GlobalPreferences\..*\.plist$")
+)
+
+;; Preference domain.
+(allow user-preference-read
+	(preference-domain "com.apple.cmio")
+	(preference-domain "com.apple.coremedia")
+)
+
+;; Camera
+(allow device-camera)
+(allow iokit-open
+	(iokit-user-client-class "IOUSBDeviceUserClientV2")
+	(iokit-user-client-class "IOUSBInterfaceUserClientV3")
+	(iokit-user-client-class "RootDomainUserClient")
+)
+
+(allow iokit-open
+	(iokit-registry-entry-class "IGAccelDevice")
+	(iokit-registry-entry-class "IGAccelSharedUserClient")
+	(iokit-registry-entry-class "IGAccelVideoContextMain")
+	(iokit-registry-entry-class "IGAccelVideoContextMedia")
+	(iokit-registry-entry-class "IGAccelVideoContextVEBox")
+	(iokit-registry-entry-class "RootDomainUserClient")
+)
+
+(allow iokit-get-properties)
+

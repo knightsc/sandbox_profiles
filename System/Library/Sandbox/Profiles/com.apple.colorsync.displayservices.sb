@@ -1,0 +1,40 @@
+(version 1)
+
+(import "system.sb")
+
+(deny default iokit-get-properties process-info*)
+
+(deny process-info*)
+(allow process-info-pidinfo)
+(allow process-info-pidfdinfo (target self))
+(allow process-info-pidfileportinfo (target self))
+(allow process-info-setcontrol (target self))
+(allow process-info-dirtycontrol (target self))
+(allow process-info-rusage (target self))
+
+(allow file-read-metadata file-read-data (literal "/"))
+(allow file-read-metadata)
+
+(allow authorization-right-obtain (right-name "system.colorsync.install.profile"))
+(allow authorization-right-obtain (right-name "com.apple.private.AmbientDisplay.messaging"))
+
+(allow-create-directory 
+    (literal "/Library/ColorSync")
+    (literal "/Library/ColorSync/Profiles"))
+(allow file-read*  
+    (literal "/Library/ColorSync/Profiles"))
+(allow file-read* file-write* 
+    (prefix "/Library/ColorSync/Profiles/"))
+
+;; deny the removal of these pre-installed profiles.
+(deny file-write-unlink
+    (literal "/Library/ColorSync/Profiles/Black & White.icc")
+    (literal "/Library/ColorSync/Profiles/Blue Tone.icc")
+    (literal "/Library/ColorSync/Profiles/Lightness Decrease.icc")
+    (literal "/Library/ColorSync/Profiles/Lightness Increase.icc")
+    (literal "/Library/ColorSync/Profiles/Sepia Tone.icc")
+    (literal "/Library/ColorSync/Profiles/WebSafeColors.icc"))
+
+(allow mach-lookup
+    (global-name "com.apple.CoreServices.coreservicesd"))
+
