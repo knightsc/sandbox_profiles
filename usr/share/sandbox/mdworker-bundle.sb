@@ -21,7 +21,7 @@
 (deny mach-lookup (global-name "com.apple.ls.boxd") (with no-log))
 
 ;; comment out and check violations
-;;(allow distributed-notification-post)
+(allow distributed-notification-post)
 ;;(allow mach-lookup)
 (allow mach-lookup (global-name "com.apple.CoreServices.coreservicesd"))
 (allow mach-lookup (global-name "com.apple.DiskArbitration.diskarbitrationd"))
@@ -29,6 +29,9 @@
 (allow mach-lookup (global-name "com.apple.ocspd"))
 
 (allow mach-lookup (global-name "com.apple.distributed_notifications@Uv3"))
+
+(allow mach-lookup (global-name "com.apple.lsd.mapdb"))
+(allow mach-lookup (global-name "com.apple.lsd.modifydb"))
 
 (allow file-search)
 (allow ipc-posix-shm)
@@ -43,3 +46,10 @@
 
 (allow file-read* file-write* (extension "com.apple.spotlight.tempdirectory"))
 (allow file-read* file-write* (extension "com.apple.spotlight.cachedirectory"))
+
+;; FIXME: Should be removed once <rdar://problem/16329087> is fixed.
+(deny file-write-xattr (xattr "com.apple.quarantine") (with no-log))
+;; Reserve a namespace for additional protected extended attributes.
+(if (defined? 'xattr-regex)
+    (deny file-read-xattr file-write-xattr (xattr-regex #"^com\.apple\.security\.private\."))
+(deny file-read-xattr file-write-xattr (xattr #"^com\.apple\.security\.private\.")))

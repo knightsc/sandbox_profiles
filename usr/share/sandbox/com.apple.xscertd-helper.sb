@@ -1,30 +1,31 @@
-; Copyright (c) 2010 Apple Inc. All rights reserved.
+; Copyright (c) 2013 Apple Inc. All rights reserved.
 ; xscertd-helper sandbox profile
 (version 1)
 
-(deny default)
+(deny default (with no-log))
 (import "system.sb")
 
 (allow distributed-notification-post)
 
 (allow file-read*
-       (regex #"^/Library/Keychains/.")
+       (regex #"^.*/Library/Preferences/(ByHost/)?\.GlobalPreferences.*\.plist$")
+       (regex #"^/Library/Keychains/\.")
        (literal "/Library/Keychains/System.keychain")
        (literal "/Library/Preferences/com.apple.security.plist")
        (literal "/private/etc/openldap/ldap.conf")
-       (regex #"^/private/var/db/mds/")
-       (regex #"^/private/var/root/Library/Application Support/Certificate Authority/")
-       (regex #"^.*/Library/Preferences/(ByHost/)?\.GlobalPreferences.*\.plist$")
+       (subpath "/private/var/db/mds")
+       (literal "/private/var/db/DetachedSignatures")
+       (subpath "/private/var/root/Library/Application Support/Certificate Authority")
        (literal "/private/var/root/Library/Preferences/com.apple.security.plist")
+       (subpath (param "TEMPDIR"))
        (literal "/usr/libexec")
        (literal "/usr/libexec/xscertd")
        (literal "/usr/libexec/xscertd-helper"))
 
 (allow file-read-metadata
-       (literal "/")
        (literal "/Library")
        (literal "/Library/Keychains")
-       (regex #"^/Library/Keychains/System.keychain.")
+       (regex #"^/Library/Keychains/System\.keychain")
        (literal "/Library/Keychains/apsd.keychain")
        (literal "/private")
        (literal "/private/var")
@@ -32,13 +33,14 @@
        (literal "/private/var/db/mds")
        (literal "/private/var/db/mds/system")
        (literal "/private/var/root")
-       (literal "/private/var/folders")
-       (regex #"^/private/var/folders/")
+       (literal "/private")
+       (literal "/private/var")
+       (subpath (param "TEMPDIR"))
        (literal "/private/var/run/systemkeychaincheck.done"))
 
 (allow file-write*
-       (literal "/Library/Keychains/System.keychain")
-       (regex #"^/Library/Keychains/System.keychain.")
+       (subpath (param "TEMPDIR"))
+       (regex #"^/Library/Keychains/System\.keychain")
        (literal "/private/var/log/xscertd.log"))
 
 (allow file-write-data

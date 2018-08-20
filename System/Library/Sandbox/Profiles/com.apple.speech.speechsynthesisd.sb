@@ -1,6 +1,6 @@
 ;;
 ;; Speech Synthesis daemon - sandbox profile
-;; Copyright (c) 2013 Apple Inc. All Rights reserved.
+;; Copyright (c) 2013-2014 Apple Inc. All Rights reserved.
 ;;
 ;; WARNING: The sandbox rules in this file currently constitute
 ;; Apple System Private Interface and are subject to change at any time and
@@ -21,10 +21,10 @@
     (regex (string-append "^" (regex-quote (param "_HOME")) home-relative-regex)))
     
 (allow user-preference-read
-    (preference-domain "com.apple.speech.voice.prefs")
     (preference-domain "com.apple.menuextra.clock"))
     
 (allow user-preference*
+    (preference-domain "com.apple.speech.voice.prefs")
     (preference-domain "loginwindow")
     (preference-domain "com.apple.speech.synthesis.general.prefs"))
     
@@ -69,6 +69,8 @@
     (global-name "com.apple.distributed_notifications@1v3")
     (global-name "com.apple.distributed_notifications@Uv3")
     (global-name "com.apple.speechArbitrationServer")
+    (global-name "com.apple.speech.speechdatainstallerd")
+    (global-name "com.apple.speech.speechdatainstallerd.isavailable")
     (global-name "com.apple.speech.synthesis.console")
     (global-name "com.apple.speech.speechsynthesisd"))
 
@@ -81,13 +83,14 @@
     (subpath "/Library/Speech/Synthesizers")
     (subpath "/Library/Speech/Voices")
     (subpath "/Library/Audio")
+    (subpath "/Library/Application Support/CrashReporter")
     (home-subpath "/Library/Speech/Synthesizers")
     (home-subpath "/Library/Speech/Voices")
     (home-subpath "/Library/Audio"))
     
 (allow file-read*
     (home-literal "/Library/Preferences/.GlobalPreferences.plist")
-    (home-regex "/Library/Preferences/ByHost/\.GlobalPreferences\.")
+    (home-regex #"/Library/Preferences/ByHost/\.GlobalPreferences\.")
     (literal "/Library/Preferences/.GlobalPreferences.plist"))
     
 ;;; Temp Directory
@@ -120,7 +123,8 @@
 
 (allow mach-lookup
     (global-name "com.apple.cookied")
-    (global-name "com.apple.SystemConfiguration.configd"))
+    (global-name "com.apple.SystemConfiguration.configd")
+    (global-name "com.apple.PowerManagement.control"))
     
 (allow network-outbound
     (literal "/private/var/run/mDNSResponder")

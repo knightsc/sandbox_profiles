@@ -1,0 +1,12 @@
+;; OriginatingProject: CoreSymbolication
+(version 1)
+(deny default)
+
+(import "system.sb")
+
+(allow sysctl-read)
+(allow file-read*
+    (subpath "/"))
+(allow file-write*
+    (subpath "/System/Library/Caches/com.apple.coresymbolicationd")
+    (subpath "/private/var/root/Library/Caches/com.apple.coresymbolicationd"))

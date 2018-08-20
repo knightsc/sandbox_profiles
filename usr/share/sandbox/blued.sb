@@ -18,29 +18,35 @@
        (global-name "com.apple.distributed_notifications@1v3")
        (global-name "com.apple.CoreServices.coreservicesd")
        (global-name "com.apple.bluetoothUIServer")
+       (global-name "com.apple.cloudpaird")
        (global-name "com.apple.bnepd")
        (global-name "com.apple.blued")
+       (global-name "com.apple.airportd")
        (global-name "com.apple.BluetoothDOServer")
        (global-name "com.apple.SystemConfiguration.configd")
        (global-name "com.apple.SecurityServer")
        (global-name "com.apple.btsa")
-       (global-name "com.apple.bluetoothaudiod"))
+       (global-name "com.apple.bluetoothaudiod")
+       (global-name "com.apple.bluetoothReporter"))
 
-(allow file*
+(allow file-read* file-write*
        (literal "/private/var/root/Library/Preferences/blued.plist")
 	   (literal "/private/var/root/Library/Preferences/com.apple.blued.plist")
 
-       (regex   "^/private/var/root/Library/Preferences/ByHost/com\.apple\.blued\..*\.plist$")
-       (regex   "^/private/var/root/Library/Preferences/ByHost/\.GlobalPreferences\..*\.plist$")
-       (regex   "^/private/var/root/Library/Preferences/ByHost/com\.apple\.Bluetooth\..*\.plist$")
+       (regex   #"^/private/var/root/Library/Preferences/ByHost/com\.apple\.blued\..*\.plist$")
+       (regex   #"^/private/var/root/Library/Preferences/ByHost/\.GlobalPreferences\..*\.plist$")
+       (regex   #"^/private/var/root/Library/Preferences/ByHost/com\.apple\.Bluetooth\..*\.plist$")
 
-	   (regex   "^/Library/Preferences/com\.apple\.Bluetooth\.plist")
+	   (regex   #"^/Library/Preferences/com\.apple\.Bluetooth\.plist")
 	   (literal "/private/tmp/com.apple.Bluetooth.plist")
 
+       (literal "/dev/io8log")
+       (literal "/dev/io8logtemp")
        (literal "/private/var/log/blued.log")
        (literal "/private/var/log/bluetoothAudio.log")
        (literal "/private/var/log/bluetoothUserAgent.log")
        (literal "/private/var/log/bluetoothFramework.log")
+       (literal "/private/var/log/cloudpaird.log")
        (literal "/Library/Preferences/SystemConfiguration/com.apple.Bluetooth")
        (literal "/Library/Preferences/SystemConfiguration/com.apple.Bluetooth-lock")
        (literal "/Library/Preferences/SystemConfiguration/com.apple.Bluetooth-new"))
@@ -57,10 +63,13 @@
        (literal "/usr/sbin/blued")
        (literal "/private/var/root")
        (literal "/dev/console")
-       (literal "/private/var/db/.AppleSetupDone"))
+       (literal "/private/var/log/bluetooth.pklg")
+       (literal "/private/var/db/.AppleSetupDone")
+       (literal "/Library/Preferences/SystemConfiguration/com.apple.nat.plist"))
 
 (allow ipc-posix-shm
-       (ipc-posix-name "apple.shm.notification_center"))
+       (ipc-posix-name "apple.shm.notification_center")
+       (ipc-posix-name-regex #"^/tmp/com.apple.csseed.[0-9]+$"))
 
 (allow iokit-open
        (iokit-user-client-class "IOBluetoothDeviceUserClient")

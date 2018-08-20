@@ -1,0 +1,71 @@
+(version 1)
+(deny default)
+(import "system.sb")
+(import "com.apple.securitydservice.sb")
+
+; System is read only
+
+(allow system-socket sysctl-read sysctl-write)
+
+(allow file-read-metadata)
+
+; Allow read of everything so that we can get the Mach-O UUIDs from arbitrary executables configured via per-app rules
+(allow file-read*)
+
+(allow file-write*
+	(regex #"^/Library/Preferences/com\.apple\.networkextension(\.necp|\.control|\.cache)?\.plist")
+	(regex #"^/Library/Preferences/SystemConfiguration/preferences\.plist")
+	(regex #"^/Library/Preferences/SystemConfiguration/VPN-[^/]+\.plist")
+	(regex #"^/private/var/folders/[^/]+/[^/]+/[A-Z]/TemporaryItems(/|$)"))
+
+(allow mach-register
+	(global-name "com.apple.nehelper"))
+
+(allow iokit-open
+	(iokit-user-client-class "AppleMobileFileIntegrityUserClient"))
+
+(allow ipc-posix-shm
+	(ipc-posix-name "apple.shm.notification_center"))
+
+(system-network)
+
+(allow mach-lookup
+	(global-name "com.apple.nehelper")
+	(global-name "com.apple.nesessionmanager")
+	(global-name "com.apple.system.logger")
+	(global-name "com.apple.distributed_notifications@1v3")
+	(global-name "com.apple.distributed_notifications@Uv3")
+	(global-name "com.apple.system.notification_center")
+	(global-name "com.apple.CoreServices.coreservicesd")
+	(global-name "com.apple.SystemConfiguration.configd")
+	(global-name "com.apple.SystemConfiguration.SCNetworkReachability")
+	(global-name "com.apple.SystemConfiguration.NetworkInformation")
+	(global-name "com.apple.networkd")
+	(global-name "com.apple.ocspd")
+	(global-name "com.apple.networking.captivenetworksupport")
+	(global-name "com.apple.SystemConfiguration.helper")
+	(global-name "com.apple.metadata.mds"))
+
+(allow sysctl-read)
+
+;;; Allow creating specific kernel control sockets
+(allow network-outbound
+	(control-name "com.apple.net.necp_control")
+	(control-name "com.apple.net.utun_control")
+	(control-name "com.apple.net.ipsec_control")
+	(control-name "com.apple.content-filter")
+	(control-name "com.apple.flow-divert"))
+	
+;;; Allow TCP probes
+(allow network-outbound
+	(literal "/private/var/run/mDNSResponder")
+	(remote tcp))
+
+;;; Allow creating IKE sockets
+(allow network*
+	(local udp "*:500" "*:4500")
+	(remote udp "*:*")
+	(literal "/private/var/run/racoon.sock"))
+
+(allow authorization-right-obtain
+ 	(right-name "system.services.systemconfiguration.network"))

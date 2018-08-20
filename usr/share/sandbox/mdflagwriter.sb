@@ -12,5 +12,4 @@
 (deny default)
 (import "system.sb")
 
-(allow file-write*)
-(allow file-read* (extension "com.apple.spotlight.importer.readonly"))
+(allow file-read* file-write* (extension "com.apple.spotlight.flagwriter.read-write"))

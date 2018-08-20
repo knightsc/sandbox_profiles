@@ -22,7 +22,9 @@
         (local-name "com.apple.cfprefsd.agent")
         (local-name "com.apple.CFPasteboardClient"))                                                                      
   (allow ipc-posix-shm                                                                                                    
-        (ipc-posix-name-regex #"^CFPBS:"))                                                                               
+        (ipc-posix-name-regex #"^CFPBS:"))
+  (allow ipc-posix-shm-read*
+       (ipc-posix-name #"apple.shm.cfprefsd.daemon"))
   (allow file-read-data                                                                                                   
         (literal "/dev/autofs_nowait")) ; Used by CF to circumvent automount triggers
   (allow file-read*

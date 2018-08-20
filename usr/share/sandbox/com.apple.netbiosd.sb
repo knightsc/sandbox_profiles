@@ -10,6 +10,7 @@
 (allow file-read-metadata
     (literal "/usr/sbin")
     (literal "/usr/sbin/netbiosd")
+    (literal "/private/var/empty")
 )
 
 ; Needed for POSIX shared memory pieces like ctime and such
@@ -51,11 +52,11 @@
 
 (allow mach-lookup
        (global-name
-             "com.apple.smbfs_load_kext"
              "com.apple.SystemConfiguration.configd"
              "com.apple.system.notification_center"
              "com.apple.system.logger"
              "com.apple.KernelExtensionServer"
+             "com.apple.smbd"
        )
 )
 

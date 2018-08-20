@@ -98,7 +98,7 @@
 (preference-read "com.apple.CoreGraphics")
 (preference-read "com.apple.driver.AppleBluetoothMultitouch.mouse")
 (preference-read "com.apple.ATS")
-
+(preference-read "com.apple.universalaccess")
 
 ;; Permanent silent ignores
 (deny file-read* (subpath "/Network/Library/Fonts") (with no-log)) ;; don't read from /Network/Library/Fonts <rdar://problem/10823066>
@@ -149,5 +149,6 @@
        (global-name "com.apple.coreservices.launchservicesd")
        (global-name "com.apple.librariand")
        (global-name "com.apple.FileCoordination")
-       (global-name "com.apple.dock.server"))
+       (global-name "com.apple.dock.server")
+	   (global-name "com.apple.distributed_notifications@Uv3"))
        

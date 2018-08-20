@@ -14,6 +14,7 @@
 	(subpath "/Library/Preferences/Audio")
 	(subpath "/System")
 	(subpath "/Library/Extensions")
+	(subpath "/Library/Frameworks")
 	(literal "/Library/Preferences/.GlobalPreferences.plist")
 	(literal "/dev/autofs_nowait")
 	(literal "/dev/dtracehelper")
@@ -63,8 +64,8 @@
 	(literal "/private")
 	(literal "/private/var")
 	(literal "/private/var/folders")
-	(regex "/private/var/folders/[^/]+")
-	(regex "/private/var/folders/[^/]+/[^/]+")
+	(regex "^/private/var/folders/[^/]+")
+	(regex "^/private/var/folders/[^/]+/[^/]+")
 	(literal "/private/var/run/systemkeychaincheck.done")
 	(regex "^/private/var/folders/[^/]+/[^/]+/C$")
 	(regex "^/private/var/folders/[^/]+/[^/]+/C/mds$")
@@ -113,7 +114,7 @@
 (allow iokit-open
 	(iokit-user-client-class "IOAudioControlUserClient")
 	(iokit-user-client-class "IOAudioEngineUserClient")
-	(iokit-user-client-class "IOAudio2Device")
+	(iokit-user-client-class "IOAudio2DeviceUserClient")
 	(iokit-user-client-class "RootDomainUserClient")
 )
 
@@ -130,10 +131,6 @@
 (allow mach-lookup (extension "com.apple.audio.driver-host.mach-service-name"))
 
 (allow network*)
-
-(allow process-exec
-	(literal "/usr/sbin/coreaudiod")
-)
 
 ;;;This is for AVB Support
 (allow system-kext-load

@@ -2,6 +2,11 @@
 
 (deny default)
 
+;; Reserve a namespace for additional protected extended attributes.
+(if (defined? 'xattr-regex)
+    (deny file-read-xattr file-write-xattr (xattr-regex #"^com\.apple\.security\.private\."))
+    (deny file-read-xattr file-write-xattr (xattr #"^com\.apple\.security\.private\.")))
+
 ;;; <rdar://problem/9146195> we can't prevent the violations, so we suppress logging
 ;;; unfortunately, since a deny file-read-metadata trumps an allow file-read* we need
 ;;; to explicitly allow file-read-metadata for anything with a file-read*
@@ -17,21 +22,29 @@
     (literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist")
     (regex #"^/private/var/root/Library/Preferences/ByHost/\.GlobalPreferences\..*\.plist$"))
 
-;;<rdar://problem/11313547>
+;; <rdar://problem/15417080>
+(deny file-read-metadata (with no-log)
+    (literal "/private/var/db/com.apple.almigration.keychain"))
+
+;; <rdar://problem/11313547>, <rdar://problem/16411860>
 (allow file*
-    (subpath (param "TEMPDIR"))
-    (subpath (param "FOLDERDIR")))
+    (extension "com.apple.apsd.tempdir")
+    (extension "com.apple.apsd.folderdir"))
 (allow file-read-metadata
-    (subpath (param "TEMPDIR"))
-    (subpath (param "FOLDERDIR")))
+    (extension "com.apple.apsd.tempdir")
+    (extension "com.apple.apsd.folderdir"))
 
 (import "system.sb")
+
+(import "opendirectory.sb")
 
 (allow file-read-metadata
     (file-mode #o0005))
 
 (allow file-read*
+    (subpath "/Library/Application Support/ApplePushService")
     (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
+    (literal "/System/Library/PrivateFrameworks/CrashReporterSupport.framework/Resources/SubmitDiagInfo.default.domains")
     (subpath "/Library/Keychains")
     (literal "/private/var/root/Library/Cookies/Cookies.binarycookies")
     (regex #"^/Library/Preferences/com\.apple\.apsd\.plist(\.[^/]+)?$")
@@ -45,7 +58,9 @@
     (literal "/private/var/db/detachedsignatures")
     (literal "/private/var/db/crls/crlcache.db")
     (subpath "/private/var/root/Library/Caches/com.apple.aps.framework")
+    (subpath "/System/Library/OpenDirectory")
     (literal "/usr/libexec")
+    (subpath "/usr/share/icu") ;; <rdar://problem/16425057>
     (literal "/private/etc/hosts")
     (literal "/private/var/run/utmpx")
     (literal "/private/var/run/syslog.pid"))
@@ -55,8 +70,11 @@
     (regex #"^/.+/.+/Library")
     (regex #"^/Library/Preferences/com\.apple\.apsd\.plist(\.[^/]+)?$")
     (regex #"^/Library/Preferences/com\.apple\.security")
+    (subpath "/Library/Application Support/ApplePushService")
     (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
-    (subpath "/Library/Keychains")
+    (literal "/System/Library/PrivateFrameworks/CrashReporterSupport.framework/Resources/SubmitDiagInfo.default.domains")
+    (literal "/System/Library/Keychains/SystemRootCertificates.keychain") ;; <rdar://problem/14811251>
+    (subpath "/System/Library/OpenDirectory")
     (subpath "/Library/Keychains")
     (subpath "/Library/Preferences")
     (subpath "/private/var/db/mds")
@@ -66,8 +84,10 @@
     (subpath "/private/var/root/Library/Caches/com.apple.aps.framework")
     (subpath "/private/etc/localtime")
     (literal "/usr/libexec")
+    (subpath "/usr/share/icu") ;; <rdar://problem/16425057>
     (literal "/etc/random")
     (literal "/private/etc/hosts")
+    (literal "/private/var/root")
     (literal "/private/var/run/systemkeychaincheck.done"))
 
 ;; prevent the keychain from being added to the search list, but
@@ -78,6 +98,7 @@
 (allow file-write*
     (literal "/private/etc/asl/com.apple.applepushservice")
     (subpath "/private/var/db/mds")
+    (subpath "/Library/Application Support/ApplePushService")
     (literal "/Library/Logs/apsd.log")
     (regex #"^/Library/Keychains/apsd\.keychain([-.][^/]+)?$")
     (literal "/Library/Preferences/com.apple.security.plist")

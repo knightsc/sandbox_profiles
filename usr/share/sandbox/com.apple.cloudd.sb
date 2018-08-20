@@ -1,0 +1,293 @@
+;; OS X only profile
+
+(version 1)
+
+(deny default)
+(debug deny)
+
+(import "system.sb")
+
+;; Workaround for <rdar://problem/16907117> Clients should open files for CKAssets
+;; Remove with <rdar://problem/16923313> Remove horrible read-everything workaround in sandbox
+;; When testing this profile, please comment this line out, and don't upload assets outside of one of the blessed directories below.
+(allow file-read*)
+
+
+
+;; Homedir-relative path filters
+(define (home-regex home-relative-regex)
+       (regex (string-append "^" (regex-quote (param "_HOME")) home-relative-regex)))
+(define (home-subpath home-relative-subpath)
+       (subpath (string-append (param "_HOME") home-relative-subpath)))
+(define (home-literal home-relative-literal)
+       (literal (string-append (param "_HOME") home-relative-literal)))
+
+(define (revisiond-store-paths) (require-any
+       (mount-relative-regex #"^/\.DocumentRevisions-V100($|/)")
+       (mount-relative-regex #"^/\.DocumentRevisions-V100-bad-[0-9]+($|/)")
+))
+
+
+;; cloudd uses MMCS
+(allow user-preference-read user-preference-write
+       (preference-domain "com.apple.mmcs")
+)
+
+;; Container-root-relative and container-cache-relative path filters
+
+(define (container-root)
+       (regex (string-append "^" (regex-quote (param "_HOME")) #"/Library/Containers/[^/]+/Data/CloudKit"))
+)
+
+(define (container-root-regexes container-root-relative-regex)
+       (regex (string-append "^" (regex-quote (param "_HOME")) #"/Library/Caches/CloudKit/[^/]+/[^/]+" container-root-relative-regex))
+       (regex (string-append "^" (regex-quote (param "_HOME")) #"/Library/Containers/[^/]+/Data/CloudKit" container-root-relative-regex))
+)
+
+(define (container-cache-root)
+       (regex (string-append "^" (regex-quote (param "_HOME")) #"/Library/Caches/CloudKit/[^/]+/[^/]+"))
+       (regex (string-append "^" (regex-quote (param "_HOME")) #"/Library/Containers/[^/]+/Data/Library/Caches/CloudKit"))
+)
+
+(define (container-cache-regexes container-cache-relative-regex)
+       (regex (string-append "^" (regex-quote (param "_HOME")) #"/Library/Caches/CloudKit/[^/]+/[^/]+" container-cache-relative-regex))
+       (regex (string-append "^" (regex-quote (param "_HOME")) #"/Library/Containers/[^/]+/Data/Library/Caches/CloudKit" container-cache-relative-regex))
+)
+
+
+;; cloudd maintains device identifiers that shouldn't leak to the filesystem
+(allow file-read-metadata
+       (literal "/Library/Keychains")
+)
+(allow file-read* file-write*
+       (regex #"^/Library/Keychains/System.keychain")
+       (home-subpath "/Library/Keychains")
+)
+
+
+
+;; cloudd caches
+(allow file-read-metadata
+       ;; stat our way down
+       (home-literal "")
+       (home-literal "/Library")
+       (home-literal "/Library/Caches")
+)
+(allow file-read* file-write*
+       ;; daemon caches
+       (home-subpath "/Library/Caches/CloudKit")
+       (home-subpath "/Library/Caches/com.apple.cloudd")
+
+       ;; Per-container caches
+       (container-root)
+       (container-root-regexes #"/AssetsDb($|/)")
+       (container-root-regexes #"/MMCS/[^/]+($|/)")
+       (container-root-regexes #"/Records($|/)")
+       (container-cache-root)
+       (container-cache-regexes #"/Assets($|/)")
+       (container-cache-regexes #"/Packages($|/)")
+)
+
+
+
+;; cloudd preferences
+(allow user-preference-read user-preference-write
+    (preference-domain "com.apple.cloudd")
+    (preference-domain "com.apple.CloudKit.BehaviorOptions")
+)
+
+
+;; temp directories
+(allow file-read* file-write*
+       (regex #"^(/private)?/var/folders/[^/]+/[^/]+/C($|/)") ; -- tighten this to CK-specific dirs with 17578391
+       (regex #"^(/private)?/var/folders/[^/]+/[^/]+/T($|/)") ; -- tighten this to CK-specific dirs with 17578391
+)
+
+
+;; temp directories: stat our way down
+(allow file-read-metadata
+       (literal "/private/var/folders")
+       (regex #"^(/private)?/var/folders/[^/]+$")
+       (regex #"^(/private)?/var/folders/[^/]+/[^/]+$")
+       (regex #"^(/private)?/var/folders/[^/]+/[^/]+/C$")
+       (regex #"^(/private)?/var/folders/[^/]+/[^/]+/T$")
+)
+
+
+
+;; Debug logging
+(allow file-read-metadata
+       (literal "/Library/Logs")
+       (literal "/private/tmp") ; mkstemp likes to stat various /tmp/ dirs
+       (literal "/private/var/tmp") ; mkstemp likes to stat various /tmp/ dirs
+)
+(allow file-read* file-write*
+       (literal "/private/var/logs/Ubiquity")
+       (home-subpath "/Library/Logs/Ubiquity")
+       (home-literal "/Library/Logs/ProtectedCloudStorage.log")
+       (home-subpath "/Library/Logs/CrashReporter/DiagnosticLogs")
+       (regex (string-append "^" (regex-quote (param "_HOME")) #"/Library/Logs/CrashReporter/CFNetwork_com\.apple\.cloudd_.*log")) ; OS X only -- home-regex is broken
+       (literal "/")
+)
+
+
+
+;; Reading preference is hard
+(allow user-preference-read
+       (preference-domain "com.apple.springboard")
+       (preference-domain "com.apple.UIKit")
+       (preference-domain "com.apple.keyboard")
+)
+
+
+
+;; I don't know what revisiond does
+(allow file-read* file-write-xattr
+       (revisiond-store-paths)
+)
+
+
+
+;; Also unknown
+(allow file-read* file-write*
+       (mount-relative-regex #"^/\.TemporaryItems($|/)")
+)
+
+
+
+;;
+;; cloudd is primarily a network technology
+;;
+(system-network) ;; OS X only
+
+(allow file-read* file-write*
+       (home-literal "/Library/Caches")
+       (home-subpath "/Library/Caches/com.apple.nsurlsessiond")
+)
+
+(allow network-outbound
+       (literal "/private/var/run/mDNSResponder")
+       (remote tcp)
+)
+(allow system-info
+       (info-type "net.link.addr")
+)
+(allow mach-lookup
+       (global-name "com.apple.SystemConfiguration.configd")
+       (global-name "com.apple.cookied")
+       (global-name "com.apple.nsurlsessiond")
+       (global-name "com.apple.PowerManagement.control")
+)
+(allow file-issue-extension
+       (require-all
+              (require-any
+                     ;; I give up.  I wanted to use (container-cache-root) here, but for the life of me, I can't get that to work
+                     (regex (string-append "^" (regex-quote (param "_HOME")) #"/Library/Caches/CloudKit/[^/]+/[^/]+"))
+                     (regex (string-append "^" (regex-quote (param "_HOME")) #"/Library/Containers/[^/]+/Data/Library/Caches/CloudKit"))
+              )
+              (require-any
+                     (extension-class "com.apple.nsurlstorage.extension-cache")
+                     (extension-class "com.apple.app-sandbox.read-write")
+              )
+       )
+)
+
+
+
+;; And it loves crypto
+(allow file-read-data
+       (literal "/dev/aes_0")
+)
+
+
+
+;; For debug logging, we're checking any DNS overrides
+(allow user-preference-read
+       (preference-domain "com.apple.jett.Switch") ;; OS X only
+)
+(allow file-read*
+       (literal "/private/etc/hosts")
+)
+
+
+
+;; cloudd talks to these guys as part of its regular job
+(allow mach-lookup
+       (global-name "com.apple.accountsd.accountmanager")
+       (global-name "com.apple.apsd")
+       (global-name "com.apple.distributed_notifications@Uv3")
+       (global-name "com.apple.tccd")
+)
+
+
+
+;; Cost of doing business on the system (mish-mash of things that don't need their own reason)
+(allow file-read-metadata
+       (subpath "/private/var/db/timezone")
+       (subpath "/private/var/db/icu")
+       (subpath "/private/var/db/mds")
+       (literal "/private")
+       (literal "/private/var")
+       (literal "/private/var/db")
+)
+
+;; For ABGetSharedAddressBook on OS X (see <rdar://problem/19965241>)
+(allow file-read* file-write*
+        (home-subpath "/Library/Application Support/AddressBook")
+)
+
+(allow mach-lookup
+        (global-name "com.apple.system.opendirectoryd.api")
+)
+
+(allow distributed-notification-post)
+
+;;
+;; I'm unclear who's using the following permissions
+;;
+
+(allow file-read*
+       (literal "/Library/Preferences/SystemConfiguration/preferences.plist")
+       (literal "/Library/Preferences/com.apple.security.plist")
+       (literal "/private/var/db/DetachedSignatures")
+       (literal "/private/var/db/mds/messages/se_SecurityMessages")
+       (literal "/private/var/db/mds/system/mdsDirectory.db")
+       (literal "/private/var/run/diagnosticd/dyld_shared_cache_x86_64")
+)
+
+(allow file-read-metadata
+       (literal "/")
+       (literal "/AppleInternal")
+       (literal "/Library")
+       (literal "/Library/Security/Trust Settings/Admin.plist")
+
+       (literal "/private/var/run/systemkeychaincheck.done")
+)
+
+(allow ipc-posix-shm-read-data
+       (ipc-posix-name-regex #"^/tmp/com\.apple\.csseed\.[0-9]+$")
+       (ipc-posix-name "FNetwork.defaultStorageSession")
+       (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+(allow ipc-posix-shm-write-data
+       (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+(allow mach-lookup
+       (global-name "com.apple.CoreServices.coreservicesd")
+       (global-name "com.apple.SecurityServer")
+       (global-name "com.apple.coreservices.quarantine-resolver")
+       (global-name "com.apple.ocspd")
+       (global-name "com.apple.windowserver.active")
+       (global-name "com.apple.awdd")
+       (global-name "com.apple.securityd.xpc") ;; OS X only
+       (global-name "com.apple.UNCUserNotification") ;; OS X only
+       
+       ;; For CKDMescalSession (<rdar://problem/17676594>)
+       (global-name "com.apple.fairplayd")
+       (global-name "com.apple.fairplayd.versioned")
+       (global-name "com.apple.DiskArbitration.diskarbitrationd")
+)
+
+(allow iokit-open
+       (iokit-user-client-class "IOMobileFramebufferUserClient")
+)

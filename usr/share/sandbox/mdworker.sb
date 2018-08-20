@@ -39,7 +39,7 @@
     (literal "/private/var/empty/Library")
     (with no-log))
 
-(allow file-read* (regex #"\.mdimporter"))
+(allow file-read* (regex #"\.mdimporter(/$)"))
 
 (deny file-read* (regex #"\.GlobalPreferences\.plist") (with no-log))
 (deny file-read* (regex #"\.GlobalPreferences\.[^\.]+\.plist") (with no-log))
@@ -56,9 +56,10 @@
 (deny mach-lookup (global-name "com.apple.ls.boxd") (with no-log))
 
 ;; comment out and check violations
-;;(allow distributed-notification-post)
+(allow distributed-notification-post)
 ;;(allow mach-lookup)
 
+(allow mach-lookup (global-name "com.apple.coreservices.quarantine-resolver"))
 (allow mach-lookup (global-name "com.apple.DiskArbitration.diskarbitrationd"))
 (allow mach-lookup (global-name "com.apple.FontObjectsServer"))
 (allow mach-lookup (global-name "com.apple.FontServer"))
@@ -71,6 +72,10 @@
 (allow mach-lookup (global-name "com.apple.distributed_notifications@Uv3"))
 (allow mach-lookup (global-name "com.apple.metadata.mdwrite"))
 (allow mach-lookup (global-name "com.apple.CoreServices.coreservicesd"))
+(allow mach-lookup (global-name "com.apple.bird"))
+
+(allow mach-lookup (global-name "com.apple.lsd.mapdb"))
+(allow mach-lookup (global-name "com.apple.lsd.modifydb"))
 
 (allow file-search)
 (allow file-read-metadata)
@@ -81,11 +86,140 @@
 ;;(allow file-fsctl file-ioctl)
 (allow file-read-metadata)
 
-(allow file-read* (regex #"\.app"))
-(allow file-read* (regex #"\.DS_Store"))
+(allow file-read* (regex #"\.app(/$)"))
+(allow file-read* (regex #"/\.DS_Store$"))
 
 ;; LaunchServices really wants to read these files.
 (allow file-read* (regex #"/Contents/PkgInfo$"))
+
+
+
+;;
+;; Borrowed from application.sb
+;;
+(define entitlement-legacy-names
+  '(("com.apple.security.device.microphone" "com.apple.security.microphone")
+    ("com.apple.security.device.camera" "com.apple.security.camera")
+    ("com.apple.security.personal-information.addressbook"
+     "com.apple.security.addressbook")
+    ("com.apple.security.personal-information.calendars"
+     "com.apple.security.calendars")
+    ("com.apple.security.personal-information.location"
+     "com.apple.security.location")
+    ("com.apple.security.files.user-selected.read-only"
+     "com.apple.security.documents.user-selected.read"
+     "com.apple.security.files.user-selected.read")
+    ("com.apple.security.files.user-selected.read-write"
+     "com.apple.security.documents.user-selected.read-write")))
+
+;;
+;; Borrowed from application.sb
+;;
+(define (legacy-entitlement ls)
+  (let loop ((ls ls))
+    (if (null? ls)
+      #f
+      (let ((entry (assoc (car ls) *entitlements*)))
+        (if entry (cdr entry) (loop (cdr ls)))))))
+
+;;
+;; Borrowed from application.sb
+;;
+(define (entitlement key)
+  (let ((entry (assoc key *entitlements*)))
+    (if entry
+      (cdr entry)
+      (let ((legacy (assoc key entitlement-legacy-names)))
+        (and legacy (legacy-entitlement legacy))))))
+
+
+;;
+;; Borrowed from application.sb
+;;
+(define (shared-preferences-read . domains)
+  (for-each
+    (lambda (domain)
+      (begin
+        (if (defined? `user-preference-read)
+          (allow user-preference-read (preference-domain domain)))
+        (allow file-read*
+               (home-literal
+                 (string-append "/Library/Preferences/" domain ".plist"))
+               (home-regex
+                 (string-append
+                   "/Library/Preferences/ByHost/"
+                   (regex-quote domain)
+                   "\\..*\\.plist$")))
+;;        (%protect-preference-symlink domain)              ;; No need to prevent unlink
+        ))
+    domains))
+
+;;
+;; Borrowed from application.sb
+;;
+(macro (with-filter form)
+       (let* ((ps (cdr form)) (extra-filter (car ps)) (rules (cdr ps)))
+         `(letrec ((collect
+                     (lambda (l filters non-filters)
+                       (if (null? l)
+                         (list filters non-filters)
+                         (let* ((x (car l)) (rest (cdr l)))
+                           (if (and (list? x) (eq? (car x) 'filter))
+                             (collect rest (cons x filters) non-filters)
+                             (collect rest filters (cons x non-filters)))))))
+                   (inject-filter
+                     (lambda args
+                       (let* ((collected (collect args '() '()))
+                              (filters (car collected))
+                              (non-filters (cadr collected)))
+                         (if (null? filters)
+                           (cons ,extra-filter non-filters)
+                           (cons (require-all
+                                   (apply require-any filters)
+                                   ,extra-filter)
+                                 non-filters)))))
+                   (orig-allow allow)
+                   (orig-deny deny)
+                   (wrapper
+                     (lambda (action)
+                       (lambda args
+                         (apply action (apply inject-filter args))))))
+            (set! allow (wrapper orig-allow))
+            (set! deny (wrapper orig-deny))
+            ,@rules
+            (set! deny orig-deny)
+            (set! allow orig-allow))))
+
+
+
+;; Some pluginw are allowed to talk to tcc
+(allow mach-lookup
+       (require-all (extension "com.apple.mdworker.addressbook_extension")
+            (require-any
+                (global-name "com.apple.tccd")
+                (global-name "com.apple.tccd.system"))))
+
+
+;;
+;; Borrowed and modified from application.sb
+;;
+
+(with-filter
+     (require-all (extension "com.apple.mdworker.addressbook_extension"))
+
+     (allow distributed-notification-post)
+     
+     (allow mach-lookup
+            (global-name "com.apple.AddressBook.AddressBookApplicationFrameworkIPC")
+            (global-name "com.apple.AddressBook.AddressBookApplicationFrameworkIPC")
+            (global-name "com.apple.AddressBook.AddressBookApplicationFrameworkIPC")
+            (global-name "com.apple.AddressBook.SourceSync")
+            (global-name "com.apple.AddressBook.AssistantService")
+            (global-name "com.apple.AddressBook.abd"))
+     (shared-preferences-read "com.apple.AddressBook")
+     (allow file-read*
+            (home-subpath "/Library/Application Support/AddressBook")
+            (home-subpath "/Library/Preferences/com.apple.AddressBook.plist")))
 
 (if (positive? (string-length (param "_HOME")))
     (begin
@@ -96,6 +230,7 @@
         (allow file-read* (home-subpath "/Library/Keychains"))
         (allow file-read* (home-literal "/Library/Preferences/com.apple.HIToolbox.plist"))
         (allow file-read* (home-literal "/Library/Preferences/mdworker.plist"))
+        (allow file-read* (home-literal "/Library/Preferences/com.apple.iApps.plist"))
         (allow file-read* (home-literal "/Library/Preferences/QuickTime Preferences"))
         (allow file-read* (home-subpath "/Library/QuickTime"))))
 
@@ -114,7 +249,7 @@
         (allow file-read* (subpath (param "_APP_CONTAINER")))))
 
 (allow file-read*
-       (require-all (extension "com.apple.mdworker.image_plugin")
+       (require-all (extension "com.apple.mdworker.image_extension")
                     (require-any (regex #"\.ipmeta$")
                                  (regex #"/AlbumData\.xml$")
                                  (regex #"\.(png|PNG|Png)$")
@@ -132,6 +267,8 @@
                                  (regex #"\.(mov|Mov|MOV)$")
                                  (regex #"\.(mp4|Mp4|MP4)$")
                                  (regex #"\.(M4V|M4v|M4V)$")
+                                 (regex #"\.(NEF|Nef|nef)$")
+                                 (regex #"\.(MRW|Mrw|mrw)$")
                                  (regex #"\.(DV|Dv|dv)$")
                                  (regex #"\.(DIF|Dif|dif)$")
                                  (regex #"\.(DVC\!|dvc\!|Dvc\!)$")
@@ -147,9 +284,14 @@
                                  (regex #"\.(RAW|Raw|raw)$")
                                  (regex #"\.(RW2|Rw2|rw2)$"))))
 
+;; Allow image importer to read iPhoto Library PkgInfo files
+;; (We really allow reading any such file, but they are harmless)
+(allow file-read*
+       (require-all (extension "com.apple.mdworker.image_extension")
+                    (require-any (regex #"/Contents/PkgInfo$"))))
 
 (allow file-read* file-write*
-       (require-all (extension "com.apple.mdworker.image_plugin")
+       (require-all (extension "com.apple.mdworker.image_extension")
                     (require-any (regex #"\.ipspot_update$")
                                  (mount-relative-regex #"^/\.TemporaryItems(/|$)"))))
 
@@ -182,6 +324,9 @@
 (allow file-read* (subpath "/usr/bin/mdimport"))
 (allow file-read* (literal "/var/log/CDIS.custom"))
 (allow file-read* (literal "/private/var/log/CDIS.custom"))
+(allow file-read* (literal "/Library/Preferences/com.apple.systemprefs.plist"))
+
+(allow file-read* (literal "/Library/Preferences/com.apple.security.plist"))
 
 (allow file-read*
        (subpath "/private/var/db/mds")
@@ -198,3 +343,13 @@
 (allow file-read* file-write* (extension "com.apple.spotlight.cachedirectory"))
 
 (allow ipc-posix-shm-read-data (ipc-posix-name-regex #"^/tmp/com\.apple\.csseed\.[0-9]+$"))
+
+;; FIXME: Should be removed once <rdar://problem/16329087> is fixed.
+(deny file-write-xattr (xattr "com.apple.quarantine") (with no-log))
+;; Reserve a namespace for additional protected extended attributes.
+(if (defined? 'xattr-regex)
+    (deny file-read-xattr file-write-xattr (xattr-regex #"^com\.apple\.security\.private\."))
+(deny file-read-xattr file-write-xattr (xattr #"^com\.apple\.security\.private\.")))
+
+(deny file-read* file-write* (subpath "/private/var/folders/zz/zyxvpxvq6csfxvn_n0000000000000/0/com.apple.Spotlight"))
+

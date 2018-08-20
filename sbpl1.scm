@@ -51,9 +51,9 @@
   (define import-dirs
     (if (param "IMPORT_DIR")
         (list (param "IMPORT_DIR"))
-        (list "/Library/Sandbox/Profiles"
-              "/System/Library/Sandbox/Profiles"
-              "/usr/share/sandbox")))
+        (list "/System/Library/Sandbox/Profiles"
+              "/usr/share/sandbox"
+              "/Library/Sandbox/Profiles")))
   (if (or (= 0 (string-length path))
           (eqv? #\/ (string-ref path 0)))
       ;; Absolute path, load it directly.
@@ -258,570 +258,580 @@
 ;; Invoke the %operations macro.
 (%operations
   (default
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     deny
     0)
   (appleevent-send
-    (debug-mode entitlement extension ae-destination)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process ae-destination)
+    (send-signal report no-report deprecated rootless)
     #f
     1 0)
   (authorization-right-obtain
-    (debug-mode entitlement extension auth-right-name)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process auth-right-name)
+    (send-signal report no-report deprecated rootless)
     #f
     2 0)
   (device*
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
     3 0)
   (device-camera
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
     4 3 0)
   (device-microphone
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
     5 3 0)
   (distributed-notification-post
-    (debug-mode entitlement extension notification)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process notification)
+    (send-signal report no-report deprecated rootless)
     #f
     6 0)
   (file*
-    (debug-mode entitlement extension path file-mode vnode-type device)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process path file-mode vnode-type device)
+    (send-signal report no-report deprecated rootless)
     #f
     7 0)
   (file-chroot
-    (debug-mode entitlement extension path file-mode vnode-type device)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process path file-mode vnode-type device)
+    (send-signal report no-report deprecated rootless)
     #f
     8 7 0)
   (file-ioctl
-    (debug-mode entitlement extension path file-mode vnode-type device ioctl)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process path file-mode vnode-type device ioctl)
+    (send-signal report no-report deprecated rootless)
     #f
     9 7 0)
   (file-issue-extension
-    (debug-mode entitlement extension path file-mode vnode-type device extension-class)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process path file-mode vnode-type device extension-class)
+    (send-signal report no-report deprecated rootless)
     #f
     10 7 0)
-  (file-mknod
-    (debug-mode entitlement extension path file-mode vnode-type device)
-    (send-signal report no-report deprecated)
-    #f
+  (file-map-executable
+    (debug-mode entitlement extension process path file-mode vnode-type device)
+    (send-signal report no-report deprecated rootless)
+    allow
     11 7 0)
-  (file-mount
-    (debug-mode entitlement extension path file-mode vnode-type device)
-    (send-signal report no-report deprecated)
+  (file-mknod
+    (debug-mode entitlement extension process path file-mode vnode-type device)
+    (send-signal report no-report deprecated rootless)
     #f
     12 7 0)
-  (file-read*
-    (debug-mode entitlement extension path file-mode vnode-type device cache-safe)
-    (send-signal report no-report deprecated)
+  (file-mount
+    (debug-mode entitlement extension process path file-mode vnode-type device)
+    (send-signal report no-report deprecated rootless)
     #f
     13 7 0)
+  (file-read*
+    (debug-mode entitlement extension process path file-mode vnode-type device cache-safe)
+    (send-signal report no-report deprecated rootless)
+    #f
+    14 7 0)
   (file-read-data
-    (debug-mode entitlement extension path file-mode vnode-type device cache-safe)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process path file-mode vnode-type device cache-safe)
+    (send-signal report no-report deprecated rootless)
     #f
-    14 13 7 0)
+    15 14 7 0)
   (file-read-metadata
-    (debug-mode entitlement extension path file-mode vnode-type device cache-safe)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process path file-mode vnode-type device cache-safe)
+    (send-signal report no-report deprecated rootless)
     #f
-    15 13 7 0)
+    16 14 7 0)
   (file-read-xattr
-    (debug-mode entitlement extension path file-mode vnode-type device cache-safe xattr)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process path file-mode vnode-type device cache-safe xattr)
+    (send-signal report no-report deprecated rootless)
     #f
-    16 13 7 0)
+    17 14 7 0)
   (file-revoke
-    (debug-mode entitlement extension path file-mode vnode-type device)
-    (send-signal report no-report deprecated)
-    #f
-    17 7 0)
-  (file-search
-    (debug-mode entitlement extension path file-mode vnode-type device)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process path file-mode vnode-type device)
+    (send-signal report no-report deprecated rootless)
     #f
     18 7 0)
-  (file-unmount
-    (debug-mode entitlement extension path file-mode vnode-type device)
-    (send-signal report no-report deprecated)
+  (file-search
+    (debug-mode entitlement extension process path file-mode vnode-type device)
+    (send-signal report no-report deprecated rootless)
     #f
     19 7 0)
-  (file-write*
-    (debug-mode entitlement extension path file-mode vnode-type device)
-    (send-signal report no-report deprecated)
+  (file-unmount
+    (debug-mode entitlement extension process path file-mode vnode-type device)
+    (send-signal report no-report deprecated rootless)
     #f
     20 7 0)
+  (file-write*
+    (debug-mode entitlement extension process path file-mode vnode-type device)
+    (send-signal report no-report deprecated rootless)
+    #f
+    21 7 0)
   (file-write-create
-    (debug-mode entitlement extension path file-mode vnode-type device)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process path file-mode vnode-type device)
+    (send-signal report no-report deprecated rootless)
     #f
-    21 20 7 0)
+    22 21 7 0)
   (file-write-data
-    (debug-mode entitlement extension path file-mode vnode-type device)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process path file-mode vnode-type device)
+    (send-signal report no-report deprecated rootless)
     #f
-    22 20 7 0)
+    23 21 7 0)
   (file-write-flags
-    (debug-mode entitlement extension path file-mode vnode-type device)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process path file-mode vnode-type device)
+    (send-signal report no-report deprecated rootless)
     #f
-    23 20 7 0)
+    24 21 7 0)
   (file-write-mode
-    (debug-mode entitlement extension path file-mode vnode-type device)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process path file-mode vnode-type device)
+    (send-signal report no-report deprecated rootless)
     #f
-    24 20 7 0)
+    25 21 7 0)
   (file-write-owner
-    (debug-mode entitlement extension path file-mode vnode-type device)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process path file-mode vnode-type device)
+    (send-signal report no-report deprecated rootless)
     #f
-    25 20 7 0)
+    26 21 7 0)
   (file-write-setugid
-    (debug-mode entitlement extension path file-mode vnode-type device)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process path file-mode vnode-type device)
+    (send-signal report no-report deprecated rootless)
     #f
-    26 20 7 0)
+    27 21 7 0)
   (file-write-times
-    (debug-mode entitlement extension path file-mode vnode-type device)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process path file-mode vnode-type device)
+    (send-signal report no-report deprecated rootless)
     #f
-    27 20 7 0)
+    28 21 7 0)
   (file-write-unlink
-    (debug-mode entitlement extension path file-mode vnode-type device)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process path file-mode vnode-type device)
+    (send-signal report no-report deprecated rootless)
     #f
-    28 20 7 0)
+    29 21 7 0)
   (file-write-xattr
-    (debug-mode entitlement extension path file-mode vnode-type device xattr)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process path file-mode vnode-type device xattr)
+    (send-signal report no-report deprecated rootless)
     #f
-    29 20 7 0)
+    30 21 7 0)
   (generic-issue-extension
-    (debug-mode entitlement extension extension-class)
-    (send-signal report no-report deprecated)
-    #f
-    30 0)
-  (qtn-user
-    (debug-mode entitlement extension path)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process extension-class)
+    (send-signal report no-report deprecated rootless)
     #f
     31 0)
-  (qtn-download
-    (debug-mode entitlement extension path)
-    (send-signal report no-report deprecated)
+  (qtn-user
+    (debug-mode entitlement extension process path)
+    (send-signal report no-report deprecated rootless)
     #f
     32 0)
-  (qtn-sandbox
-    (debug-mode entitlement extension path)
-    (send-signal report no-report deprecated)
+  (qtn-download
+    (debug-mode entitlement extension process path)
+    (send-signal report no-report deprecated rootless)
     #f
     33 0)
-  (hid-control
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+  (qtn-sandbox
+    (debug-mode entitlement extension process path)
+    (send-signal report no-report deprecated rootless)
     #f
     34 0)
-  (iokit*
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+  (hid-control
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
     35 0)
+  (iokit*
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
+    #f
+    36 0)
   (iokit-issue-extension
-    (debug-mode entitlement extension extension-class)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process extension-class)
+    (send-signal report no-report deprecated rootless)
     #f
-    36 35 0)
+    37 36 0)
   (iokit-open
-    (debug-mode entitlement extension iokit-user-client iokit-connection)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process iokit-user-client iokit-connection)
+    (send-signal report no-report deprecated rootless)
     #f
-    37 35 0)
+    38 36 0)
   (iokit-set-properties
-    (debug-mode entitlement extension iokit-property iokit-user-client iokit-connection)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process iokit-property iokit-user-client iokit-connection)
+    (send-signal report no-report deprecated rootless)
     #f
-    38 35 0)
+    39 36 0)
+  (iokit-get-properties
+    (debug-mode entitlement extension process iokit-property iokit-user-client iokit-connection)
+    (send-signal report no-report deprecated rootless)
+    allow
+    40 36 0)
   (ipc*
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
-    39 0)
+    41 0)
   (ipc-posix*
-    (debug-mode entitlement extension posix-ipc)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process posix-ipc)
+    (send-signal report no-report deprecated rootless)
     #f
-    40 39 0)
+    42 41 0)
   (ipc-posix-issue-extension
-    (debug-mode entitlement extension posix-ipc extension-class)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process posix-ipc extension-class)
+    (send-signal report no-report deprecated rootless)
     #f
-    41 40 39 0)
+    43 42 41 0)
   (ipc-posix-sem
-    (debug-mode entitlement extension posix-ipc semaphore)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process posix-ipc semaphore)
+    (send-signal report no-report deprecated rootless)
     #f
-    42 40 39 0)
+    44 42 41 0)
   (ipc-posix-shm*
-    (debug-mode entitlement extension posix-ipc)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process posix-ipc)
+    (send-signal report no-report deprecated rootless)
     #f
-    43 40 39 0)
+    45 42 41 0)
   (ipc-posix-shm-read*
-    (debug-mode entitlement extension posix-ipc)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process posix-ipc)
+    (send-signal report no-report deprecated rootless)
     #f
-    44 43 40 39 0)
+    46 45 42 41 0)
   (ipc-posix-shm-read-data
-    (debug-mode entitlement extension posix-ipc)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process posix-ipc)
+    (send-signal report no-report deprecated rootless)
     #f
-    45 44 43 40 39 0)
+    47 46 45 42 41 0)
   (ipc-posix-shm-read-metadata
-    (debug-mode entitlement extension posix-ipc)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process posix-ipc)
+    (send-signal report no-report deprecated rootless)
     #f
-    46 44 43 40 39 0)
+    48 46 45 42 41 0)
   (ipc-posix-shm-write*
-    (debug-mode entitlement extension posix-ipc)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process posix-ipc)
+    (send-signal report no-report deprecated rootless)
     #f
-    47 43 40 39 0)
+    49 45 42 41 0)
   (ipc-posix-shm-write-create
-    (debug-mode entitlement extension posix-ipc)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process posix-ipc)
+    (send-signal report no-report deprecated rootless)
     #f
-    48 47 43 40 39 0)
+    50 49 45 42 41 0)
   (ipc-posix-shm-write-data
-    (debug-mode entitlement extension posix-ipc)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process posix-ipc)
+    (send-signal report no-report deprecated rootless)
     #f
-    49 47 43 40 39 0)
+    51 49 45 42 41 0)
   (ipc-posix-shm-write-unlink
-    (debug-mode entitlement extension posix-ipc)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process posix-ipc)
+    (send-signal report no-report deprecated rootless)
     #f
-    50 47 43 40 39 0)
+    52 49 45 42 41 0)
   (ipc-sysv*
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
-    51 39 0)
+    53 41 0)
   (ipc-sysv-msg
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
-    52 51 39 0)
+    54 53 41 0)
   (ipc-sysv-sem
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
-    53 51 39 0)
+    55 53 41 0)
   (ipc-sysv-shm
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
-    54 51 39 0)
+    56 53 41 0)
   (job-creation
-    (debug-mode entitlement extension path)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process path)
+    (send-signal report no-report deprecated rootless)
     deny
-    55 0)
-  (load-unsigned-code
-    (debug-mode entitlement extension path)
-    (send-signal report no-report deprecated)
-    #f
-    56 0)
-  (mach*
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
-    #f
     57 0)
+  (load-unsigned-code
+    (debug-mode entitlement extension process path)
+    (send-signal report no-report deprecated rootless)
+    #f
+    58 0)
+  (lsopen
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
+    #f
+    59 0)
+  (mach*
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
+    #f
+    60 0)
   (mach-bootstrap
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
-    58 57 0)
+    61 60 0)
   (mach-issue-extension
-    (debug-mode entitlement extension mach extension-class)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process mach extension-class)
+    (send-signal report no-report deprecated rootless)
     #f
-    59 57 0)
+    62 60 0)
   (mach-lookup
-    (debug-mode entitlement extension mach)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process mach)
+    (send-signal report no-report deprecated rootless)
     #f
-    60 57 0)
+    63 60 0)
+  (mach-per-user-lookup
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
+    #f
+    64 60 0)
   (mach-priv*
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
-    61 57 0)
+    65 60 0)
   (mach-priv-host-port
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
-    62 61 57 0)
+    66 65 60 0)
   (mach-priv-task-port
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process path)
+    (send-signal report no-report deprecated rootless)
     #f
-    63 61 57 0)
+    67 65 60 0)
   (mach-register
-    (debug-mode entitlement extension mach)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process mach)
+    (send-signal report no-report deprecated rootless)
     #f
-    64 57 0)
+    68 60 0)
   (mach-task-name
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
-    65 57 0)
+    69 60 0)
   (network*
-    (debug-mode entitlement extension socket network path file-mode)
-    (send-signal report no-report deprecated)
-    #f
-    66 0)
-  (network-inbound
-    (debug-mode entitlement extension socket network path file-mode)
-    (send-signal report no-report deprecated)
-    #f
-    67 66 0)
-  (network-bind
-    (debug-mode entitlement extension socket network path file-mode)
-    (send-signal report no-report deprecated)
-    #f
-    68 67 66 0)
-  (network-outbound
-    (debug-mode entitlement extension socket network path file-mode)
-    (send-signal report no-report deprecated)
-    #f
-    69 66 0)
-  (user-preference*
-    (debug-mode entitlement extension preference-domain)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process socket network path file-mode vnode-type)
+    (send-signal report no-report deprecated rootless)
     #f
     70 0)
-  (user-preference-read
-    (debug-mode entitlement extension preference-domain)
-    (send-signal report no-report deprecated)
+  (network-inbound
+    (debug-mode entitlement extension process socket network path file-mode vnode-type)
+    (send-signal report no-report deprecated rootless)
     #f
     71 70 0)
+  (network-bind
+    (debug-mode entitlement extension process socket network path file-mode vnode-type)
+    (send-signal report no-report deprecated rootless)
+    #f
+    72 71 70 0)
+  (network-outbound
+    (debug-mode entitlement extension process socket network path file-mode vnode-type)
+    (send-signal report no-report deprecated rootless)
+    #f
+    73 70 0)
+  (user-preference*
+    (debug-mode entitlement extension process preference-domain)
+    (send-signal report no-report deprecated rootless)
+    #f
+    74 0)
+  (user-preference-read
+    (debug-mode entitlement extension process preference-domain)
+    (send-signal report no-report deprecated rootless)
+    #f
+    75 74 0)
   (user-preference-write
-    (debug-mode entitlement extension preference-domain)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process preference-domain)
+    (send-signal report no-report deprecated rootless)
     #f
-    72 70 0)
-  (priv*
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated grant)
-    allow
-    73 0)
-  (priv-adjtime
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated grant)
-    #f
-    74 73 0)
-  (priv-netinet*
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated grant)
-    #f
-    75 73 0)
-  (priv-netinet-reservedport
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated grant)
-    #f
-    76 75 73 0)
+    76 74 0)
   (process*
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
     77 0)
-  (process-exec
-    (debug-mode entitlement extension path file-mode)
-    (send-signal report no-report deprecated no-sandbox)
+  (process-exec*
+    (debug-mode entitlement extension process path file-mode)
+    (send-signal report no-report deprecated rootless no-sandbox)
     #f
     78 77 0)
+  (process-exec-interpreter
+    (debug-mode entitlement extension process path file-mode)
+    (send-signal report no-report deprecated rootless no-sandbox)
+    #f
+    79 78 77 0)
   (process-fork
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
-    79 77 0)
-  (process-info*
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
-    allow
     80 77 0)
+  (process-info*
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
+    allow
+    81 77 0)
   (process-info-listpids
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
-    81 80 77 0)
+    82 81 77 0)
   (process-info-pidinfo
-    (debug-mode entitlement extension target)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process target)
+    (send-signal report no-report deprecated rootless)
     #f
-    82 80 77 0)
+    83 81 77 0)
   (process-info-pidfdinfo
-    (debug-mode entitlement extension target)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process target)
+    (send-signal report no-report deprecated rootless)
     #f
-    83 80 77 0)
+    84 81 77 0)
   (process-info-pidfileportinfo
-    (debug-mode entitlement extension target)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process target)
+    (send-signal report no-report deprecated rootless)
     #f
-    84 80 77 0)
+    85 81 77 0)
   (process-info-setcontrol
-    (debug-mode entitlement extension target)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process target)
+    (send-signal report no-report deprecated rootless)
     #f
-    85 80 77 0)
+    86 81 77 0)
   (process-info-dirtycontrol
-    (debug-mode entitlement extension target)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process target)
+    (send-signal report no-report deprecated rootless)
     #f
-    86 80 77 0)
+    87 81 77 0)
   (process-info-rusage
-    (debug-mode entitlement extension target)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process target)
+    (send-signal report no-report deprecated rootless)
     #f
-    87 80 77 0)
+    88 81 77 0)
   (pseudo-tty
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
-    #f
-    88 0)
-  (signal
-    (debug-mode entitlement extension target)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
     89 0)
-  (sysctl*
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+  (signal
+    (debug-mode entitlement extension process target)
+    (send-signal report no-report deprecated rootless)
     #f
     90 0)
+  (sysctl*
+    (debug-mode entitlement extension process sysctl)
+    (send-signal report no-report deprecated rootless)
+    #f
+    91 0)
   (sysctl-read
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process sysctl)
+    (send-signal report no-report deprecated rootless)
     #f
-    91 90 0)
+    92 91 0)
   (sysctl-write
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process sysctl)
+    (send-signal report no-report deprecated rootless)
     #f
-    92 90 0)
+    93 91 0)
   (system*
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
-    93 0)
+    94 0)
   (system-acct
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
-    94 93 0)
+    95 94 0)
   (system-audit
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
-    95 93 0)
+    96 94 0)
   (system-chud
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
-    96 93 0)
+    97 94 0)
+  (system-debug
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
+    #f
+    98 94 0)
   (system-fsctl
-    (debug-mode entitlement extension fsctl)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process fsctl)
+    (send-signal report no-report deprecated rootless)
     #f
-    97 93 0)
+    99 94 0)
   (system-info
-    (debug-mode entitlement extension info)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process info)
+    (send-signal report no-report deprecated rootless)
     #f
-    98 93 0)
+    100 94 0)
   (system-kext*
-    (debug-mode entitlement extension kext-bundle-id)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process kext-bundle-id)
+    (send-signal report no-report deprecated rootless)
     #f
-    99 93 0)
+    101 94 0)
   (system-kext-load
-    (debug-mode entitlement extension kext-bundle-id)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process kext-bundle-id)
+    (send-signal report no-report deprecated rootless)
     #f
-    100 99 93 0)
+    102 101 94 0)
   (system-kext-unload
-    (debug-mode entitlement extension kext-bundle-id)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process kext-bundle-id)
+    (send-signal report no-report deprecated rootless)
     #f
-    101 99 93 0)
+    103 101 94 0)
   (system-lcid
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
-    102 93 0)
+    104 94 0)
   (system-mac-label
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
-    103 93 0)
+    105 94 0)
   (system-nfssvc
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
-    104 93 0)
+    106 94 0)
+  (system-privilege
+    (debug-mode entitlement extension process priv)
+    (send-signal report no-report deprecated rootless grant)
+    allow
+    107 94 0)
   (system-reboot
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
-    105 93 0)
+    108 94 0)
   (system-sched
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
-    106 93 0)
+    109 94 0)
   (system-set-time
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
-    107 93 0)
+    110 94 0)
   (system-socket
-    (debug-mode entitlement extension socket)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process socket)
+    (send-signal report no-report deprecated rootless)
     #f
-    108 93 0)
+    111 94 0)
   (system-suspend-resume
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
-    109 93 0)
+    112 94 0)
   (system-swap
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
-    110 93 0)
+    113 94 0)
   (system-write-bootstrap
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
+    (debug-mode entitlement extension process)
+    (send-signal report no-report deprecated rootless)
     #f
-    111 93 0)
-  (mach-per-user-lookup
-    (debug-mode entitlement extension)
-    (send-signal report no-report deprecated)
-    #f
-    112 57))
+    114 94 0))
 
 ;;; Filters
 
@@ -1046,12 +1056,26 @@
                 mount-relative-path
                 mount-relative-literal
                 mount-relative-regex)
+(define rootless-file-filter
+  (%filter 'rootless-file
+           'path
+           0                            ; no unrepeatable arguments
+           #f                           ; arguments can not be merged
+           null?                        ; no arguments
+           %id))                        ; no argument processing
+(define rootless-mach-filter
+  (%filter 'rootless-mach
+           'path
+           0                            ; no unrepeatable arguments
+           #f                           ; arguments can not be merged
+           null?                        ; no arguments
+           %id))                        ; no argument processing
 
 ;; Define xattr filter.
 (%string-filter xattr
                 xattr
-                #f
-                xattr)
+                xattr
+                xattr-regex)
 
 ;; Define file-mode filter.
 (define file-mode
@@ -1333,6 +1357,38 @@
            null?                        ; no arguments
            %id))                        ; no argument processing
 
+;; Define privilege filters.
+(define privilege-id
+  (%filter 'privilege-id
+           'priv
+           0                            ; no unrepeatable arguments
+           #f                           ; arguments can not be merged
+           (lambda (args)               ; one or more numeric arguments
+             (and (<= 1 (length args))
+                  (%every integer? args)))
+           %id))                        ; no argument processing
+
+;; Define sysctl filters.
+(%string-filter sysctl
+                sysctl-name
+                sysctl-name
+                sysctl-name-regex)
+
+;; Define Process filters.
+(%string-filter process
+                process-name
+                process-name
+                process-name-regex)
+
+(define process-is-plugin
+  (%filter 'process-attribute
+           'process
+           1                            ; one unrepeatable arguments
+           #f                           ; arguments can not be merged
+           null?                        ; no caller-supplied arguments
+           (lambda (args)
+             (cons 'is-plugin args))))
+
 ;;; Modifiers
 
 ;; Modifiers have the form (modifier check name . args)
@@ -1390,6 +1446,12 @@
           (= 0 (length args)))
         (lambda (rule)                  ; applies to all actions
           #t)))
+(define rootless-modifier
+  (list 'rootless
+        (lambda args                    ; no arguments
+          (= 0 (length args)))
+        (lambda (rule)                  ; applies to deny
+          (eq? rule 'deny))))
 
 ;; The with function creates a modifier.
 (define (with modifier . args)
@@ -1585,48 +1647,50 @@
                                         modifiers)))
                     (newline)))))))))
 
+(define (%emit-implicit-rules)
+  ;; Determine if an operation can ever return a certain action.
+  (define (returns? op action)
+    (let scan ((rules (vector-ref *rules* (%o/code op))))
+      (cond
+       ((not (caar rules))
+        (scan (vector-ref *rules* (cdar rules))))
+       ((eq? action (cadar rules))
+        #t)
+       ((pair? (cdr rules))
+        (scan (cdr rules)))
+       (else
+        #f))))
+  (define (allowed? op)
+    (returns? op 'allow))
+  (define (denied? op)
+    (returns? op 'deny))
+  ;; Allow mach-bootstrap if mach-lookup is ever allowed.
+  (if (or *trace* (allowed? mach-lookup))
+      (allow mach-bootstrap))
+  ;; Allow access to webdavfs_agent if file-read* is always allowed.
+  ;; <rdar://problem/6816031> remove workaround for 6769092
+  (if (not (denied? file-read*))
+      (allow network-outbound
+             (regex #"^/private/tmp/\.webdavUDS\.[^/]+$")))
+  ;; Never allow a sandboxed process to open a launchd socket.
+  (deny network-outbound
+        (literal "/private/var/tmp/launchd/sock")
+        (regex #"^/private/tmp/launchd-[0-9]+\.[^/]+/sock$"))
+  ;; Never allow a sandboxed process to access sandbox cache directories.
+  (let ((count (vector-length *operations*)))
+    (do ((op 0 (+ op 1)))
+        ((= op count))
+      (let ((operation (vector-ref *operations* op)))
+        (if (and (memq 'path (%o/filters operation))
+                 (not (memq 'cache-safe (%o/filters operation))))
+            (deny operation (regex #"/com\.apple\.sandbox($|/)"))))))
+  ;; Always allow a process to signal itself.
+  (allow signal (target self)))
+
 ;; The %finalize function is called after a profile has been evaluated.
 (set! %finalize
       (lambda ()
-        ;; Determine if an operation can ever return a certain action.
-        (define (returns? op action)
-          (let scan ((rules (vector-ref *rules* (%o/code op))))
-            (cond
-             ((not (caar rules))
-              (scan (vector-ref *rules* (cdar rules))))
-             ((eq? action (cadar rules))
-              #t)
-             ((pair? (cdr rules))
-              (scan (cdr rules)))
-             (else
-              #f))))
-        (define (allowed? op)
-          (returns? op 'allow))
-        (define (denied? op)
-          (returns? op 'deny))
-        ;; Allow mach-bootstrap if mach-lookup is ever allowed.
-        (if (or *trace* (allowed? mach-lookup))
-            (allow mach-bootstrap))
-        ;; Allow access to webdavfs_agent if file-read* is always allowed.
-        ;; <rdar://problem/6816031> remove workaround for 6769092
-        (if (not (denied? file-read*))
-            (allow network-outbound
-                   (regex #"^/private/tmp/\.webdavUDS\.[^/]+$")))
-        ;; Never allow a sandboxed process to open a launchd socket.
-        (deny network-outbound
-              (literal "/private/var/tmp/launchd/sock")
-              (regex #"^/private/tmp/launchd-[0-9]+\.[^/]+/sock$"))
-        ;; Never allow a sandboxed process to access its sandbox cache.
-        (if *cache-path*
-            (let ((count (vector-length *operations*)))
-              (do ((op 0 (+ op 1)))
-                  ((= op count))
-                (let ((operation (vector-ref *operations* op)))
-                  (if (and (memq 'path (%o/filters operation))
-                           (not (memq 'cache-safe (%o/filters operation))))
-                      (deny operation (subpath *cache-path*)))))))
-        ;; Always allow a process to signal itself.
-        (allow signal (target self))
+        (if (not (param "NO_IMPLICIT_RULES")) (%emit-implicit-rules))
         ;; Optimize the profile rules.
         (%opt-remove-filters)
         (if *eliminate-duplicate-rules* (%opt-remove-duplicates))
@@ -1649,6 +1713,7 @@
 (define no-log no-report)
 (define granted-extensions extension)
 (define (container) (extension *ios-sandbox-container*))
+(define (executable-bundle) (extension *ios-sandbox-executable*))
 (define (application-group) (extension *ios-sandbox-application-group*))
 (define file-issue-extension* file-issue-extension)
 (define file-issue-extension-read file-issue-extension)
@@ -1659,3 +1724,4 @@
 (define file-write-mount file-mount)
 (define file-write-unmount file-unmount)
 (define file-write-umount file-unmount)
+(define process-exec process-exec*)

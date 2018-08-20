@@ -4,6 +4,7 @@
 
 (allow file-read* (literal "/private/var/db/systemstats"))
 (allow file-read* file-write*
+	(subpath "/private/var/tmp")
 	(literal "/private/var/db/systemstats/snapshots.db")
 	(literal "/private/var/db/systemstats/snapshots.db-journal")
 	(literal "/private/var/db/systemstats/snapshots.db-shm")

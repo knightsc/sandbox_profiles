@@ -20,4 +20,5 @@
 
 (allow mach-lookup 
        (global-name "com.apple.CoreServices.coreservicesd")
+	   (global-name "com.apple.speech.speechsynthesisd")
        (global-name "com.apple.windowserver.active"))

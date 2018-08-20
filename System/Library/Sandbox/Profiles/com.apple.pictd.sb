@@ -1,0 +1,59 @@
+(version 1)
+
+(deny default)
+
+(import "system.sb")
+
+(define (home-subpath home-relative-subpath)
+  (subpath (string-append (param "_HOME") home-relative-subpath)))
+
+(define (home-literal home-relative-literal)
+  (literal (string-append (param "_HOME") home-relative-literal)))
+
+(define (home-regex home-relative-regex)                                           
+       (regex (string-append "^" (regex-quote (param "_HOME")) home-relative-regex)))
+
+(define (darwin-user-cache-literal darwin-user-cache-relative-literal)
+  (literal (string-append (param "_DARWIN_USER_CACHE_DIR") darwin-user-cache-relative-literal)))
+
+(allow file-ioctl
+       (literal "/dev/dtracehelper"))
+
+(allow file-read*
+       (literal "/Library/Preferences/com.apple.HIToolbox.plist")
+       (subpath "/Library/QuickTime")
+       (home-literal "/.CFUserTextEncoding")
+       (home-literal "/Library/Preferences/.GlobalPreferences.plist")
+       (home-subpath "/Library/Preferences/QuickTime Preferences")
+       (home-regex #"/Library/Preferences/ByHost/\.GlobalPreferences\.")
+       (home-regex #"/Library/Preferences/ByHost/com\.apple\.HIToolbox\.")
+       (home-regex #"/Library/Preferences/com\.apple\.HIToolbox\.plist")
+       (literal "/usr/sbin")
+       (literal "/usr/sbin/pictd/..namedfork/rsrc")
+       (literal "/Library/Preferences/.GlobalPreferences.plist")
+       (darwin-user-cache-literal "/com.apple.scriptmanager2.le.cache")
+       (darwin-user-cache-literal "/com.apple.scriptmanager2.be.cache"))
+
+(allow file-read-metadata
+       (literal "/")
+       (literal (param "_HOME"))
+       (home-literal "/Library")
+       (home-literal "/Library/Audio")
+       (home-literal "/Library/Audio/Plug-Ins")
+       (home-literal "/Library/Audio/Plug-Ins/Components")
+       (home-literal "/Library/Preferences")
+       (home-literal "/Library/Preferences/QuickTime Preferences")
+       (literal (param "_DARWIN_USER_DIR"))
+       (literal "/usr/sbin/pictd"))
+
+(allow file-write-data
+       (literal "/dev/dtracehelper"))
+
+
+(allow mach-lookup
+       (global-name "com.apple.CoreServices.coreservicesd")
+       (global-name "com.apple.FontObjectsServer")
+       (global-name "com.apple.distributed_notifications@Uv3")
+       (global-name "com.apple.printtool.agent")
+       (global-name "com.apple.system.opendirectoryd.membership")
+       (global-name "com.apple.windowserver.active"))

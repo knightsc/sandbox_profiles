@@ -1,0 +1,94 @@
+(version 1)
+
+(deny default)
+(import "system.sb")
+
+(system-network)
+
+(define (home-regex home-relative-regex)
+       (regex (string-append "^" (regex-quote (param "_HOME")) home-relative-regex)))
+(define (home-subpath home-relative-subpath)
+       (subpath (string-append (param "_HOME") home-relative-subpath)))
+(define (home-literal home-relative-literal)
+       (literal (string-append (param "_HOME") home-relative-literal)))
+
+(allow file-issue-extension
+       (home-literal "/Library/Caches/com.apple.icloud.fmfd"))
+
+(allow file-read*
+       (home-literal "/Library/Preferences/.GlobalPreferences.plist")
+       (home-literal "/Library/Preferences/com.apple.GEO.plist")
+       (home-literal "/Library/Preferences/com.apple.logging.plist")
+       (home-literal "/Library/Preferences/com.apple.icloud.fmfd.plist")
+       (home-literal "/Library/Preferences/MobileMeAccounts.plist")
+       (home-literal "/Library/Preferences/com.apple.security.revocation.plist")
+       (home-literal "/Library/Caches/GeoServices/ActiveTileGroup.pbd")
+       (home-literal "/Library/Caches/GeoServices/networkDefaults.plist")
+       (home-literal "/Library/Caches/com.apple.icloud.fmfd/Cache.db")
+       (home-literal "/Library/Keychains/login.keychain")
+
+       (literal "/Library/Keychains/System.keychain")
+       (literal "/Library/Preferences/com.apple.security.plist")
+       (literal "/Library/Preferences/.GlobalPreferences.plist")
+       (literal (string-append "/Library/Managed Preferences/" (param "_USER") "/.GlobalPreferences.plist"))
+       (literal (string-append "/Library/Managed Preferences/" (param "_USER") "/com.apple.logging.plist"))
+       (literal "/Library/Managed Preferences/com.apple.logging.plist")
+       (literal "/Library/Managed Preferences/.GlobalPreferences.plist")
+       (literal "/private/var/db/DetachedSignatures")
+       (literal "/private/var/db/mds/messages/se_SecurityMessages")
+       (literal "/private/var/db/mds/system/mdsDirectory.db")
+       (literal "/private/var/db/mds/system/mdsObject.db")
+       (literal "/usr/libexec")
+       (literal "/usr/libexec/fmfd")
+       (literal "/usr/libexec/fmfd/..namedfork/rsrc")
+
+       (home-regex #"/Library/Keychains/\.[\w]*")
+       (home-regex #"/Library/Preferences/ByHost/\.GlobalPreferences\.[-\w.]*")
+       (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsDirectory\.db$")
+       (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsObject\.db$")
+       (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mds\.lock$"))
+
+(allow file-read-metadata)
+
+(allow file-write*
+       (literal "/Users/local/Library/Caches/com.apple.icloud.fmfd")
+       (home-literal "/Library/Keychains/login.keychain")
+       (home-literal "/Library/Logs/com.apple.icloud.fmfd.log")
+       (home-literal "/Library/Preferences/com.apple.icloud.fmfd.plist")
+       (regex (string-append "^" (param "_HOME") #"/Library/Keychains/login\.keychain\.sb-[-\w]*"))
+       (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsDirectory\.db$")
+       (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsDirectory\.db_$")
+       (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsObject\.db$")
+       (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsObject\.db_$"))
+
+(allow file-write-data
+       (home-literal "/Library/Caches/com.apple.icloud.fmfd/Cache.db")
+       (home-literal "/Library/Logs/com.apple.icloud.fmfd.log")
+       (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mds\.lock$"))
+
+(allow ipc-posix-shm-read-data
+       (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+(allow ipc-posix-shm-write-data
+       (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+(allow mach-lookup
+       (global-name "com.apple.CoreServices.coreservicesd")
+       (global-name "com.apple.SecurityServer")
+       (global-name "com.apple.SystemConfiguration.SCNetworkReachability")
+       (global-name "com.apple.apsd")
+       (global-name "com.apple.cmfsyncagent.auth")
+       (global-name "com.apple.cookied")
+       (global-name "com.apple.coreservices.launchservicesd")
+       (global-name "com.apple.distributed_notifications@Uv3")
+       (global-name "com.apple.marco")
+       (global-name "com.apple.networkd")
+       (global-name "com.apple.nsurlstorage-cache")
+       (global-name "com.apple.ocspd")
+       (global-name "com.apple.windowserver.active"))
+
+(allow network-outbound
+       (literal "/private/var/run/mDNSResponder")
+       (remote tcp "*:443")
+       (remote tcp "*:8888"))
+

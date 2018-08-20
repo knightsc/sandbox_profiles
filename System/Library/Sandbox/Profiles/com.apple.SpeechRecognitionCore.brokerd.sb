@@ -1,6 +1,6 @@
 ;;
 ;; Speech Recognition broker daemon - sandbox profile
-;; Copyright (c) 2013 Apple Inc. All Rights reserved.
+;; Copyright (c) 2013-2014 Apple Inc. All Rights reserved.
 ;;
 ;; WARNING: The sandbox rules in this file currently constitute
 ;; Apple System Private Interface and are subject to change at any time and
@@ -25,10 +25,16 @@
     
 (allow mach-lookup
         (global-name "com.apple.SpeechRecognitionCore.speechrecognitiond")
+        (global-name "com.apple.coreservices.launchservicesd")
+        (global-name "com.apple.windowserver.active")
         (global-name "com.apple.distributed_notifications@1v3")
-        (global-name "com.apple.distributed_notifications@Uv3"))
+        (global-name "com.apple.distributed_notifications@Uv3")
+        (global-name "com.apple.DictationIM.feedback"))
 
 (allow file-read*
     (home-literal "/Library/Preferences/.GlobalPreferences.plist")
-    (home-regex "/Library/Preferences/ByHost/\.GlobalPreferences\.")
+    (home-regex #"/Library/Preferences/ByHost/\.GlobalPreferences\.")
     (literal "/Library/Preferences/.GlobalPreferences.plist"))
+
+(allow file-read* file-write* file-read-metadata
+    (home-subpath "/Library/Caches/com.apple.SpeechRecognitionCore"))

@@ -1,4 +1,4 @@
-;; Copyright (c) 2012 Apple Inc.  All Rights reserved.
+;; Copyright (c) 2012-2014 Apple Inc.  All Rights reserved.
 ;;
 ;; WARNING: The sandbox rules in this file currently constitute 
 ;; Apple System Private Interface and are subject to change at any time and
@@ -12,10 +12,6 @@
 
 (allow system-sched)
 
-(allow file*
-    (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.eapolclient.plist")
-)
-
 (allow file-read-data
     (literal "/")
     (literal "/usr/libexec")
@@ -25,13 +21,17 @@
     (literal "/Library/Preferences/.GlobalPreferences.plist")
     (literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist")
     (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
-    (subpath "/usr/libexec/wdhelper")
+    (literal "/usr/libexec/wdhelper")
+    (literal "/usr/libexec/wdhelper/..namedfork/rsrc")
     (subpath "/private/var/folders")
     (regex #"^/dev/bpf")
     (literal "/Library/Preferences/com.apple.security.plist")
     (literal "/private/var/log")
     (literal "/Library/Logs/CrashReporter")
+    (literal "/Library/Logs/DiagnosticReports")
     (literal "/private/tmp")
+    (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.eapolclient\.plist")
+    (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.airport\.preferences\.plist")
 )
 
 (allow file-ioctl
@@ -42,11 +42,15 @@
     (regex #"^/dev/bpf")
 )
 
+(allow file-read-xattr
+    (subpath "/Library/Logs/DiagnosticReports")
+)
+
 (allow file-read-metadata
     (literal "/")
     (literal "/Network/Library")
     (literal "/private")
-    (literal "/private/tmp")
+    (subpath "/private/tmp")
     (literal "/private/var/root/Library")
     (literal "/usr")
     (literal "/usr/libexec")
@@ -54,11 +58,12 @@
     (literal "/usr/libexec/wdhelper")
     (literal "/Library/Preferences/SystemConfiguration/preferences.plist")
     (literal "/Library/Preferences/SystemConfiguration/preferences.plist-lock")
+    (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.eapolclient\.plist")
+    (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.airport\.preferences\.plist")
     (literal "/private/var/root")
     (literal "/AppleInternal")
     (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
     (literal "/Library/Caches/com.apple.DiagnosticReporting.HasBeenAppleInternal")
-    (subpath "/private/tmp/com.apple.wireless-diagnostics")
     (subpath "/private/var/folders")
     (subpath "/Volumes")
     (literal "/private/var/log/system.log")
@@ -66,35 +71,48 @@
     (literal "/private/var/log")
     (literal "/Library/Logs")
     (literal "/Library/Logs/CrashReporter")
+    (subpath "/Library/Logs/DiagnosticReports")
 )
 
 (allow file-write-create
     (literal "/Library/Preferences/SystemConfiguration/preferences.plist-lock")
     (literal "/Library/Preferences/SystemConfiguration/preferences.plist-new")
     (literal "/Library/Preferences/SystemConfiguration/preferences.plist")
-    (subpath "/private/tmp/com.apple.wireless-diagnostics")
-    (subpath "/private/var/folders")
+    (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.eapolclient\.plist")
+    (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.airport\.preferences\.plist")
+    (subpath (param "TMP_DIR"))
 )
 
 (allow file-write-data
     (literal "/Library/Preferences/SystemConfiguration/preferences.plist-lock")
     (literal "/Library/Preferences/SystemConfiguration/preferences.plist-new")
+    (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.eapolclient\.plist")
+    (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.airport\.preferences\.plist")
+    (literal "/dev/io8log")
+    (literal "/dev/io8logmt")
+    (literal "/dev/io8logtemp")
 )
 
 (allow file-write-unlink
     (literal "/Library/Preferences/SystemConfiguration/preferences.plist-lock")
     (literal "/Library/Preferences/SystemConfiguration/preferences.plist-new")
     (literal "/Library/Preferences/SystemConfiguration/preferences.plist")
-    (subpath "/private/tmp/com.apple.wireless-diagnostics")
-    (subpath "/private/var/folders")
+    (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.eapolclient\.plist")
+    (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.airport\.preferences\.plist")
+    (subpath (param "TMP_DIR"))
 )
 
 (allow file-write-owner
     (literal "/Library/Preferences/SystemConfiguration/preferences.plist-new")
+    (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.eapolclient\.plist")
+    (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.airport\.preferences\.plist")
 )
 
 (allow file-write-mode
     (literal "/Library/Preferences/SystemConfiguration/preferences.plist-new")
+    (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.eapolclient\.plist")
+    (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.airport\.preferences\.plist")
+    (subpath (param "TMP_DIR"))
 )
 
 (allow mach-lookup
@@ -136,6 +154,8 @@
     (literal "/usr/bin/odutil")
     (literal "/usr/bin/top")
     (literal "/usr/sbin/ioreg")
+    (literal "/usr/bin/darwinup")
+    (literal "/usr/sbin/discoveryutil")
 )
 
 (allow iokit-open

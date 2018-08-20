@@ -1,4 +1,4 @@
-;; Copyright (c) 2007,2010-2012 Apple Inc.  All Rights reserved.
+;; Copyright (c) 2007,2010-2014 Apple Inc.  All Rights reserved.
 ;;
 ;; WARNING: The sandbox rules in this file currently constitute 
 ;; Apple System Private Interface and are subject to change at any time and
@@ -11,7 +11,6 @@
 
 (import "bsd.sb")
 
-(allow process-exec (literal "/usr/sbin/rpcbind"))
 (allow job-creation)
 (allow network-inbound (literal "/var/run/portmap.socket") (local udp) (local tcp) (remote udp) (remote tcp))
 (allow network-outbound (literal "/var/run/portmap.socket") (local udp) (local tcp) (remote udp) (remote tcp))

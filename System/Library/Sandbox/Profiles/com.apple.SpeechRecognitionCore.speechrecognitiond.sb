@@ -1,6 +1,6 @@
 ;;
 ;; Speech Recognition daemon - sandbox profile
-;; Copyright (c) 2013 Apple Inc. All Rights reserved.
+;; Copyright (c) 2013-2014 Apple Inc. All Rights reserved.
 ;;
 ;; WARNING: The sandbox rules in this file currently constitute
 ;; Apple System Private Interface and are subject to change at any time and
@@ -22,6 +22,7 @@
     
 (allow user-preference*
     (preference-domain "com.apple.SpeechRecognitionCore")
+    (preference-domain "com.apple.speech.recognition.AppleSpeechRecognition.prefs")
     (preference-domain "com.apple.ironwood.support"))
     
 ;;; Allow reading files for which we have a read-only app-sandbox extension
@@ -53,8 +54,10 @@
 (allow file-read-metadata)
 
 (allow mach-lookup
+        (global-name "com.apple.speech.speechsynthesisd")
         (global-name "com.apple.audio.audiohald")
         (global-name "com.apple.audio.coreaudiod")
+        (global-name "com.apple.PowerManagement.control")
         (global-name "com.apple.CoreServices.coreservicesd")
         (global-name "com.apple.coreservices.launchservicesd")
         (global-name "com.apple.distributed_notifications@1v3")
@@ -69,11 +72,17 @@
 
 (allow file-read* file-write* file-read-metadata
     (home-subpath "/Library/Caches/com.apple.SpeechRecognitionCore"))
+
+(allow file-read* file-write* file-read-metadata
+    (home-literal "/Library/Preferences/.GlobalPreferences.plist")
+    (home-regex #"/Library/Preferences/ByHost/\.GlobalPreferences\."))
     
 (allow file-read*
-    (home-literal "/Library/Preferences/.GlobalPreferences.plist")
-    (home-regex "/Library/Preferences/ByHost/\.GlobalPreferences\.")
     (literal "/Library/Preferences/.GlobalPreferences.plist"))
     
 ;;; Temp Directory
 (allow file-read* file-write* file-read-metadata (subpath (param "_TEMPDIR")))
+
+;;; Ducking Notification
+(allow distributed-notification-post)
+

@@ -1,0 +1,33 @@
+;;; Sandbox profile for /System/Library/PrivateFrameworks/CacheDelete.framework/deleted
+
+(version 1)
+
+(deny default)
+
+(import "system.sb")
+(import "com.apple.corefoundation.sb")
+
+;;; initialize CF sandbox actions
+(corefoundation)
+
+(allow file-read*
+	(literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
+    (literal "/Library/Preferences/.GlobalPreferences.plist")
+    (literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist")
+	(regex   "^/private/var/root/Library/Preferences/ByHost/\.GlobalPreferences\..*\.plist$")
+	(subpath "/System/Library/CacheDelete"))
+
+;; Various patterns used by cache-delete services.
+(allow mach-lookup
+	(global-name-regex #"^com\.apple\.cache_delete_")
+	(global-name-regex #"^com\.apple\..+cache-delete$")
+	(global-name-regex #"^com\.apple\..+[cC]ache[dD]elete$")
+    (global-name "com.apple.windowserver.active"))
+
+(allow file-read-metadata)
+
+(allow user-preference*
+    (preference-domain "com.apple.cache_delete"))
+
+(allow system-fsctl
+       (fsctl-command (_IO "h" 24)))    ; HFS_VOLUME_STATUS / HFSIOC_VOLUME_STATUS

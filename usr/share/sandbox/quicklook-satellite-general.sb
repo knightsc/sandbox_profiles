@@ -18,6 +18,7 @@
 (preference-read "com.apple.TextEdit")
 (preference-read "pbs")
 (preference-read "com.apple.ServicesMenu.Services")
+(allow mach-lookup (global-name "com.apple.coreservices.quarantine-resolver"))
 
 ;; Audio
 (allow file-read* (home-subpath "/Music/iTunes"))
@@ -43,3 +44,15 @@
 ;; QC
 (allow file-read* (home-subpath "/Library/Graphics"))
 (allow file-read* (home-subpath "/Library/Compositions"))
+
+;; iWork
+(allow file-read* (home-subpath "/Library/Containers/com.apple.iWork.Keynote"))
+(allow file-read* (home-subpath "/Library/Containers/com.apple.iWork.Pages"))
+(allow file-read* (home-subpath "/Library/Containers/com.apple.iWork.Numbers"))
+
+;; Mail
+(allow file-read* (home-subpath "/Library/Mail"))
+(preference-read "com.apple.mail-shared")
+
+;; For SceneKit
+(allow mach-lookup (global-name "com.apple.pluginkit.pkd"))

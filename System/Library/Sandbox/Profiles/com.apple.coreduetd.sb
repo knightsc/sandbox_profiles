@@ -1,0 +1,27 @@
+(version 1)
+(deny default)
+;;(allow default (with report))
+
+(import "system.sb")
+(import "com.apple.corefoundation.sb")
+
+;;; initialize CF sandbox actions
+(corefoundation)
+
+(allow file*
+        (subpath (param "DARWIN_TEMP_DIR"))
+        (subpath (param "DARWIN_CACHE_DIR"))
+        (literal "/private/var/log/coreduetd.log")
+        (subpath "/private/var/db/CoreDuet"))
+
+(allow file-read*
+        (subpath "/usr/share/CoreDuetDaemonConfig.bundle"))
+        
+(allow user-preference*
+       (preference-domain "com.apple.CoreDuet"))
+
+
+(allow mach-lookup
+        (global-name "com.apple.DuetHeuristic-thermald")
+        (global-name "com.apple.coreservices.launchservicesd"))
+

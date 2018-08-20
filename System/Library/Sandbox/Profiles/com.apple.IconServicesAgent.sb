@@ -7,7 +7,6 @@
 (allow file-read*)
 
 (define icon-service-cache-path (string-append "^/private" (regex-quote (param "CACHE_PATH"))))
-(define icon-service-temp-path (string-append "^/private" (regex-quote (param "TEMP_PATH"))))
 
 (define (apply-write-and-issue-extension op path-filter)
 	(op file-write* path-filter)
@@ -16,16 +15,18 @@
 (apply-write-and-issue-extension allow
 	(regex icon-service-cache-path))
 
-(apply-write-and-issue-extension allow
-	(regex icon-service-temp-path))
-
 (allow mach-lookup
+	(global-name (param "ICONSERVICES_STORE_SERVICE_NAME"))
 	(global-name "com.apple.CoreServices.coreservicesd")
 	(global-name "com.apple.KernelExtensionServer")
+	(global-name "com.apple.coreservices.quarantine-resolver")
 	(global-name "com.apple.ls.boxd"))
        
 (allow system-sched)
 (allow system-fsctl)
 
-(allow mach-lookup (global-name "com.apple.distributed_notifications@Uv3"))
+(allow mach-lookup 
+	(global-name "com.apple.distributed_notifications@Uv3")
+	(global-name "com.apple.distributed_notifications@1v3"))
+
 (allow ipc-posix-shm-read* (ipc-posix-name-regex #"^/tmp/com\.apple\.csseed\."))

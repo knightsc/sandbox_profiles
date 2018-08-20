@@ -142,6 +142,10 @@
        (iokit-user-client-class "AppleGraphicsControlClient")
        (iokit-user-client-class "AGPMClient"))
 
+(allow iokit-open
+       (iokit-user-client-class "AppleUpstreamUserClient")
+       (iokit-user-client-class "AudioAUUC"))
+
 ;; BlackMagic; <rdar://problem/11899349>
 (allow iokit-open
        (iokit-user-client-class "com_blackmagic_design_iokit_DaisyCutterUserClient"))
@@ -192,6 +196,7 @@
 ;; Security framework
 (allow mach-lookup 
       (global-name "com.apple.SecurityServer")
+      (global-name "com.apple.securityd.xpc")
       (global-name "com.apple.ocspd"))
 (if (param "DARWIN_QTKITSERVER_HOME_DIR")
       (begin

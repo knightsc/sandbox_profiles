@@ -36,6 +36,9 @@
 (allow mach-lookup (global-name "com.apple.distributed_notifications@Uv3")
                    (global-name "com.apple.CoreServices.coreservicesd"))
 
+(allow mach-lookup (global-name "com.apple.lsd.mapdb"))
+(allow mach-lookup (global-name "com.apple.lsd.modifydb"))
+
 (allow ipc-posix-shm)
 (allow sysctl*)
 (allow system-sched)
@@ -47,3 +50,10 @@
 
 (allow file-read* file-write* (extension "com.apple.spotlight.tempdirectory"))
 (allow file-read* file-write* (extension "com.apple.spotlight.cachedirectory"))
+
+;; FIXME: Should be removed once <rdar://problem/16329087> is fixed.
+(deny file-write-xattr (xattr "com.apple.quarantine") (with no-log))
+;; Reserve a namespace for additional protected extended attributes.
+(if (defined? 'xattr-regex)
+    (deny file-read-xattr file-write-xattr (xattr-regex #"^com\.apple\.security\.private\."))
+(deny file-read-xattr file-write-xattr (xattr #"^com\.apple\.security\.private\.")))

@@ -8,7 +8,6 @@
 ; wkssvc needs configd access since it gets netbios name.
 (allow mach-lookup
        (global-name
-             "com.apple.smbfs_load_kext"
              "com.apple.SystemConfiguration.configd"
              "com.apple.system.notification_center"
              "com.apple.system.logger"

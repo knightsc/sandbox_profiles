@@ -1,0 +1,25 @@
+(version 1)
+(allow default)
+(deny file-ioctl
+	(28 0000 0054 0055))
+(deny file-map-executable
+	(regex #"[.]app/contents/pkginfo/" #"[.]app/contents/pkginfo$" #".+[.]app/contents/pkginfo/" #".+[.]app/contents/pkginfo$" #"[.]app/contents/resources/[^/]+[.]lproj/" #"[.]app/contents/resources/[^/]+[.]lproj$" #".+[.]app/contents/resources/[^/]+[.]lproj/" #".+[.]app/contents/resources/[^/]+[.]lproj$" #"[.]app/[.]ds_store/" #"[.]app/[.]ds_store$" #"[.]app/.+/[.]ds_store/" #"[.]app/.+/[.]ds_store$" #".+[.]app/(.+/)?[.]ds_store/" #".+[.]app/(.+/)?[.]ds_store$"))
+(deny mach-priv-task-port
+	(require-all
+		(require-not (process-name "spindump"))
+		(require-not (process-name "footprint"))
+		(require-not (process-name "ps"))
+		(require-not (process-name "sysmond"))
+		(require-not (process-name "coreservicesd"))
+		(require-not (process-name "dtrace"))
+		(29 0000 0054 0055)))
+(deny system-privilege
+	(require-all
+		(2a 2716 0022 0024)
+		(require-not (require-entitlement "com.apple.private.necp.match")))
+	(require-all
+		(2a 2714 0028 002a)
+		(require-not (require-entitlement "com.apple.private.necp.policies")))
+	(require-all
+		(2a 36b0 002e 0030)
+		(require-not (require-entitlement "com.apple.private.vfs.open-by-id"))))

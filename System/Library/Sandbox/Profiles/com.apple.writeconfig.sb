@@ -1,4 +1,6 @@
 (version 1)
+
+
 (allow default)
 (deny appleevent-send hid-control)
 (deny file* (literal (param "PATH_TO_DENY")))

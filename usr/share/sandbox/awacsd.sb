@@ -1,5 +1,5 @@
 ;
-; Copyright (c) 2010-2013 Apple Inc. All rights reserved.
+; Copyright (c) 2010-2014 Apple Inc. All rights reserved.
 ;
 
 (version 1)
@@ -28,16 +28,16 @@
        (literal "/private/var/db/mds/system/mdsDirectory.db")
        (literal "/private/var/db/mds/system/mdsObject.db")
        (literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist")
-       (regex #"^/private/var/root/Library/Preferences/ByHost/\.GlobalPreferences\..*\.plist$")
-       (literal "/usr/sbin")
-       (subpath "/usr/sbin/awacsd")
+       (regex #"^/private/var/root/Library/Preferences/ByHost/\.GlobalPreferences\.[^/]*\.plist$")
+       (literal "/usr/libexec")
+       (literal "/usr/libexec/awacsd")
        (literal "/Library/Preferences/com.apple.apsd.plist"))
 
 (allow file-read-metadata)
 
-(allow file-write*
+(allow file-write-create file-write-data file-write-mode file-write-owner file-write-unlink
        (literal "/Library/Preferences/com.apple.awacsd.plist")
-       (regex #"^/Library/Preferences/com.apple.awacsd.plist\..*")
+       (regex #"^/Library/Preferences/com\.apple\.awacsd\.plist\..*")
        (subpath "/private/var/run/racoon"))
 
 (allow file-write-data

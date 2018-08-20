@@ -34,6 +34,9 @@
        (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds($|/)")
        (regex #"^/private/var/folders/[^/]+/[^/]+/T($|/)"))
 
+(allow file-issue-extension
+       (regex #"^/private/var/folders/[^/]+/[^/]+/[A-Z]/com\.apple\.SoftwareUpdate"))
+
 (allow iokit-open
         (iokit-user-client-class "AppleSMCClient")
         (iokit-user-client-class "AppleFDEKeyStoreUserClient")
@@ -41,8 +44,9 @@
         (iokit-user-client-class "CoreStorageUserClient"))
 
 (allow ipc-posix-shm-read-data
-       (ipc-posix-name-regex #"^/tmp/com.apple.csseed.[^/]+$")
+       (ipc-posix-name-regex #"^/tmp/com\.apple\.csseed\.[^/]+$")
        (ipc-posix-name "apple.shm.notification_center")
+       (ipc-posix-name "FNetwork.defaultStorageSession")
        (ipc-posix-name "com.apple.AppleDatabaseChanged")
        (ipc-posix-name-regex #"^ls\."))
 
@@ -69,7 +73,11 @@
        (global-name "com.apple.DiskArbitration.diskarbitrationd")
        (global-name "com.apple.FontServer")
        (global-name "com.apple.FontObjectsServer")
-       (global-name "com.apple.diskmanagementd"))
+       (global-name "com.apple.diskmanagementd")
+       (global-name "com.apple.nsurlsessiond")
+       (global-name "com.apple.nsurlstorage-cache")
+       (global-name "com.apple.AssetCacheLocatorService")
+       (global-name "com.apple.softwareupdate_download_service"))
 
 (allow mach-per-user-lookup)
 

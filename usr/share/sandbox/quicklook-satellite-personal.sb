@@ -40,5 +40,4 @@
        (home-subpath "/Library/Calendars"))
 
 ;; Notes
-(allow file-read*
-       (home-subpath "/Library/Containers/com.apple.Notes/Data/Library/Notes"))
+(allow file-read* (home-subpath "/Library/Containers/com.apple.Notes"))

@@ -1,0 +1,154 @@
+;; Copyright (c) 2007 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute 
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice. The contents of this file are also auto-generated and not
+;; user editable; it may be overwritten at any time.
+;;
+(version 1)
+(deny default)
+
+(import "system.sb")
+(import "com.apple.corefoundation.sb")
+    
+(define (home-regex home-relative-regex)
+       (regex (string-append "^" (regex-quote (param "_HOME")) home-relative-regex)))
+(define (home-subpath home-relative-subpath)
+       (subpath (string-append (param "_HOME") home-relative-subpath)))
+(define (home-literal home-relative-literal)
+       (literal (string-append (param "_HOME") home-relative-literal)))
+
+(define (revisiond-store-paths) (require-any
+       (mount-relative-regex #"^/\.DocumentRevisions-V100($|/)")
+       (mount-relative-regex #"^/\.DocumentRevisions-V100-bad-[0-9]+($|/)")
+))
+
+(allow file-read-data 
+    (subpath "/System/Library/CoreServices")
+    (literal "/private/var/db/mds/system/mdsObject.db")
+    (literal "/Library/Managed Preferences/local/.GlobalPreferences.plist")
+)
+
+(allow file-read*
+        (subpath "/Applications")
+)
+    
+(allow file-read-metadata
+    (literal "/")
+    (literal "/Users")
+    (regex (string-append "^" (regex-quote (param "_HOME"))))
+    (literal "/Library")
+    (literal "/private")
+    (literal "/private/var")
+    (literal "/private/var/db")
+    (literal "/private/var/root")
+    (literal "/private/var/db/mds")
+    (literal "/private/var/db/mds/system")
+    (literal "/private/var/db/mds/system/mdsDirectory.db")
+    (literal "/private/var/db/mds/system/mdsObject.db")
+    (literal "/private/var/run/systemkeychaincheck.done")
+    (literal "/Library/Keychains")
+    (literal "/Library/Keychains/System.keychain")
+    (literal "/Library/Preferences/com.apple.security.plist")
+)
+
+(allow file-read* file-write*
+       (regex #"^/Library/Keychains/System.keychain")
+       (home-subpath "/Library/Keychains")
+)
+
+(allow file-write-create
+    (regex (string-append "^" (param "_HOME") #"/Library/Keychains/login\.keychain\.sb-\..*\$"))
+)
+ 
+(allow file-read* file-write*
+       (regex #"^(/private)?/var/folders/[^/]+/[^/]+/C($|/)") ;
+       (regex #"^(/private)?/var/folders/[^/]+/[^/]+/T($|/)") ;
+)
+
+
+(allow file-read-metadata
+       (literal "/private/var/folders")
+       (regex #"^(/private)?/var/folders/[^/]+$")
+       (regex #"^(/private)?/var/folders/[^/]+/[^/]+$")
+       (regex #"^(/private)?/var/folders/[^/]+/[^/]+/C$")
+       (regex #"^(/private)?/var/folders/[^/]+/[^/]+/T$")
+)
+
+
+(allow file-read*
+       (literal "/Library/Preferences/SystemConfiguration/preferences.plist")
+       (literal "/Library/Preferences/com.apple.security.plist")
+       (literal "/private/var/db/DetachedSignatures")
+       (literal "/private/var/db/mds/messages/se_SecurityMessages")
+       (literal "/private/var/db/mds/system/mdsDirectory.db")
+       (literal "/private/var/run/diagnosticd/dyld_shared_cache_x86_64")
+)
+
+(allow file-read-metadata
+       (literal "/")
+       (literal "/AppleInternal")
+       (literal "/Library")
+       (literal "/Library/Security/Trust Settings/Admin.plist")
+       (literal "/private/var/run/systemkeychaincheck.done")
+)
+
+(allow ipc-posix-shm-read-data
+       (ipc-posix-name-regex #"^/tmp/com\.apple\.csseed\.[0-9]+$")
+       (ipc-posix-name "FNetwork.defaultStorageSession")
+       (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+(allow ipc-posix-shm-write-data
+       (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+ 
+(allow network-outbound
+    (literal "/private/var/run/systemkeychaincheck.socket")
+)
+
+(allow file-read*
+       (literal (string-append (param "_HOME") "/Library/Preferences/com.apple.cloudpaird.plist"))
+       (literal (string-append (param "_HOME") "/Library/Preferences/.GlobalPreferences.plist"))
+       (regex (string-append "^" (param "_HOME") #"/Library/Preferences/ByHost/com\.apple\.Bluetooth\..*\.plist$"))
+       (regex (string-append "^" (param "_HOME") #"/Library/Preferences/ByHost/\.GlobalPreferences\..*\.plist$"))
+)
+       
+(allow file-read* file-write-create file-write-data file-write-flags
+       (literal "/private/var/log/cloudpaird.log")
+       (literal "/private/var/log/bluetoothFramework.log")
+       (literal "/Library/Preferences/com.apple.Bluetooth.plist")
+       (literal "/Library/Preferences/.GlobalPreferences.plist")
+       (literal (string-append (param "_HOME") "/Library/Preferences/com.apple.cloudpaird.plist"))
+       (regex (string-append "^" (param "_HOME") #"/Library/Preferences/ByHost/com\.apple\.Bluetooth\..*\.plist$"))
+)
+ 
+(allow file-read-data
+       (literal (string-append (param "_HOME") "/Library/Preferences/com.apple.logging.plist"))
+)
+
+(allow mach-lookup
+    (global-name "com.apple.identityservicesd.desktop.auth")
+    (global-name "com.apple.marco")
+    (global-name "com.apple.BluetoothDOServer")
+	(global-name "com.apple.xpchelper")
+	(global-name "com.apple.bluetoothUIServer")
+    (global-name "com.apple.blued")
+    (global-name "com.apple.logind")
+    (global-name "com.apple.SecurityServer")
+    (global-name "com.apple.windowserver.active")
+    (global-name "com.apple.securityd.xpc")
+    (global-name "com.apple.CoreServices.coreservicesd")
+    (global-name "com.apple.SystemConfiguration.configd")
+    (global-name-regex #"^com\.apple\.distributed_notifications")
+)
+    
+
+(allow iokit-open
+       (iokit-user-client-class "IOBluetoothDeviceUserClient")
+       (iokit-user-client-class "IOHIDResourceDeviceUserClient")
+       (iokit-user-client-class "IOBluetoothHCIUserClient")
+       (iokit-user-client-class "IOBluetoothL2CAPChannelUserClient")
+       (iokit-user-client-class "IOHIDLibUserClient")
+       (iokit-user-client-class "RootDomainUserClient")
+)
+

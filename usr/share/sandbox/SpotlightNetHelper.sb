@@ -1,0 +1,136 @@
+;;
+;; SpotlightNetHelper - sandbox profile
+;; Copyright (c) 2014 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute 
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice. The contents of this file are also auto-generated and not
+;; user editable; it may be overwritten at any time.
+;;
+
+(version 1)
+(deny default)
+
+(debug deny)
+(import "system.sb")
+;;(import "application.sb")
+
+(allow system-audit)
+
+(allow file-read-metadata)
+
+(define (param-regex param-name param-relative-regex)
+    (regex (string-append "^" (regex-quote (param param-name)) param-relative-regex)))
+
+(define (param-subpath param-name param-relative-subpath)
+    (subpath (string-append (param param-name) param-relative-subpath)))
+
+(define (param-literal param-name param-relative-literal)
+    (literal (string-append (param param-name) param-relative-literal)))
+
+
+;; Homedir-relative path filters
+(define (home-regex home-relative-regex)
+    (param-regex "_HOME" home-relative-regex))
+
+(define (home-subpath home-relative-subpath)
+    (param-subpath "_HOME" home-relative-subpath))
+
+(define (home-literal home-relative-literal)
+    (param-literal "_HOME" home-relative-literal))
+
+
+(allow user-preference-read (preference-domain "com.apple.security"))
+(allow file-read* (home-literal (string-append "/Library/Preferences/" "com.apple.security" ".plist")))
+
+(allow user-preference-read (preference-domain "com.apple.security.revocation"))
+(allow file-read* (home-literal (string-append "/Library/Preferences/" "com.apple.security.revocation" ".plist")))
+
+(allow file-read* (literal "/Library/Preferences/com.apple.security.plist"))
+
+(allow ipc-posix-shm-read-data (ipc-posix-name-regex #"^/tmp/com\.apple\.csseed\.[0-9]+$"))
+
+(allow ipc-posix-shm-read*
+       ipc-posix-shm-write-data
+       (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+(allow ipc-posix-shm-read-data (ipc-posix-name "FNetwork.defaultStorageSession"))
+
+(if (positive? (string-length (param "_PARAM_PATH")))
+    (begin
+        (allow file-read* (subpath (param "_PARAM_PATH")))))
+
+(if (positive? (string-length (param "application_darwin_temp_dir")))
+    (begin
+        (allow file-read* file-write* (subpath (param "application_darwin_temp_dir")))))
+
+(allow file-write*
+    (regex (string-append "^" (string-append (param "application_darwin_cache_dir") "/mds/mds.*$")))
+    (home-literal "/Library/Preferences/SpotlightNetHelper.plist")
+    (home-literal "/Library/Application Support/com.apple.spotlight/com.apple.Spotlight.counts.V3")
+    (home-literal "/Library/Preferences/com.apple.calculateframework.plist")
+    (home-literal "/Library/WebKit/LocalStorage/StorageTracker.db")
+    (home-subpath "/Library/Caches/com.apple.metadata.SpotlightNetHelper")
+)
+
+(allow file-read*
+    (regex (string-append "^" (string-append (param "application_darwin_cache_dir") "/mds/mds.*$")))
+    (home-subpath "/Library/Caches/GeoServices")
+    (home-literal "/Library/Preferences/com.apple.Spotlight.plist")
+    (home-literal "/Library/Application Support/com.apple.spotlight/com.apple.Spotlight.counts.V3")
+    (home-literal "/Library/Preferences/SpotlightNetHelper.plist")
+    (home-literal "/Library/Preferences/com.apple.calculateframework.plist")
+    (home-literal "/Library/WebKit/LocalStorage/StorageTracker.db")
+    (home-subpath "/Library/Caches/com.apple.metadata.SpotlightNetHelper")
+)
+
+(allow file-read* file-write* 
+    (home-subpath "/Library/Keychains"))
+
+(allow file-read* (literal "/Library/Keychains/System.keychain"))
+
+(allow file-read*
+       (subpath "/private/var/db/mds")
+       (literal "/private/var/db/DetachedSignatures"))     
+
+(allow file-read* file-write* 
+    (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds(/|$)")
+    (mount-relative-regex #"^/\.TemporaryItems(/|$)"))
+
+(allow system-socket)
+(allow distributed-notification-post)
+
+(system-network)
+
+(allow network-outbound
+    (literal "/private/var/run/mDNSResponder")
+    (remote tcp))
+
+(allow file-issue-extension (home-subpath "/Library/Caches/com.apple.metadata.SpotlightNetHelper"))
+
+(allow file-read* (extension "com.apple.Spotlight.readonly"))
+
+(allow mach-lookup 
+    (global-name "com.apple.cookied")
+    (global-name "com.apple.coreduetd")
+    (global-name "com.apple.CoreLocation.agent")
+    (global-name "com.apple.coreservices.launchservicesd")
+    (global-name "com.apple.CoreServices.coreservicesd")
+    (global-name "com.apple.DiskArbitration.diskarbitrationd")
+    (global-name "com.apple.distributed_notifications@Uv3")
+    (global-name "com.apple.dock.server")
+    (global-name "com.apple.locationd.desktop.registration")
+    (global-name "com.apple.locationd.desktop.synchronous")
+    (global-name "com.apple.networkd")
+    (global-name "com.apple.ocspd")
+    (global-name "com.apple.nsurlstorage-cache")
+    (global-name "com.apple.SecurityServer")
+    (global-name "com.apple.storeaccountd")
+    (global-name "com.apple.SystemConfiguration.SCNetworkReachability")
+    (global-name "com.apple.SystemConfiguration.configd")
+    (global-name "com.apple.cfnetwork.cfnetworkagent")
+    (global-name "com.apple.windowserver.active"))
+
+(allow mach-register
+    (global-name "com.apple.metadata.SpotlightNetHelper"))
+
+

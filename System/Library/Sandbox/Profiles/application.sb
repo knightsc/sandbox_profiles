@@ -258,7 +258,8 @@
        mach-register
        mach-task-name
        process-fork
-       process-exec)
+       process-exec
+       lsopen)
 (deny process-info*)
 (allow process-info-pidinfo)
 (allow process-info-pidfdinfo (target self))
@@ -287,6 +288,10 @@
 (allow file-mount
        file-unmount
        (subpath (param "application_darwin_cache_dir")))
+(allow file-issue-extension
+       (require-all
+         (extension-class "com.apple.nsurlstorage.extension-cache")
+         (subpath (param "application_darwin_cache_dir"))))
 (if (param "application_dyld_paths")
   (if (defined? 'split-string)
     (allow file-read*
@@ -372,7 +377,8 @@
     (allow mach-lookup
            (global-name "com.apple.cfnetwork.AuthBrokerAgent")
            (global-name "com.apple.cfnetwork.cfnetworkagent")
-           (global-name "com.apple.nsnetworkd")
+           (global-name "com.apple.nesessionmanager")
+           (global-name "com.apple.nsurlsessiond")
            (global-name "com.apple.NetworkDiagnostic.agent"))))
 (if (entitlement "com.apple.security.network.server")
   (allow network-inbound (local ip)))
@@ -390,11 +396,13 @@
 (if (or (entitlement "com.apple.security.device.microphone")
         (entitlement "com.apple.security.device.audio-input"))
   (allow device-microphone))
+(if (or (entitlement "com.apple.security.device.hid")
+        (entitlement "com.apple.security.device.usb"))
+  (allow iokit-open (iokit-user-client-class "IOHIDLibUserClient")))
 (if (entitlement "com.apple.security.device.usb")
   (begin
     (allow iokit-open
            (iokit-user-client-class "IOUSBDeviceUserClientV2")
-           (iokit-user-client-class "IOHIDLibUserClient")
            (iokit-user-client-class "IOUSBInterfaceUserClientV3"))))
 (if (entitlement "com.apple.security.device.firewire")
   (begin
@@ -480,14 +488,18 @@
           (home-literal "/Library/Calendars/Calendar Cache-wal")
           (home-literal "/Library/Calendars/.Calendar Cache-conch"))
     (read-write-and-issue-extensions
-      (home-regex "/Library/Calendars/[0-9A-Z-]+.[^/]+/Attachments(/|$)"))
+      (require-any
+        (home-subpath "/Library/Calendars/Attachments")
+        (home-regex "/Library/Calendars/[0-9A-Z-]+\\.[^/]+/Attachments(/|$)")
+        (home-subpath "/Library/Calendars/Temporary Files")))
     (allow-read-write-directory-contents
       (param "application_calendars_lock_dir"))
     (allow mach-lookup
            (global-name-regex "^com\\.apple\\.CalendarStore\\.lock\\.")
            (global-name "com.apple.CalendarAgent")
            (global-name "com.apple.CalendarAgent.database")
-           (global-name "com.apple.CalendarAgent.proxy"))))
+           (global-name "com.apple.CalendarAgent.proxy")
+           (global-name "com.apple.CalendarAgent.store"))))
 (letrec ((itunes-subpaths
            (lambda args
              (let* ((itunes-roots
@@ -606,6 +618,10 @@
   (require-all
     (extension "com.apple.librarian.ubiquity-revision")
     (mount-relative-regex "^/\\.DocumentRevisions-V100(/|$)")))
+(read-write-and-issue-extensions
+  (require-all
+    (home-subpath "/Library/Mobile Documents")
+    (extension "com.apple.librarian.ubiquity-container")))
 (if (entitlement "com.apple.developer.game-center")
   (begin
     (allow mach-lookup
@@ -628,7 +644,7 @@
            (literal "/private/etc/cups/client.conf")
            (literal "/private/etc/cups/lpoptions")
            (subpath "/private/etc/cups/ppd")
-           (subpath "/private/var/run/cupsd"))
+           (literal "/private/var/run/cupsd"))
     (shared-preferences-read "org.cups.PrintingPrefs")))
 (if (entitlement "com.apple.security.files.downloads.read-only")
   (read-only-and-issue-extensions (home-subpath "/Downloads")))
@@ -701,7 +717,8 @@
 (allow authorization-right-obtain
        (right-name "system.burn")
        (right-name-regex
-         "^system\\.volume\\.removable\\.(adopt|encode|mount|rename|unmount)$"))
+         "^system\\.volume\\.(external|optical|removable)\\.unmount$")
+       (right-name "system.volume.optical.mount"))
 (allow iokit-open (iokit-user-client-class "SCSITaskUserClient"))
 (allow mach-lookup
        (global-name "com.apple.DiscRecording:registrar")
@@ -737,6 +754,7 @@
        (home-subpath "/Library/Sounds"))
 (shared-preferences-read
   ".GlobalPreferences"
+  "com.apple.AppleMultitouchTrackpad"
   "com.apple.avfoundation"
   "com.apple.cmio"
   "com.apple.coremedia"
@@ -755,12 +773,17 @@
   "com.apple.speech.synthesis.general.prefs"
   "com.apple.speech.voice.prefs"
   "com.apple.systemsound"
+  "com.apple.TelephonyUtilities"
   "com.apple.universalaccess"
   "pbs")
 (shared-preferences-read-write "com.apple.AppKit.TextFavorites")
 (allow user-preference-read (preference-domain "kCFPreferencesAnyApplication"))
 (shared-preferences-read "com.apple.mediaaccessibility")
 (shared-preferences-read-write "com.apple.mediaaccessibility.public")
+(shared-preferences-read-write "com.apple.sharekit.recents")
+(shared-preferences-read-write
+  "com.apple.preferences.extensions.ServicesWithUI"
+  "com.apple.preferences.extensions.ShareMenu")
 (read-only-and-issue-extensions
   (require-any
     (home-subpath "/Library/Sounds")
@@ -846,6 +869,9 @@
        (global-name "com.apple.audio.audiohald")
        (global-name "com.apple.audio.coreaudiod")
        (global-name "com.apple.backupd.sandbox.xpc")
+       (global-name "com.apple.bird")
+       (global-name "com.apple.bird.token")
+       (global-name "com.apple.controlcenter.toggle")
        (global-name "com.apple.coreservices.appleevents")
        (global-name "com.apple.CoreServices.coreservicesd")
        (global-name "com.apple.coreservices.launcherror-handler")
@@ -862,8 +888,11 @@
        (global-name "com.apple.FontServer")
        (global-name "com.apple.FSEvents")
        (global-name "com.apple.helpd")
+       (global-name "com.apple.iconservices")
+       (global-name "com.apple.iconservices.store")
        (global-name "com.apple.ImageCaptureExtension2.presence")
        (global-name "com.apple.ink.private")
+       (global-name "com.apple.inputmethodkit.getxpcendpoint")
        (global-name "com.apple.inputmethodkit.launchagent")
        (global-name "com.apple.inputmethodkit.launcher")
        (global-name "com.apple.KerberosHelper.LKDCHelper")
@@ -883,15 +912,18 @@
        (global-name "com.apple.quicklook.ui.helper")
        (global-name "com.apple.quicklook.ui.helper.active")
        (global-name "com.apple.revisiond")
+       (global-name "com.apple.rtcreportingd")
        (global-name "com.apple.security.pboxd")
        (global-name "com.apple.securityd.xpc")
        (global-name "com.apple.SecurityServer")
+       (global-name "com.apple.sharingd.nsxpc")
        (global-name "com.apple.SleepServices")
        (global-name "com.apple.speech.recognitionserver")
        (global-name "com.apple.speech.synthesis.console")
        (global-name "com.apple.speechArbitrationServer")
        (global-name "com.apple.spindump")
        (global-name "com.apple.storeagent.storekit")
+       (global-name "com.apple.storeagent.storekit.receiptrenewal")
        (global-name "com.apple.syncdefaultsd")
        (global-name "com.apple.system.DirectoryService.membership_v1")
        (global-name "com.apple.system.opendirectoryd.api")
@@ -900,6 +932,8 @@
        (global-name "com.apple.SystemConfiguration.NetworkInformation")
        (global-name "com.apple.tccd")
        (global-name "com.apple.tccd.system")
+       (global-name
+         "com.apple.telephonyutilities.callservicesdaemon.callcapabilities")
        (global-name "com.apple.TrustEvaluationAgent")
        (global-name "com.apple.tsm.uiserver")
        (global-name "com.apple.UNCUserNotification")
@@ -907,6 +941,7 @@
        (global-name "com.apple.window_proxies")
        (global-name "com.apple.windowserver.active")
        (global-name "com.apple.WorkflowServiceRunner")
+       (global-name "com.apple.xpc.smd")
        (global-name-regex "_OpenStep$"))
 (allow mach-lookup (global-name "com.apple.PowerManagement.control"))
 (allow iokit-open (iokit-user-client-class "RootDomainUserClient"))
@@ -930,7 +965,7 @@
 (deny file-write-xattr (xattr "com.apple.quarantine") (with no-log))
 (deny file-read-xattr
       file-write-xattr
-      (xattr "^com\\.apple\\.security\\.private\\."))
+      (xattr-regex "^com\\.apple\\.security\\.private\\."))
 (allow mach-lookup
        (global-name "com.apple.usernoted.client")
        (global-name "com.apple.usernoted.daemon_client"))
@@ -938,13 +973,25 @@
 (if (or (entitlement "com.apple.security.library-repair.extensions")
         (entitlement "com.apple.security.library-repair.ostype"))
   (allow authorization-right-obtain (right-name "com.apple.library-repair")))
-(if (entitlement "com.apple.networking.vpn.configuration")
+(if (or (entitlement "com.apple.networking.vpn.configuration")
+        (entitlement "com.apple.developer.networking.vpn.api"))
   (begin
+    (allow file-read*
+           (literal "/usr/libexec")
+           (literal "/usr/libexec/neagent")
+           (literal "/usr/libexec/nehelper")
+           (literal "/usr/libexec/nesessionmanager"))
     (allow mach-lookup
-           (global-name "com.apple.SystemConfiguration.PPPController-priv")
-           (global-name "com.apple.SystemConfiguration.helper"))
+           (global-name "com.apple.nehelper")
+           (global-name "com.apple.nesessionmanager")
+           (global-name "com.apple.SystemConfiguration.helper")
+           (global-name "com.apple.SystemConfiguration.PPPController-priv"))
     (allow authorization-right-obtain
            (right-name "system.services.systemconfiguration.network"))))
+(if (entitlement "com.apple.vm.hypervisor")
+  (allow iokit-open (iokit-user-client-class "AppleHVClient")))
+(if (entitlement "com.apple.vm.networking")
+  (allow mach-lookup (global-name "com.apple.NetworkSharing")))
 (allow network* (extension "com.apple.OpenGLProfiler"))
 (allow file-read*
        file-write*
@@ -957,9 +1004,8 @@
        (iokit-user-client-class "AppleUpstreamUserClient")
        (iokit-user-client-class "AudioAUUC"))
 (allow network-outbound (regex "^/private/tmp/\\.webdavUDS\\.[^/]+$"))
-(allow file-read*
-       file-write*
-       (mount-relative-regex "^/\\.TemporaryItems(/|$)"))
+(read-write-and-issue-extensions
+  (mount-relative-regex "^/\\.TemporaryItems(/|$)"))
 (allow authorization-right-obtain (right-name "com.apple.trust-settings.user"))
 (allow file-read* (home-subpath "/Library/Caches/GeoServices"))
 (shared-preferences-read "com.apple.GEO")
@@ -967,7 +1013,7 @@
 (allow file-read-data (literal "/dev"))
 (allow system-fsctl
        (fsctl-command (_IO "h" 24))
-       (fsctl-command (_IO "h" 30))
+       (fsctl-command (_IO "h" 32))
        (fsctl-command (_IO "z" 12))
        (fsctl-command (_IO "z" 19))
        (fsctl-command (_IO "z" 23)))

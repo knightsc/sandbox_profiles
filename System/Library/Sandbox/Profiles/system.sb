@@ -53,9 +53,9 @@
 
 
 ;;; Allow creation of core dumps.
-(allow file-write*
+(allow file-write-create
        (require-all (regex #"^/cores/")
-                    (require-not (file-mode 0))))
+                    (vnode-type REGULAR-FILE)))
 
 
 ;;; Allow IPC to standard system agents.
@@ -68,12 +68,15 @@
        (global-name "com.apple.bsd.dirhelper")
        (global-name "com.apple.cfprefsd.agent")
        (global-name "com.apple.cfprefsd.daemon")
+       (global-name "com.apple.diagnosticd")
        (global-name "com.apple.system.logger")
        (global-name "com.apple.system.notification_center")
        (global-name "com.apple.system.opendirectoryd.libinfo")
        (global-name "com.apple.system.DirectoryService.libinfo_v1")
        (global-name "com.apple.system.opendirectoryd.membership")
+       (global-name "com.apple.xpc.activity.unmanaged")
        (global-name "com.apple.xpcd")
+       (global-name "com.apple.secinitd")
        (global-name "com.apple.espd")
        (global-name "com.apple.gkbisd")
        (local-name "com.apple.cfprefsd.agent"))
@@ -134,6 +137,7 @@
          (global-name "com.apple.SystemConfiguration.PPPController")
          (global-name "com.apple.SystemConfiguration.SCNetworkReachability")
          (global-name "com.apple.networkd")
+         (global-name "com.apple.nsurlstorage-cache")
          (global-name "com.apple.symptomsd")
          (global-name "com.apple.usymptomsd"))
   (allow network-outbound
@@ -144,9 +148,3 @@
                       (socket-protocol 2)) ; SYSPROTO_CONTROL
          (socket-domain AF_ROUTE)))
 
-
-;;; Allow access to pty nodes under /dev
-(allow file*
-   (require-all
-      (subpath "/dev")
-      (extension "com.apple.sandbox.pty")))

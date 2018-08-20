@@ -1,0 +1,8 @@
+(version 1) 
+(deny default)
+(import "system.sb")
+
+(allow file*
+  (subpath "/private/var/db/awdd")
+  (subpath "/AppleInternal/Library/Application Support/awdd")
+)

@@ -1,0 +1,28 @@
+;; Copyright (c) 2012 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice. The contents of this file are also auto-generated and not
+;; user editable; it may be overwritten at any time.
+;;
+
+(version 1)
+
+(deny default)
+(import "system.sb")
+
+(allow mach-lookup
+       (global-name "com.apple.distributed_notifications@1v3")
+       (global-name "com.apple.awdd")
+       (global-name "com.apple.blued"))
+
+(allow file-read*
+	(literal "/usr")
+	(literal "/usr/sbin")
+	(literal "/usr/sbin/wirelessproxd"))
+    
+(allow file-read-metadata
+	(literal "/private/var/root"))
+	
+(allow file-read* file-write*
+    (literal "/private/var/log/wirelessproxd.log"))

@@ -18,7 +18,7 @@
 
 (allow mach-lookup
        (global-name "com.apple.networkd")
-       (global-name "com.apple.InternetSharing")
+       (global-name "com.apple.NetworkSharing")
        (global-name "com.apple.pfd"))
        
 (allow mach-per-user-lookup)
