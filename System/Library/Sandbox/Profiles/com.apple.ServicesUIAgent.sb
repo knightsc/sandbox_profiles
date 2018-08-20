@@ -68,6 +68,9 @@
     (subpath "/Library/Services")
     (home-subpath "/Library/Services"))
 
+;; So we can open the Extensions prefpane
+(allow lsopen)
+
 ;; Mach services
 (allow mach-lookup
     (global-name "com.apple.coreservices.appleevents")
