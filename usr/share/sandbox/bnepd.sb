@@ -1,0 +1,38 @@
+;; Copyright (c) 2007 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute 
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice. The contents of this file are also auto-generated and not
+;; user editable; it may be overwritten at any time.
+;;
+(version 1)
+
+(import "bsd.sb")
+
+(allow iokit-open)
+(allow iokit-set-properties)
+
+(allow process-exec (regex #"^/usr/sbin/bnepd$"))
+(allow file-read-data (regex #"/usr/sbin"))
+(allow file-read-data (regex #"^/$"))
+(allow file-read-data file-read-metadata
+	(regex #"^/usr/share/icu/")
+	(regex #"^/Library/Preferences/")
+	(regex #"^/private/var/root/Library/Preferences/"))
+
+(allow file-write* (regex "^/Library/Preferences/SystemConfiguration/"))
+
+(allow mach-lookup
+    (global-name "com.apple.BluetoothDOServer")
+	(global-name "com.apple.xpchelper")
+	(global-name "com.apple.SystemConfiguration.configd")
+	(global-name "com.apple.CoreServices.coreservicesd")
+	(global-name "com.apple.bluetoothUIServer")
+    (global-name-regex #"^com.apple.distributed_notifications"))
+
+(allow mach-per-user-lookup)
+
+(allow system-socket) ; Needed for IOUserEthernetController
+(allow network-outbound)
+
+(deny default)

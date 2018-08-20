@@ -1,0 +1,48 @@
+(version 1)
+(deny default)
+
+(import "system.sb")
+
+(deny file-read*
+       (literal "/private/var/root")
+       (literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist")
+       (literal "/Library/Preferences/.GlobalPreferences.plist")
+       (with no-report))
+
+;;; <rdar://problem/13449326>
+(let allow-paths ((i 0))
+  (let ((path (param (string-append "HOME_" (number->string i)))))
+    (if path
+        (begin
+          (allow file-read* file-write-unlink (subpath path))
+          (allow-paths (+ i 1))))))
+
+(allow authorization-right-obtain
+       (right-name "com.apple.ReportPanic.fixRight"))
+
+(allow file-read*
+       (subpath "/Library/Caches/com.apple.ReportPanicService")
+       (subpath "/System/Library/CoreServices")
+       (literal "/System/Library/Extensions/AppleKextExcludeList.kext/Contents/Resources/KnownPanics.plist"))
+
+(allow file-read-metadata
+       (literal "/Library/Caches")
+       (regex #"\.kext$")
+       (regex #"/LaunchAgents/.+\.plist$")
+       (subpath "/Library")
+       (subpath "/Applications"))
+       
+(deny file-read-metadata
+       (subpath "/System/Library/LaunchAgents"))
+
+(allow file-write*
+       (subpath "/Library/Caches/com.apple.ReportPanicService"))
+
+(allow file-write-unlink
+       (regex #"\.kext$")
+       (regex #"/LaunchAgents/.+\.plist$")
+       (subpath "/Library")
+       (subpath "/Applications"))
+       
+(deny file-write-unlink
+       (subpath "/System/Library/LaunchAgents"))

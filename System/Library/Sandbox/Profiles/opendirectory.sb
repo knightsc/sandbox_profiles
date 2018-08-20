@@ -1,0 +1,22 @@
+;; common rules for interacting with opendirectoryd
+;;
+;; Copyright (c) 2011 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice. The contents of this file are also auto-generated and not
+;; user editable; it may be overwritten at any time.
+;;
+(version 1)
+
+(allow mach-lookup
+    ; OpenDirectory.framework requests
+    (global-name "com.apple.system.opendirectoryd.api")
+    (global-name "com.apple.SystemConfiguration.configd")
+
+    ; libinfo API requests from pwd.h, grp.h, etc.
+    (global-name "com.apple.system.opendirectoryd.libinfo")
+
+    ; membership APIs requests from membership.h
+    (global-name "com.apple.system.opendirectoryd.membership")
+)

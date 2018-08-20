@@ -1,0 +1,34 @@
+;;
+;; Speech Recognition broker daemon - sandbox profile
+;; Copyright (c) 2013 Apple Inc. All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice. The contents of this file are also auto-generated and not
+;; user editable; it may be overwritten at any time.
+;;
+
+(version 1)
+(deny default)
+(import "system.sb")
+
+;;; Home Directory
+(define (home-subpath home-relative-subpath)
+    (subpath (string-append (param "_HOME") home-relative-subpath)))
+(define (home-literal home-relative-literal)
+    (literal (string-append (param "_HOME") home-relative-literal)))
+(define (home-regex home-relative-regex)
+    (regex (string-append "^" (regex-quote (param "_HOME")) home-relative-regex)))
+    
+(allow user-preference*
+    (preference-domain "com.apple.SpeechRecognitionCore"))
+    
+(allow mach-lookup
+        (global-name "com.apple.SpeechRecognitionCore.speechrecognitiond")
+        (global-name "com.apple.distributed_notifications@1v3")
+        (global-name "com.apple.distributed_notifications@Uv3"))
+
+(allow file-read*
+    (home-literal "/Library/Preferences/.GlobalPreferences.plist")
+    (home-regex "/Library/Preferences/ByHost/\.GlobalPreferences\.")
+    (literal "/Library/Preferences/.GlobalPreferences.plist"))

@@ -1,0 +1,36 @@
+(version 1)
+ 
+(deny default)
+
+(import "system.sb")
+ 
+(define launchservicesd-cache-path (string-append "^/private" (regex-quote (param "CACHE_PATH"))))
+(define launchservicesd-temp-path (string-append "^/private" (regex-quote (param "TEMP_PATH"))))
+ 
+(define (apply-write-and-issue-extension op path-filter)
+  (op file-write* path-filter)
+  (op file-issue-extension (require-all (extension-class "com.apple.app-sandbox.read") path-filter)))
+ 
+(apply-write-and-issue-extension allow
+    (regex launchservicesd-cache-path))
+ 
+(apply-write-and-issue-extension allow
+    (regex launchservicesd-temp-path))
+ 
+(allow mach-lookup
+       (global-name "com.apple.CoreServices.coreservicesd"))
+       
+(allow system-sched)
+
+(allow file-read-data (literal "/private/var/tmp/lsdebuglog"))
+(allow file-write-data (literal "/private/var/tmp/lsdebuglog"))
+
+; We need this to use the SecCodeSigning APIs
+(allow mach-lookup (global-name "com.apple.SecurityServer"))
+
+;; TMPDIR; could use a better solution ( the SecCodeSigning APIs want access to a writeable temp folder )
+(allow file-write* (subpath "/private/var/folders"))
+
+; I know that we need this
+(allow system-audit)
+

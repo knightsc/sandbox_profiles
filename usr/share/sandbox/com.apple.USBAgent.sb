@@ -1,0 +1,72 @@
+;; Copyright (c) 2012 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute 
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice. The contents of this file are also auto-generated and not
+;; user editable; it may be overwritten at any time.
+;;
+
+(version 1)
+
+(deny default)
+(import "system.sb")
+(import "com.apple.corefoundation.sb")
+(corefoundation)
+
+;; Homedir-relative path filters
+(define (home-regex home-relative-regex)
+  (regex (string-append "^" (regex-quote (param "_HOME")) home-relative-regex)))
+
+(define (home-subpath home-relative-subpath)
+  (subpath (string-append (param "_HOME") home-relative-subpath)))
+
+(define (home-literal home-relative-literal)
+  (literal (string-append (param "_HOME") home-relative-literal)))
+
+;; Preferences access
+(define (preference-read domain)
+    (allow file-read*
+      (home-literal (string-append "/Library/Preferences/" domain ".plist"))
+      (home-regex (string-append #"/Library/Preferences/ByHost/" (regex-quote domain) #"\..*\.plist$")))
+      (allow user-preference-read (preference-domain domain)))
+
+
+(allow distributed-notification-post)
+
+(allow file-read*
+        (literal "/usr/libexec")
+        (literal "/usr/libexec/usbAgent")
+        (literal "/System/Library/Extensions/IOUSBFamily.kext")
+        (literal "/System/Library/SystemProfiler/SPUSBReporter.spreporter")
+        (literal "/Library/Preferences/.GlobalPreferences.plist")
+		(literal "/usr/libexec/usbAgent/..namedfork/rsrc")
+)
+
+(allow file-read-metadata
+        (literal "/System/Library/Extensions/IOUSBFamily.kext")
+        (literal "/System/Library/SystemProfiler/SPUSBReporter.spreporter")
+		(literal (param "_HOME"))
+)
+
+;;crashtracer support
+
+(allow system-socket)
+(allow file-read-metadata
+    (subpath "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
+    (literal "/Library/Caches/com.apple.DiagnosticReporting.HasBeenAppleInternal"))
+
+(allow mach-lookup
+    (global-name "com.apple.FontServer")
+    (global-name "com.apple.usernoted.daemon_client")
+    (global-name-regex #"^com.apple.distributed_notifications")
+)
+
+(allow ipc-posix-shm
+        (ipc-posix-name "apple.shm.notification_center")
+        (ipc-posix-name-regex #"^/tmp/com\.apple\.csseed\.") 
+        )
+
+(allow sysctl-read)
+
+(preference-read ".GlobalPreferences")
+

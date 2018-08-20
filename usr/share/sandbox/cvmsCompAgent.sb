@@ -1,0 +1,28 @@
+(version 1)
+
+(deny default)
+(debug deny)
+
+(import "system.sb")
+
+; This is not included in system.sb
+(allow mach-lookup
+	(global-name "com.apple.system.DirectoryService.membership_v1"))
+
+(allow file-ioctl
+       (literal "/dev/dtracehelper"))
+
+(allow file-read-data)
+(allow file-read-metadata)
+
+(allow file-write-data
+       (literal "/dev/dtracehelper"))
+
+(allow process-exec
+       (subpath "/System"))
+
+(allow sysctl-read)
+; For syslog
+(allow ipc-posix-shm)
+
+(allow signal (target self))

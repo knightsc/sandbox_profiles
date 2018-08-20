@@ -1,0 +1,30 @@
+;;
+;; ftp proxy - sandbox profile
+;; Copyright (c) 2010 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute 
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice. The contents of this file are also auto-generated and not
+;; user editable; it may be overwritten at any time.
+;;
+(version 1)
+
+(deny default)
+
+(import "system.sb")
+
+(allow ipc-posix-shm
+	(ipc-posix-name "apple.shm.notification_center"))
+
+(allow mach-lookup
+       (global-name "com.apple.networkd")
+       (global-name "com.apple.InternetSharing")
+       (global-name "com.apple.pfd"))
+       
+(allow mach-per-user-lookup)
+
+(system-network)
+(allow network* (local ip))
+
+(allow system-socket)
+

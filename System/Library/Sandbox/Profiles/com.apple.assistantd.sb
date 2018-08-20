@@ -1,0 +1,125 @@
+(version 1)
+(deny default)
+
+(define (home-regex home-relative-regex)
+       (regex (string-append "^" (regex-quote (param "_HOME")) home-relative-regex)))
+(define regex-home home-regex)
+
+(define (home-subpath home-relative-subpath)
+       (subpath (string-append (param "_HOME") home-relative-subpath)))
+
+(define (home-literal home-relative-literal)
+       (literal (string-append (param "_HOME") home-relative-literal)))
+
+(import "system.sb")
+(import "com.apple.corefoundation.sb")
+
+;;; initialize CF sandbox actions
+(corefoundation)
+
+(allow file-read-metadata)
+
+(allow device-microphone)
+
+(allow file* (subpath (param "_TEMPDIR")))
+(allow file* (subpath (param "_CACHEDIR")))
+
+(allow file-read* file-write* (extension "com.apple.app-sandbox.read-write"))
+(allow file-read* (extension "com.apple.app-sandbox.read"))
+
+(allow file-read* file-write* 
+    (home-subpath "/Library/Caches/com.apple.Assistant")
+    (home-subpath "/Library/Caches/com.apple.AssistantServices")
+    (home-subpath "/Library/Caches/GeoServices"))
+
+(allow user-preference*
+       (preference-domain "com.apple.assistant")
+       (preference-domain "com.apple.assistant.support")
+       (preference-domain "com.apple.assistant.token")
+       (preference-domain "com.apple.assistant.logging")
+       (preference-domain "com.apple.AssistantServices")
+       (preference-domain "com.apple.GEO")
+       (preference-domain "com.apple.security"))
+
+(allow file-read* file-write* 
+       (home-subpath "/Library/Keychains")
+       (home-subpath "/Library/Security"))
+(allow file-read*
+       (subpath "/private/var/db/mds")
+       (literal "/private/var/db/DetachedSignatures")
+       (subpath "/Library/Keychains"))
+
+(allow file-read*
+       (subpath "/System/Library/Audio")
+       (subpath "/Library/Audio")
+       (home-subpath "/Library/Audio"))
+
+(allow network-outbound
+       (literal "/private/var/run/mDNSResponder")
+       (remote tcp))
+       
+(allow system-socket)
+
+(system-network)
+
+       
+(allow file-read* file-write*
+       (home-subpath "/Library/Assistant")
+       (home-subpath "/Library/Logs/Assistant")
+       (home-subpath "/Library/Caches/com.apple.AssistantServices")
+       (subpath "/private/var/tmp"))
+       
+(allow file-read* file-read-metadata
+       (home-subpath "/Library/Preferences/.GlobalPreferences.plist")
+       (home-regex "/Library/Preferences/ByHost/\.GlobalPreferences\.")
+       (literal "/Library/Preferences/.GlobalPreferences.plist")
+       (literal "/Library/Caches/com.apple.DiagnosticReporting.Networks.plist"))
+
+(allow file-read* (subpath "/private/var/db/mds")
+        (literal "/Library/Preferences/com.apple.security.plist")
+        (literal "/Library/Preferences/com.apple.security.common.plist")
+        (literal "/Library/Preferences/com.apple.security.revocation.plist")
+        (home-literal "/Library/Preferences/com.apple.security.plist")
+        (home-literal "/Library/Preferences/com.apple.security.revocation.plist"))
+
+(allow file-read*
+       (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
+       (home-literal "/Library/Preferences/com.apple.LaunchServices.plist"))
+
+(allow mach-lookup
+       (global-name "com.apple.geod.defaults")
+       (global-name "com.apple.CoreLocation.agent")
+       (global-name "com.apple.locationd.desktop.spi")
+       (global-name "com.apple.locationd.desktop.synchronous")
+       (global-name "com.apple.locationd.desktop.registration")
+       (global-name "com.apple.cfnetwork.AuthBrokerAgent")
+       (global-name "com.apple.cfnetwork.cfnetworkagent")
+       (global-name "com.apple.NetworkDiagnostic.agent")
+       (global-name "com.apple.SystemConfiguration.configd")
+       (global-name "com.apple.DiskArbitration.diskarbitrationd")
+       (global-name "com.apple.networkd")
+       (global-name "com.apple.cookied")
+       (global-name "com.apple.audio.audiohald")
+       (global-name "com.apple.audio.coreaudiod")
+       (global-name "com.apple.ocspd")
+       (global-name "com.apple.SecurityServer")
+       (global-name "com.apple.ls.boxd")
+       (global-name "com.apple.windowserver.active")
+       (global-name "com.apple.assistant_service")
+       (global-name "com.apple.coreservices.launchservicesd")
+        (global-name "com.apple.secd"))             
+             
+(allow ipc-posix-shm
+       (ipc-posix-name-regex #"^AudioIO")
+       (ipc-posix-name "apple.shm.notification_center")
+       (ipc-posix-name "FNetwork.defaultStorageSession")
+       (ipc-posix-name "com.apple.AppleDatabaseChanged")
+       (ipc-posix-name-regex #"^/tmp/com\.apple\.csseed\.")
+       (ipc-posix-name-regex #"^ls\."))
+
+(allow iokit-open
+       (iokit-user-client-class "IOAudioEngineUserClient")
+       (iokit-user-client-class "IOAudioControlUserClient")
+       (iokit-user-client-class "RootDomainUserClient")) 
+
+       

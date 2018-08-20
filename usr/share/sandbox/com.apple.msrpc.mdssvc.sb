@@ -1,0 +1,26 @@
+; Copyright (c) 2010 Apple Inc. All rights reserved.
+; mdssvc sandbox profile
+
+(version 1)
+
+(deny default)
+
+(import "system.sb")
+
+(allow file-read*
+       (literal "/usr/libexec")
+       (literal "/usr/libexec/rpcsvchost"))
+
+; Squash logging from CFBundleGetMainBundle.
+(deny file-read-metadata
+    (literal "/usr/libexec")
+    (with no-log)
+)
+
+(allow mach-lookup
+    (global-name "com.apple.distributed_notifications@1v3")
+    (global-name "com.apple.metadata.mds")
+)
+
+(allow network-outbound
+    (literal "/private/var/rpc/ncalrpc/srvsvc"))

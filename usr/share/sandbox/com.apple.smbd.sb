@@ -1,0 +1,53 @@
+; Copyright (c) 2010 Apple Inc. All rights reserved.
+; smbd sandbox profile
+
+(version 1)
+(deny default)
+(import "system.sb")
+(import "gss-acceptor.sb")
+
+; We cannot filter (allow signal) because the
+; BRLM (Byte Range Lock Manager) framework relies on
+; kill(pid, 0) to check the validity of pids holding
+; file locks.
+(allow signal)
+
+(allow process-exec (literal "/usr/sbin/smbd"))
+
+(allow ipc-posix-shm (ipc-posix-name "apple.shm.notification_center"))
+
+(allow mach-lookup
+    (global-name "com.apple.SystemConfiguration.configd")
+    (global-name "com.apple.PowerManagement.control")
+    (global-name "com.apple.system.logger"))
+
+(allow network-bind (local tcp "*:445"))
+(allow network-inbound (local tcp "*:445"))
+
+; Allow launchd and SMB named pipes.
+(allow network-outbound
+    (regex #"^/private/var/rpc/ncacn_np/")
+    (regex #"^/private/var/rpc/ncalrpc/")
+    (literal "/private/var/tmp/launchd/sock"))
+
+; We need process-exec so that we can report access rights correctly.
+; Unfortunately, this also allows exec(2). Doesn't seem to be any way
+; around this.
+
+(allow process-exec)
+
+; To support the NetFSServer server_shutdown SPI, we need process-fork
+; job-creation to shutdown and unload (via launchctl) the server.
+; We fork a process that unloads (via launchctl) the server.
+(allow process-fork)
+(allow job-creation)
+
+; Allow file server stuff.
+(allow file-read*)
+(allow file-write*)
+(allow file-ioctl)
+(allow system-fsctl)
+
+(deny file-write-setugid)
+(deny file-write-mount)
+(deny file-write-umount)

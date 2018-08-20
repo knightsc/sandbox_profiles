@@ -1,0 +1,30 @@
+(version 1)
+
+(deny default)
+(import "system.sb")
+(import "com.apple.corefoundation.sb")
+(corefoundation)
+
+(allow file-read*
+(literal "/Library/Preferences/.GlobalPreferences.plist")
+(literal "/Library/Preferences/com.apple.SubmitDiagInfo.domains")
+(subpath "/Library/Application Support/CrashReporter")
+(literal (string-append (param "_HOME") "/Library/Preferences/.GlobalPreferences.plist"))
+(regex (string-append "^" (param "_HOME") "/Library/Preferences/ByHost/\.GlobalPreferences\."))
+(literal (string-append (param "_HOME") "/Library/Preferences/com.apple.LaunchServices.plist")))
+
+(allow file-read-metadata)
+(allow file-read-data)
+
+(allow file-issue-extension
+(subpath "/Library/Logs/DiagnosticReports")) 
+
+(allow file-write-unlink
+(literal "/private/var/db/GPURestartReporter/current.gpuRestart"))
+
+(allow ipc-posix-shm
+(ipc-posix-name-regex #"^/tmp/com\.apple\.csseed\.")
+(ipc-posix-name-regex #"^ls\.")
+(ipc-posix-name "apple.shm.notification_center"))
+
+(allow mach-lookup)

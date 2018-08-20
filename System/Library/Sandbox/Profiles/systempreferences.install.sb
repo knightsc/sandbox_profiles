@@ -1,0 +1,30 @@
+(version 1)
+(deny default)
+
+(import "system.sb")
+(import "opendirectory.sb")
+
+(allow file-read* file-write*
+	(extension "com.apple.systempreferences.write-only"))
+
+(allow file-read*
+	(extension "com.apple.systempreferences.read-only"))
+
+(allow file-read* file-write*
+	(subpath "/Library/PreferencePanes")
+	(subpath "/Library/Screen Savers"))
+
+(allow ipc-posix-shm
+	(ipc-posix-name-regex #"^/tmp/com\.apple\.csseed\.")
+	(ipc-posix-name "apple.shm.notification_center"))
+
+(allow mach-lookup
+	(global-name "com.apple.SecurityServer")
+	(global-name "com.apple.system.logger")
+	(global-name "com.apple.CoreServices.coreservicesd"))
+
+(allow file-read* file-write-mode file-write-setugid (subpath "/Library/Preferences"))
+
+(allow authorization-right-obtain
+	(right-name "system.preferences.install")
+	(right-name "system.preferences.version-cue"))

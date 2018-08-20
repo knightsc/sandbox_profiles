@@ -1,0 +1,46 @@
+(version 1)
+(deny default)
+
+(import "system.sb")
+
+(allow file-read-metadata)
+
+(allow file-read*
+       (literal "/private/var/root/Library/Preferences")
+	   (literal "/Library/Preferences/.GlobalPreferences.plist")
+	   (literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist")
+       (literal "/Library/Preferences"))
+
+(allow file-read* file-write*
+       (literal "/Library/Application Support/App Store")
+       (literal "/Library/Application Support/App Store/adoption.plist")
+       (literal "/Library/Application Support/App Store/utd.plist")
+       (literal "/Library/Application Support/App Store/utdCheckinDone")
+       (literal "/Library/Preferences/com.apple.storeagent.plist")
+       (regex #"/Contents/_MASReceipt$")
+       (regex #"/Contents/_MASReceipt/receipt(\.saved)?$"))
+
+;; App deletion and placeholder management
+(allow file-read* file-write*
+       (regex #"\.appdownload(/|$)")
+       (regex #"\.app(/|$)"))
+
+(deny file-write-create (literal "/Library/Application Support/App Store"))
+	(allow file-write-create
+       (require-all
+          (vnode-type DIRECTORY)
+          (literal "/Library/Application Support/App Store")))
+
+;; In-app purchase content removal
+(allow file-read* file-write-unlink
+	(subpath "/Library/Application Support/AppStore/GroupContent")
+	(subpath "/Library/Application Support/AppStoreContent"))
+
+(allow ipc-posix-shm 
+       (ipc-posix-name "apple.shm.notification_center")
+       (ipc-posix-name-regex #"^/tmp/com\.apple\.csseed\."))
+
+(allow mach-lookup (global-name "com.apple.CoreServices.coreservicesd"))
+
+(deny mach-lookup (with no-report)
+      (global-name-regex #"^com\.apple\.distributed_notifications"))

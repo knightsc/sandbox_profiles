@@ -1,0 +1,200 @@
+;;
+;; Spotlight importer - sandbox profile
+;; Copyright (c) 2006-2008 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute 
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice. The contents of this file are also auto-generated and not
+;; user editable; it may be overwritten at any time.
+;;
+
+(version 1)
+(deny default)
+(import "system.sb")
+
+(define (param-regex param-name param-relative-regex)
+  (regex (string-append "^" (regex-quote (param param-name)) param-relative-regex)))
+
+(define (param-subpath param-name param-relative-subpath)
+  (subpath (string-append (param param-name) param-relative-subpath)))
+
+(define (param-literal param-name param-relative-literal)
+  (literal (string-append (param param-name) param-relative-literal)))
+
+
+;; Homedir-relative path filters
+(define (home-regex home-relative-regex)
+  (param-regex "_HOME" home-relative-regex))
+
+(define (home-subpath home-relative-subpath)
+  (param-subpath "_HOME" home-relative-subpath))
+
+(define (home-literal home-relative-literal)
+  (param-literal "_HOME" home-relative-literal))
+
+;; Suppress log noise from Carbon / frameworks.
+(deny iokit* (with no-log))
+(deny process-exec (with no-log))
+(deny file-write*
+    (literal "/private/var/empty/Library")
+    (with no-log))
+
+(allow file-read* (regex #"\.mdimporter"))
+
+(deny file-read* (regex #"\.GlobalPreferences\.plist") (with no-log))
+(deny file-read* (regex #"\.GlobalPreferences\.[^\.]+\.plist") (with no-log))
+(deny file-read* (literal "/private/var/empty") (with no-log))
+(deny file-read* (mount-relative-literal "/.DocumentRevisions-V100/staging") (with no-log))
+
+(deny file-write* (regex #"Library/Keychains(/|$)") (with no-log))
+(deny file-write* (regex #"\(A Document Being Saved By mdworker\)") (with no-log))
+
+(allow file-read* (regex #"/Library/Preferences/mdworker\.plist"))
+
+;;(deny mach-lookup (global-name "com.apple.CoreServices.coreservicesd") (with no-log))
+(deny mach-lookup (global-name "com.apple.coresymbolicationd") (with no-log))
+(deny mach-lookup (global-name "com.apple.ls.boxd") (with no-log))
+
+;; comment out and check violations
+;;(allow distributed-notification-post)
+;;(allow mach-lookup)
+
+(allow mach-lookup (global-name "com.apple.DiskArbitration.diskarbitrationd"))
+(allow mach-lookup (global-name "com.apple.FontObjectsServer"))
+(allow mach-lookup (global-name "com.apple.FontServer"))
+(allow mach-lookup (global-name "com.apple.SecurityServer"))
+(allow mach-lookup (global-name "com.apple.SystemConfiguration.configd"))
+(allow mach-lookup (global-name "com.apple.metadata.mds"))
+(allow mach-lookup (global-name "com.apple.ocspd"))
+(allow mach-lookup (global-name "com.apple.windowserver.active"))
+
+(allow mach-lookup (global-name "com.apple.distributed_notifications@Uv3"))
+(allow mach-lookup (global-name "com.apple.metadata.mdwrite"))
+(allow mach-lookup (global-name "com.apple.CoreServices.coreservicesd"))
+
+(allow file-search)
+(allow file-read-metadata)
+(allow ipc-posix-shm)
+(allow sysctl*)
+(allow system-sched)
+
+;;(allow file-fsctl file-ioctl)
+(allow file-read-metadata)
+
+(allow file-read* (regex #"\.app"))
+(allow file-read* (regex #"\.DS_Store"))
+
+;; LaunchServices really wants to read these files.
+(allow file-read* (regex #"/Contents/PkgInfo$"))
+
+(if (positive? (string-length (param "_HOME")))
+    (begin
+        (allow file-read* (literal (param "_HOME")))
+        (allow file-read* (home-literal "/.CFUserTextEncoding"))
+        (allow file-read* (home-subpath "/Library/Audio/Plug-Ins"))
+        (allow file-read* (home-subpath "/Library/Components"))
+        (allow file-read* (home-subpath "/Library/Keychains"))
+        (allow file-read* (home-literal "/Library/Preferences/com.apple.HIToolbox.plist"))
+        (allow file-read* (home-literal "/Library/Preferences/mdworker.plist"))
+        (allow file-read* (home-literal "/Library/Preferences/QuickTime Preferences"))
+        (allow file-read* (home-subpath "/Library/QuickTime"))))
+
+(if (positive? (string-length (param "_LIBRARY")))
+    (begin
+        (allow file-read* (literal (param "_LIBRARY")))
+        (allow file-read* (param-subpath "_LIBRARY" "/Audio/Plug-Ins"))
+        (allow file-read* (param-subpath "_LIBRARY" "/Components"))
+        (allow file-read* (param-subpath "_LIBRARY" "/Keychains"))
+        (allow file-read* (param-subpath "_LIBRARY" "/Preferences/com.apple.HIToolbox.plist"))
+        (allow file-read* (param-subpath "_LIBRARY" "/Preferences/QuickTime Preferences"))
+        (allow file-read* (param-subpath "_LIBRARY" "/QuickTime"))))
+
+(if (positive? (string-length (param "_APP_CONTAINER")))
+    (begin
+        (allow file-read* (subpath (param "_APP_CONTAINER")))))
+
+(allow file-read*
+       (require-all (extension "com.apple.mdworker.image_plugin")
+                    (require-any (regex #"\.ipmeta$")
+                                 (regex #"/AlbumData\.xml$")
+                                 (regex #"\.(png|PNG|Png)$")
+                                 (regex #"\.(tiff|TIFF|Tiff)$")
+                                 (regex #"\.(tif|TIF|Tif)$")
+                                 (regex #"\.(jpg|JPG|Jpg)$")
+                                 (regex #"\.(jpe|JPE|Jpe)$")
+                                 (regex #"\.(jpeg|JPEG|Jpeg)$")
+                                 (regex #"\.(jp2|JP2|Jp2)$")
+                                 (regex #"\.(jpf|JPF|Jpf)$")
+                                 (regex #"\.(jpx|JPX|Jpx)$")
+                                 (regex #"\.(j2k|J2K|J2k)$")
+                                 (regex #"\.(j2c|J2C|J2c)$")
+                                 (regex #"\.(gif|Gif|GIF)$")
+                                 (regex #"\.(mov|Mov|MOV)$")
+                                 (regex #"\.(mp4|Mp4|MP4)$")
+                                 (regex #"\.(M4V|M4v|M4V)$")
+                                 (regex #"\.(DV|Dv|dv)$")
+                                 (regex #"\.(DIF|Dif|dif)$")
+                                 (regex #"\.(DVC\!|dvc\!|Dvc\!)$")
+                                 (regex #"\.(mpeg|Mpeg|MPEG)$")
+                                 (regex #"\.(avi|Avi|AVI)$")
+                                 (regex #"\.(hdmov|Hdmov|HDMOV)$")
+                                 (regex #"\.(CR2|Cr2|cr2)$")
+                                 (regex #"\.(PSD|Psd|psd)$")
+                                 (regex #"\.(PSB|Psb|psb)$")
+                                 (regex #"\.(PDD|Pdd|pdd)$")
+                                 (regex #"\.(DNG|Dng|dng)$")
+                                 (regex #"\.(BMP|Bmp|bmp)$")
+                                 (regex #"\.(RAW|Raw|raw)$")
+                                 (regex #"\.(RW2|Rw2|rw2)$"))))
+
+
+(allow file-read* file-write*
+       (require-all (extension "com.apple.mdworker.image_plugin")
+                    (require-any (regex #"\.ipspot_update$")
+                                 (mount-relative-regex #"^/\.TemporaryItems(/|$)"))))
+
+
+;;
+;; This is ONLY used by the manual 'mdimport' command when run from the command line.  This is a testing/development tool
+;; and it needs access to the paths provided on the command line.  It is not used operationally and all other instances of
+;; the sandbox are passed NULL for this value.
+(if (positive? (string-length (param "_PARAM_PATH")))
+    (begin
+        (allow file-read* (subpath (param "_PARAM_PATH")))))
+
+(allow file-read* (regex #"/Library/Preferences/com\.apple\.SpotlightServer\.plist"))
+
+(allow file-read* (literal "/"))
+(allow file-read* (literal "/Library"))
+(allow file-read* (subpath "/Library/Application Support/Apple/Fonts"))
+(allow file-read* (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains"))
+(allow file-read* (subpath "/Library/Audio/Plug-Ins"))
+(allow file-read-metadata (literal "/Library/Caches/com.apple.DiagnosticReporting.HasBeenAppleInternal"))
+(allow file-read* (subpath "/Library/Components"))
+(allow file-read* (subpath "/Library/Frameworks"))
+(allow file-read* (subpath "/Library/Fonts"))
+(allow file-read* (subpath "/Library/Keychains"))
+(allow file-read* (subpath "/Library/QuickTime"))
+(allow file-read* (subpath "/Library/Spotlight"))
+(allow file-read* (literal "/Library/Preferences/com.apple.SpotlightServer.plist"))
+
+(allow file-read* (literal "/usr/bin"))
+(allow file-read* (subpath "/usr/bin/mdimport"))
+(allow file-read* (literal "/var/log/CDIS.custom"))
+(allow file-read* (literal "/private/var/log/CDIS.custom"))
+
+(allow file-read*
+       (subpath "/private/var/db/mds")
+       (literal "/private/var/db/DetachedSignatures"))     
+
+(allow file-read* file-write* (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds(/|$)"))
+
+(allow file-read* (mount-relative-literal "/"))
+(allow file-read* (mount-relative-regex #"^/Library/Fonts(/|$)"))
+(allow file-read* (mount-relative-regex #"^/System/Library/Fonts(/|$)"))
+
+(allow file-read* (extension "com.apple.spotlight.importer.readonly"))
+(allow file-read* file-write* (extension "com.apple.spotlight.tempdirectory"))
+(allow file-read* file-write* (extension "com.apple.spotlight.cachedirectory"))
+
+(allow ipc-posix-shm-read-data (ipc-posix-name-regex #"^/tmp/com\.apple\.csseed\.[0-9]+$"))

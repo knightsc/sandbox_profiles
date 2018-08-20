@@ -1,0 +1,13 @@
+;;;;;; Common directoryserver sandbox rules
+;;;;;;
+;;;;;; Copyright (c) 2013 Apple Inc.  All Rights reserved.
+;;;;;;
+;;;;;; WARNING: The sandbox rules in this file currently constitute
+;;;;;; Apple System Private Interface and are subject to change at any time and
+;;;;;; without notice. The contents of this file are also auto-generated and
+;;;;;; not user editable; it may be overwritten at any time.
+(version 1)
+(allow file-read*
+    (literal "/private/etc/openldap/ldap.conf"))
+(allow network-outbound
+    (literal "/private/var/run/ldapi"))

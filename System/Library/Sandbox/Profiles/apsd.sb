@@ -1,0 +1,116 @@
+(version 1)
+
+(deny default)
+
+;;; <rdar://problem/9146195> we can't prevent the violations, so we suppress logging
+;;; unfortunately, since a deny file-read-metadata trumps an allow file-read* we need
+;;; to explicitly allow file-read-metadata for anything with a file-read*
+(deny file-read-metadata (with no-log))
+;;(deny file-read-metadata)
+
+;; <rdar://problem/11313547>
+(deny file-read* (with no-log)
+    (regex "/.+/.+/Library/Preferences/com.apple.security.plist"))
+
+;; <rdar://problem/12840216>
+(deny file-read-data (with no-log)
+    (literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist")
+    (regex #"^/private/var/root/Library/Preferences/ByHost/\.GlobalPreferences\..*\.plist$"))
+
+;;<rdar://problem/11313547>
+(allow file*
+    (subpath (param "TEMPDIR"))
+    (subpath (param "FOLDERDIR")))
+(allow file-read-metadata
+    (subpath (param "TEMPDIR"))
+    (subpath (param "FOLDERDIR")))
+
+(import "system.sb")
+
+(allow file-read-metadata
+    (file-mode #o0005))
+
+(allow file-read*
+    (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
+    (subpath "/Library/Keychains")
+    (literal "/private/var/root/Library/Cookies/Cookies.binarycookies")
+    (regex #"^/Library/Preferences/com\.apple\.apsd\.plist(\.[^/]+)?$")
+    (regex #"^/Library/Preferences/com\.apple\.security")
+    (literal "/Library/Preferences/com.apple.crypto.plist")
+    (literal "/Library/Preferences/.GlobalPreferences.plist")
+    (literal "/Library/Preferences/com.apple.apsd.launchd")
+    (literal "/Library/Managed Preferences/.GlobalPreferences.plist")
+    (literal "/Library/Managed Preferences/com.apple.apsd.plist")
+    (subpath "/private/var/db/mds")
+    (literal "/private/var/db/detachedsignatures")
+    (literal "/private/var/db/crls/crlcache.db")
+    (subpath "/private/var/root/Library/Caches/com.apple.aps.framework")
+    (literal "/usr/libexec")
+    (literal "/private/etc/hosts")
+    (literal "/private/var/run/utmpx")
+    (literal "/private/var/run/syslog.pid"))
+
+(allow file-read-metadata
+    (regex #"^/Library/Caches/com.apple.DiagnosticReporting")
+    (regex #"^/.+/.+/Library")
+    (regex #"^/Library/Preferences/com\.apple\.apsd\.plist(\.[^/]+)?$")
+    (regex #"^/Library/Preferences/com\.apple\.security")
+    (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
+    (subpath "/Library/Keychains")
+    (subpath "/Library/Keychains")
+    (subpath "/Library/Preferences")
+    (subpath "/private/var/db/mds")
+    (literal "/Library/Security/Trust Settings/Admin.plist")
+    (literal "/private/var/db/detachedsignatures")
+    (literal "/private/var/db/crls/crlcache.db")
+    (subpath "/private/var/root/Library/Caches/com.apple.aps.framework")
+    (subpath "/private/etc/localtime")
+    (literal "/usr/libexec")
+    (literal "/etc/random")
+    (literal "/private/etc/hosts")
+    (literal "/private/var/run/systemkeychaincheck.done"))
+
+;; prevent the keychain from being added to the search list, but
+;; be quiet about it, until <rdar://problem/11376884> is fixed
+(deny file-write* (with no-log)
+    (literal "/private/var/root/Library/Preferences/com.apple.security.plist"))
+
+(allow file-write*
+    (literal "/private/etc/asl/com.apple.applepushservice")
+    (subpath "/private/var/db/mds")
+    (literal "/Library/Logs/apsd.log")
+    (regex #"^/Library/Keychains/apsd\.keychain([-.][^/]+)?$")
+    (literal "/Library/Preferences/com.apple.security.plist")
+    (literal "/Library/Preferences/com.apple.crypto.plist")
+    (subpath "/private/var/root/Library/Caches/com.apple.aps.framework") ;; <rdar://problem/12479889>
+    (subpath "/private/var/root/Library/Cookies")
+    (regex #"^/Library/Preferences/com\.apple\.apsd\.plist(\.[^/]+)?$")
+    (literal "/Library/Preferences/com.apple.apsd.launchd")
+    (literal "/private/var/run/utmpx")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/[^/]+/com.apple.apsd/mds$")
+    (regex #"^/Library/Keychains/\.[^/]+$"))
+
+(allow file-write-create
+    (literal "/private/var/root/Library/Caches")) ;; <rdar://problem/13685892>
+
+(allow file-write-data
+    (literal "/private/var/db/mds/system/mds.lock"))
+
+(allow iokit-open
+    (iokit-user-client-class "AppleSMCClient")) ;; <rdar://problem/13570125>
+
+(allow ipc-posix-shm
+    (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+(allow mach-lookup)
+(allow mach-per-user-lookup)
+
+(system-network)
+
+(allow signal)
+
+(allow network-outbound
+    (literal "/private/var/run/mDNSResponder")
+    (literal "/private/var/run/systemkeychaincheck.socket") ;; <rdar://problem/13685943>
+    (remote tcp))
+

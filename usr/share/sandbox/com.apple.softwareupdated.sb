@@ -1,0 +1,95 @@
+;; Copyright (c) 2012 Apple Inc.  All Rights reserved.
+;;
+;; profile for com.apple.softwareupdated
+;;
+;; WARNING: The sandbox rules in this file currently constitute 
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice.
+;;
+
+(version 1)
+(deny default)
+(import "system.sb")
+
+;; We must be allowed to obtain any right that an AuthorizationRef we *create* will be asked to obtain, including the
+;; full set queried by installd. (AuthorizationServices checks the auth creator's sandbox explicitly.)
+(allow authorization-right-obtain
+       (right-name "com.apple.SoftwareUpdate.modify-settings")
+       (right-name "system.install.apple-config-data")
+       (right-name "system.install.apple-software")
+       (right-name "system.install.apple-software.standard-user")
+       (right-name "system.install.app-store-software")
+       (right-name "system.install.software.iap")
+       (right-name "system.install.software"))
+
+;; Distributions can read anything
+(allow file-read*)
+
+(allow file-write*
+       (regex #"^/private/var/folders/[^/]+/[^/]+/C/com\.apple\.SoftwareUpdate($|/)")
+       (regex #"^/private/var/folders/[^/]+/[^/]+/C/com\.apple\.SoftwareUpdate\.SUUpdateServiceDaemon\.state$")
+       (regex #"^/private/var/folders/[^/]+/[^/]+/C/com\.apple\.SoftwareUpdate\.SUUpdateServiceDaemon\.state\.previous$")
+       (regex #"^/private/var/folders/[^/]+/[^/]+/C/com\.apple\.SoftwareUpdate\.SUCatalogDataManager($|/)")
+       (regex #"^/private/var/folders/[^/]+/[^/]+/C/softwareupdated($|/)")
+       (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds($|/)")
+       (regex #"^/private/var/folders/[^/]+/[^/]+/T($|/)"))
+
+(allow iokit-open
+        (iokit-user-client-class "AppleSMCClient")
+        (iokit-user-client-class "AppleFDEKeyStoreUserClient")
+        (iokit-user-client-class "RootDomainUserClient")
+        (iokit-user-client-class "CoreStorageUserClient"))
+
+(allow ipc-posix-shm-read-data
+       (ipc-posix-name-regex #"^/tmp/com.apple.csseed.[^/]+$")
+       (ipc-posix-name "apple.shm.notification_center")
+       (ipc-posix-name "com.apple.AppleDatabaseChanged")
+       (ipc-posix-name-regex #"^ls\."))
+
+(allow ipc-posix-shm-write-data
+       (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+;; Note that SoftwareUpdateConfigData inherits this sandbox (which is why we need com.apple.softwareupdated)
+(allow mach-lookup
+       (global-name "com.apple.CoreServices.coreservicesd")
+       (global-name "com.apple.PowerManagement.control")
+       (global-name "com.apple.SecurityServer")
+       (global-name "com.apple.SystemConfiguration.SCNetworkReachability")
+       (global-name "com.apple.SystemConfiguration.configd")
+       (global-name "com.apple.cfnetwork.cfnetworkagent")
+       (global-name "com.apple.distributed_notifications@1v3")
+       (global-name "com.apple.installd")
+       (global-name "com.apple.networkd")
+       (global-name "com.apple.ocspd")
+       (global-name "com.apple.softwareupdated")
+       (global-name "com.apple.suhelperd")
+       (global-name "com.apple.windowserver.active")
+       (global-name "com.apple.cookied")
+       (global-name "com.apple.coreservices.launchservicesd")
+       (global-name "com.apple.DiskArbitration.diskarbitrationd")
+       (global-name "com.apple.FontServer")
+       (global-name "com.apple.FontObjectsServer")
+       (global-name "com.apple.diskmanagementd"))
+
+(allow mach-per-user-lookup)
+
+;; Suppress log noise from Carbon / frameworks.
+(deny file-write*
+    (literal "/private/var/empty/Library")
+    (with no-log)
+)
+
+;; Edge cache servers can use arbitrary ports
+(system-network)
+(allow network-outbound
+       (literal "/private/var/run/mDNSResponder")
+       (remote tcp "*:*"))
+
+;; Need to task the config-data tool and (via IFJS) getPPDVersion
+(allow process-fork)
+(allow process-exec
+       (literal "/System/Library/CoreServices/Software Update.app/Contents/Resources/SoftwareUpdateConfigData")
+       (literal "/usr/libexec/getPPDVersion"))
+
+(allow system-socket)
+

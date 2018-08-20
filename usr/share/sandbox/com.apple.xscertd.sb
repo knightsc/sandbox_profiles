@@ -1,0 +1,37 @@
+; Copyright (c) 2010 Apple Inc. All rights reserved.
+; xscertd sandbox profile
+(version 1)
+
+(deny default)
+(import "system.sb")
+
+(deny job-creation
+	(with no-log))
+
+(allow distributed-notification-post)
+
+(allow file-read*
+       (regex #"^.*/Library/Preferences/(ByHost/)?\.GlobalPreferences.*\.plist$")
+       (regex #"^/private/var/db/mds/")
+       (literal "/private/var/db/DetachedSignatures")
+       (literal "/usr/libexec")
+       (literal "/usr/libexec/xscertd"))
+
+(allow file-read-metadata
+       (literal "/")
+       (literal "/Library")
+       (literal "/Library/Keychains")
+       (literal "/Library/Keychains/System.keychain")
+       (literal "/private/var/db/DetachedSignatures")
+       (literal "/private/var/empty")
+       (literal "/private/var/run/systemkeychaincheck.done"))
+
+(allow file-write*
+       (literal "/private/var/log/xscertd.log"))       
+
+(allow mach-lookup
+       (global-name "com.apple.CoreServices.coreservicesd")
+       (global-name "com.apple.SystemConfiguration.SCNetworkReachability")
+       (global-name "com.apple.distributed_notifications@1v3")
+       (global-name "com.apple.xscertd.helper"))
+

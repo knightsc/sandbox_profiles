@@ -1,0 +1,49 @@
+;; Copyright (c) 2012 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute 
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice. The contents of this file are also auto-generated and not
+;; user editable; it may be overwritten at any time.
+;;
+
+(version 1)
+(deny default)
+(import "system.sb")
+
+(allow system-socket)
+
+(allow file* 
+    (regex #"^/dev/bpf")
+    (regex #"^/dev/io8log")
+    (literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist")
+)
+    
+(allow file-read*
+    (literal "/Library/Preferences/.GlobalPreferences.plist")
+    (literal "/Library/Preferences/SystemConfiguration/preferences.plist")
+    (literal "/usr/libexec")
+    (literal "/usr/libexec/wifid")
+)
+
+(allow file-read-metadata
+    (literal "/private/var/root")
+)
+       
+(allow file-write*
+    (literal "/Library/Preferences/.GlobalPreferences.plist-lock")
+    (literal "/Library/Preferences/SystemConfiguration/preferences.plist")
+    (literal "/Library/Preferences/SystemConfiguration/preferences.plist-lock")
+    (literal "/Library/Preferences/SystemConfiguration/preferences.plist-new")
+    (literal "/private/var/log/wifi.log")
+)
+
+(allow ipc-posix-shm
+    (ipc-posix-name "apple.shm.notification_center")
+)
+
+(allow mach-per-user-lookup)
+(allow mach-lookup
+    (global-name "com.apple.distributed_notifications@1v3")
+    (global-name "com.apple.SystemConfiguration.configd")
+    (global-name "com.apple.wifid")
+)

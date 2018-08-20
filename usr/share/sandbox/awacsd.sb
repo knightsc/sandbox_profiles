@@ -1,0 +1,69 @@
+;
+; Copyright (c) 2010-2013 Apple Inc. All rights reserved.
+;
+
+(version 1)
+
+(deny default)
+
+(import "system.sb")
+
+(import "com.apple.corefoundation.sb")
+(corefoundation)
+
+(allow file-read*
+       (subpath "/Library/Keychains")
+       (literal "/Library/Preferences/com.apple.awacsd.plist")
+       (literal "/Library/Preferences/com.apple.security.plist")
+       (literal "/Library/Preferences/com.apple.security.systemidentities.plist")
+       (literal "/Library/Preferences/com.apple.security.identities.plist")
+       (literal "/Library/Preferences/com.apple.security-common.plist")
+       (literal "/Library/Preferences/com.apple.crypto.plist")
+       (literal "/Library/Preferences/.GlobalPreferences.plist")
+       (literal "/Library/Preferences/SystemConfiguration/preferences.plist")
+       (subpath "/Library/Managed Preferences")
+       (literal "/private/etc/hosts")
+       (literal "/private/var/db/mds/messages/se_SecurityMessages")
+       (literal "/private/var/db/mds/system/mds.lock")
+       (literal "/private/var/db/mds/system/mdsDirectory.db")
+       (literal "/private/var/db/mds/system/mdsObject.db")
+       (literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist")
+       (regex #"^/private/var/root/Library/Preferences/ByHost/\.GlobalPreferences\..*\.plist$")
+       (literal "/usr/sbin")
+       (subpath "/usr/sbin/awacsd")
+       (literal "/Library/Preferences/com.apple.apsd.plist"))
+
+(allow file-read-metadata)
+
+(allow file-write*
+       (literal "/Library/Preferences/com.apple.awacsd.plist")
+       (regex #"^/Library/Preferences/com.apple.awacsd.plist\..*")
+       (subpath "/private/var/run/racoon"))
+
+(allow file-write-data
+       (literal "/Library/Preferences/SystemConfiguration/preferences.plist")
+       (literal "/private/var/db/mds/system/mds.lock"))
+
+(allow file-read* file-write* (subpath "/private/var/root/Library/Cookies"))
+
+(allow ipc-posix-shm)
+
+(allow mach-lookup
+       (global-name "com.apple.SecurityServer")
+       (global-name "com.apple.SystemConfiguration.configd")
+       (global-name "com.apple.ocspd")
+       (global-name "com.apple.SystemConfiguration.helper")
+       (global-name "com.apple.CoreServices.coreservicesd")
+       (global-name "com.apple.apsd")
+       (global-name "com.apple.SystemConfiguration.SCNetworkReachability")
+       (global-name "com.apple.SecureNetworking.IPSec")
+       (global-name "com.apple.networkd"))
+
+(deny mach-lookup (global-name "com.apple.cookied") (with no-log))
+
+(allow network-outbound)
+(allow network-inbound (local ip))
+
+(allow sysctl-read)
+
+(allow system-socket)

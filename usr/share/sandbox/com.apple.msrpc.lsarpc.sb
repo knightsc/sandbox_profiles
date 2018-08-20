@@ -1,0 +1,29 @@
+; Copyright (c) 2010 Apple Inc. All rights reserved.
+; LSARPC and DSSETUP sandbox profile
+
+(version 1)
+(deny default)
+(import "system.sb")
+(import "opendirectory.sb")
+
+(allow signal(target self))
+
+(allow file-read*
+       (literal "/usr/libexec")
+       (literal "/usr/libexec/rpcsvchost"))
+
+; Squash logging from CFBundleGetMainBundle.
+(deny file-read-metadata
+    (literal "/usr/libexec")
+    (with no-log)
+)
+
+; dssetup needs configd access.
+(allow mach-lookup
+    (global-name "com.apple.SystemConfiguration.configd")
+    (global-name-regex #"^com\.apple\.distributed_notifications")
+)
+
+(allow ipc-posix-shm
+    (ipc-posix-name "apple.shm.notification_center")
+)

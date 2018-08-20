@@ -1,0 +1,26 @@
+;; Copyright (c) 2007 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute 
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice. The contents of this file are also auto-generated and not
+;; user editable; it may be overwritten at any time.
+;;
+(version 1)
+
+(import "application.sb")
+
+(allow iokit-open)
+(allow iokit-set-properties)
+
+(allow file-read-data (regex #"^/$"))
+(allow file-read-data file-read-metadata
+	(regex #"^/System/Library/CoreServices/AVRCPAgent.app"))
+
+(allow mach-lookup
+    (global-name "com.apple.BluetoothDOServer")
+	(global-name "com.apple.xpchelper")
+	(global-name "com.apple.CoreServices.coreservicesd")
+	(global-name "com.apple.coreservices.launchservicesd")
+    (global-name-regex #"^com.apple.distributed_notifications"))
+
+(deny default)

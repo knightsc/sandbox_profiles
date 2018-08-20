@@ -1,0 +1,5 @@
+(version 1)
+(deny default)
+
+(import "system.sb")
+(allow ipc-posix-shm (ipc-posix-name-regex #"^CFPBS:"))

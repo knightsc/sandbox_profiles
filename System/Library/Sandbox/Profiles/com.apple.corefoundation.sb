@@ -1,0 +1,34 @@
+;;
+;; CoreFoundation - sandbox profile
+;; Copyright (c) 2011-2012 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice. The contents of this file are also auto-generated and not
+;; user editable; it may be overwritten at any time.
+;;
+(version 1)
+
+
+(define (corefoundation . args)                                                                                           
+;;  (define (home-subpath home-relative-subpath)
+;;        (subpath (string-append (param "_HOME") home-relative-subpath)))
+  (allow mach-lookup                                                                                                      
+        (global-name-regex #"^com\.apple\.distributed_notifications")
+        (global-name "com.apple.cfprefsd.daemon")
+        (global-name "com.apple.cfprefsd.agent")
+        (global-name "com.apple.CoreServices.coreservicesd")
+        (global-name "com.apple.appsleep")
+        (local-name "com.apple.cfprefsd.agent")
+        (local-name "com.apple.CFPasteboardClient"))                                                                      
+  (allow ipc-posix-shm                                                                                                    
+        (ipc-posix-name-regex #"^CFPBS:"))                                                                               
+  (allow file-read-data                                                                                                   
+        (literal "/dev/autofs_nowait")) ; Used by CF to circumvent automount triggers
+  (allow file-read*
+;;        (home-subpath "/Library/Dictionaries")
+        (subpath "/Library/Dictionaries")
+        (subpath "/Network/Library/Dictionaries")
+        (subpath "/Library/Managed Preferences"))
+)
+

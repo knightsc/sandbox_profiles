@@ -1,0 +1,8 @@
+(version 1)
+(deny default)
+
+(import "system.sb")
+
+; for libNotify
+(allow ipc-posix-shm
+    (ipc-posix-name "apple.shm.notification_center"))

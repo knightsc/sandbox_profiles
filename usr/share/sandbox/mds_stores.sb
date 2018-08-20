@@ -1,0 +1,73 @@
+;;
+;; mds_stores - sandbox profile
+;; Copyright (c) 2006-2010 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute 
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice. The contents of this file are also auto-generated and not
+;; user editable; it may be overwritten at any time.
+;;
+
+(version 1)
+(deny default)
+(debug deny)
+(disable-full-symbolication)
+(import "system.sb")
+
+;;(allow file-read-metadata
+;;    (mount-relative-regex #"^/"))
+
+;; Let us register our own name
+(allow mach-register
+       (global-name "com.apple.metadata.mds.index"))
+
+
+(allow file-read-metadata)
+(allow system-sched)
+
+
+(if (positive? (string-length (param "_PARAM_PATH")))
+    (begin
+        (allow file-read* (subpath (param "_PARAM_PATH")))))
+
+(allow file*
+   (regex #"^/private/var/db/Spotlight($|/)"))
+
+(allow file-write*
+    (literal "/dev/console"))
+
+
+(allow file-read*
+    (literal "/Library/Preferences/com.apple.SpotlightServer.plist")
+    (literal "/Library/Preferences/.GlobalPreferences.plist")
+    (literal "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Resources/com.apple.SpotlightServer.plist")
+    (literal "/Library/Dictionaries")
+    (literal "/Library/Preferences/SystemConfiguration/com.apple.Boot.plist")
+    (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
+    )
+    
+(allow file-read* file-write* (extension "com.apple.spotlight.tempdirectory"))
+(allow file-read* file-write* (extension "com.apple.spotlight.cachedirectory"))
+
+(allow file-read-metadata (literal "/AppleInternal"))
+
+(allow ipc-posix-shm)
+
+;;(allow mach-lookup (global-name-regex "^com\.apple\."))
+
+(allow mach-lookup (global-name "com.apple.SystemConfiguration.configd")
+    (global-name "com.apple.PowerManagement.control"))
+
+(allow network-outbound
+    (remote unix-socket (path-literal "/private/var/run/asl_input"))
+    (remote unix-socket (path-literal "/private/var/run/syslog")))
+
+(allow signal)
+
+(allow sysctl*)
+
+(allow file-fsctl)
+
+
+(allow file-write* (extension "com.apple.spotlight.indexer.read-write"))
+(allow file-read* (extension "com.apple.spotlight.indexer.read-write"))

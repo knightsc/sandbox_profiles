@@ -1,0 +1,121 @@
+;; Copyright (c) 2012 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute 
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice. The contents of this file are also auto-generated and not
+;; user editable; it may be overwritten at any time.
+;;
+
+(version 1)
+
+(deny default)
+
+(import "system.sb")
+
+(allow authorization-right-obtain
+    (right-name "system.keychain.modify")
+    (right-name "system.keychain.create.loginkc")
+    (right-name "com.apple.wifi")
+    (right-name "config.modify.com.apple.wifi")
+    (right-name "system.preferences")
+)
+
+(allow distributed-notification-post)
+ 
+(allow file*
+    (literal "/dev/io8log")
+    (literal "/dev/io8logmt")
+    (literal "/dev/io8logtemp")
+    (regex #"^/dev/pf")
+    (regex #"^/dev/bpf")
+    (regex #"^/Library/Preferences/SystemConfiguration/preferences\.plist")
+    (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.airport\.preferences\.plist")
+    (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.wifi\.message-tracer\.plist")
+)
+    
+(allow file-read*
+    (subpath "/Library/Keychains")
+    (literal "/Library/Preferences/com.apple.security.plist")
+    (literal "/Library/Preferences/com.apple.airport.opproam.plist")
+    (literal "/Library/Preferences/com.apple.airport.bt.plist")
+    (literal "/Library/Preferences/com.apple.crypto.plist")
+    (regex #"^/Library/Preferences/\.GlobalPreferences\.plist")
+    (literal "/Library/Preferences/SystemConfiguration/com.apple.nat.plist")
+    (literal "/Library/Preferences/SystemConfiguration/com.apple.network.eapolclient.configuration.plist")
+    (literal "/Library/Preferences/com.apple.P2PSupervisor.plist")
+    (literal "/Library/Security/Trust Settings/Admin.plist")
+    (subpath "/private/var/db/mds")
+    (regex #"^/private/var/root/Library/Preferences/\.GlobalPreferences\.plist")
+    (literal "/private/var/run/mDNSResponder")
+    (subpath "/private/var/tmp/mds")
+    (literal "/usr/libexec")
+    (literal "/usr/libexec/airportd")
+    (literal "/usr/libexec/InternetSharing")
+    (literal "/private/tmp")
+    (literal "/private/var/db/DetachedSignatures")
+)
+
+(allow file-read-metadata
+    (literal "/")
+    (literal "/Library")
+    (literal "/private")
+    (literal "/private/var")
+    (literal "/private/var/db")
+    (literal "/private/var/root")
+    (literal "/private/var/run/systemkeychaincheck.done")
+)
+
+(allow file-write*
+    (literal "/private/var/db/mds/system/mds.lock")
+    (literal "/private/var/log/wifi.log")
+    (regex #"^/private/tmp/wifi")
+    (literal "/private/var/log/corewifi.log")
+    (subpath "/Library/Keychains")
+    (subpath "/private/var/db/mds")
+    (subpath "/private/var/tmp/mds")
+)
+
+(allow iokit-set-properties
+   (iokit-property "36C28AB5-6566-4C50-9EBD-CBB920F83843:current-network")
+   (iokit-property "36C28AB5-6566-4C50-9EBD-CBB920F83843:preferred-networks")
+   (iokit-property "36C28AB5-6566-4C50-9EBD-CBB920F83843:preferred-count" )
+   (iokit-property "IONVRAM-SYNCNOW-PROPERTY")
+)
+
+(allow iokit-open
+    (iokit-user-client-class "IOUSBDeviceUserClientV2")
+)
+
+(allow ipc-posix-shm
+    (ipc-posix-name "apple.shm.notification_center")
+    (ipc-posix-name "com.apple.AppleDatabaseChanged")
+)
+
+(allow mach-lookup
+    (global-name "com.apple.airport.updateprefs")
+    (global-name "com.apple.airport.wps")
+    (global-name "com.apple.airportd")
+    (global-name "com.apple.CoreServices.coreservicesd")
+    (global-name "com.apple.d2d.ipc")
+    (global-name "com.apple.distributed_notifications@1v3")
+    (global-name "com.apple.network.EAPOLController")
+    (global-name "com.apple.PowerManagement.control")
+    (global-name "com.apple.securityd")
+    (global-name "com.apple.SecurityServer")
+    (global-name "com.apple.SystemConfiguration.configd")
+    (global-name "com.apple.SystemConfiguration.SCNetworkReachability")
+    (global-name "com.apple.wifid")
+    (global-name "com.apple.wifi.anqp")
+    (global-name "com.apple.UNCUserNotification")
+)
+
+(allow mach-per-user-lookup)
+
+(allow network-bind)
+
+(allow network-outbound)
+
+(allow system-sched)
+
+(allow system-socket)
+

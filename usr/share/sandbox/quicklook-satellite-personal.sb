@@ -1,0 +1,44 @@
+;;
+;; Quick Look Plug-in - sandbox profile
+;; Copyright (c) 2011 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute 
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice. The contents of this file are also auto-generated and not
+;; user editable; it may be overwritten at any time.
+;;
+
+(version 1)
+(import "quicklook-satellite.sb")
+
+
+;; Plug-in specific extensions
+;; Contact
+(allow mach-lookup
+       (global-name "com.apple.AddressBook.AddressBookApplicationFrameworkIPC")
+       (global-name "com.apple.AddressBook.SourceSync")
+       (global-name "com.apple.AddressBook.ScheduledSync")
+       (global-name "com.apple.AddressBook.AssistantService")
+       (global-name "com.apple.AddressBook.abd")
+       (global-name "com.apple.system.opendirectoryd.api")
+       (global-name "com.apple.tccd")) ;; <rdar://problem/10955407> resolve quicklooksatellite tcc.allow or not (or no ui entitlement)
+(allow file-read* file-write*
+       (home-subpath "/Library/Application Support/AddressBook"))
+(read-only-and-issue-extensions
+    (require-any
+       (subpath "/Library/Images/People")
+       (subpath "/System/Library/Images/People")
+       (subpath "/Network/Library/Images/People")))
+(read-write-and-issue-extensions
+    (home-subpath "/Library/Images/People"))
+           
+(preference-read "com.apple.AddressBook")
+
+;; Calendar
+(allow file-read*
+       (home-subpath "/Library/Application Support/Calendars")
+       (home-subpath "/Library/Calendars"))
+
+;; Notes
+(allow file-read*
+       (home-subpath "/Library/Containers/com.apple.Notes/Data/Library/Notes"))

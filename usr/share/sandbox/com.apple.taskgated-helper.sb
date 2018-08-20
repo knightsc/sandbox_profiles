@@ -1,0 +1,78 @@
+; Copyright (c) 2011-2012 Apple Inc. All rights reserved.
+; taskgated-helper sandbox profile
+(version 1)
+
+(deny default)
+(import "system.sb")
+
+(allow file-read*
+       (regex #"^.*/Contents/embedded.provisionprofile")
+       (literal "/Library/Keychains/System.keychain")
+       (literal "/Library/Keychains/applepushserviced.keychain")
+       (literal "/Library/Keychains/apsd.keychain")
+       (regex #"^/Library/Preferences/com.apple.MCXDebug.*")
+       (regex #"^/Library/Preferences/com.apple.security.*")
+       (regex #"^/private/var/db/ConfigurationProfiles/.*")
+       (literal "/private/var/db/DetachedSignatures")
+       (literal "/private/var/db/mds/messages/se_SecurityMessages")
+       (literal "/private/var/db/mds/system/mds.lock")
+       (literal "/private/var/db/mds/system/mdsDirectory.db")
+       (literal "/private/var/db/mds/system/mdsObject.db")
+       (regex #"^/System/Library/Frameworks/Accelerate.framework/.*")
+       (regex #"^/System/Library/Frameworks/ApplicationServices.framework/.*")
+       (regex #"^/System/Library/Frameworks/Carbon.framework/.*")
+       (regex #"^/System/Library/Frameworks/CoreServices.framework/.*")
+       (regex #"^/System/Library/Frameworks/OpenDirectory.framework/.*")
+       (regex #"^/System/Library/Frameworks/QuartzCore.framework/.*")
+       (regex #"^/System/Library/Frameworks/WebKit.framework/.*")
+       (regex #"^/System/Library/PrivateFrameworks/CommerceKit.framework/.*")
+       (literal "/usr/libexec")
+       (literal "/usr/libexec/taskgated")
+       (literal "/usr/libexec/taskgated-helper"))
+
+(allow file-read-metadata
+       (literal "/")
+       (literal "/Library")
+       (literal "/Library/Keychains")
+       (literal "/Library/Keychains/System.keychain")
+       (literal "/Library/Keychains/apsd.keychain")
+       (literal "/Library/Logs/ManagedClient")
+       (regex #"^/Library/Logs/ManagedClient/.*")
+       (literal "/private")
+       (literal "/private/var")
+       (literal "/private/var/db")
+       (literal "/private/var/db/mds")
+       (literal "/private/var/db/mds/system")
+       (literal "/private/var/run/systemkeychaincheck.done")
+       (literal "/private/var/db/TH_EnableDebug")
+;       (regex #"^/System/Library/Frameworks/.*\\.framework$")			-- 12392673
+;       (regex #"^/System/Library/PrivateFrameworks/.*\\.framework$")	-- 12392673
+		)
+
+(deny file-read-metadata (with no-report)
+; Following are triggered by CFPreferences to determine user languages when loading a bundle (we trigger it by calling dbout())
+		(literal "/private/var/root")
+		)
+
+(deny file-read-data (with no-report)
+; Following are triggered by CFPreferences to determine user languages when loading a bundle (we trigger it by calling dbout())
+	   (literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist")
+	   (literal "/Library/Preferences/.GlobalPreferences.plist")
+	   (literal "/private/var/root"))
+       
+(allow file-write-data
+       (literal "/private/var/db/mds/system/mds.lock"))
+
+(allow file-write*
+       (regex #"^/Library/Logs/ManagedClient/*"))
+
+(allow ipc-posix-shm
+       (ipc-posix-name "apple.shm.notification_center")
+       (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+(allow mach-lookup
+       (global-name "com.apple.distributed_notifications@1v3")
+       (global-name "com.apple.coresymbolicationd")
+       (global-name "com.apple.ManagedClient.agent")
+       (global-name "com.apple.ocspd")
+       (global-name "com.apple.SecurityServer"))

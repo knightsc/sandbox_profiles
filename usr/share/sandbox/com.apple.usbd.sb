@@ -1,0 +1,64 @@
+;; Copyright (c) 2012 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute 
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice. The contents of this file are also auto-generated and not
+;; user editable; it may be overwritten at any time.
+;;
+
+(version 1)
+
+(deny default)
+(import "system.sb")
+
+(allow distributed-notification-post)
+
+(allow mach-per-user-lookup)
+
+(allow file*
+	   (literal "/private/var/root/Library/Preferences/com.apple.usbd.plist")
+)
+
+
+(allow file-read*
+       (literal "/AppleInternal")
+       (literal "/usr/libexec")
+       (literal "/usr/libexec/usbd")
+       (literal "/private/var/root")
+       (literal "/dev/console")
+       (literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist")
+	   (literal "/Library/Preferences/.GlobalPreferences.plist")
+       (regex   "^/private/var/root/Library/Preferences/ByHost/\.GlobalPreferences\..*\.plist$")
+)
+
+(allow file-read-metadata
+    (literal "/")
+    (literal "/Library")
+    (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
+    (literal "/private")
+    (literal "/private/var")
+    (literal "/private/var/root")
+)
+
+;;crashtracer support
+
+(allow system-socket)
+(allow file-read-metadata
+    (subpath "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
+    (literal "/Library/Caches/com.apple.DiagnosticReporting.HasBeenAppleInternal"))
+
+(allow mach-lookup
+    (global-name "com.apple.USBAgent")
+	(global-name "com.apple.xpchelper")
+	(global-name "com.apple.PowerManagement.control")
+    (global-name "com.apple.SystemConfiguration.configd")
+    (global-name-regex #"^com.apple.distributed_notifications")
+)
+
+(allow ipc-posix-shm
+       (ipc-posix-name "apple.shm.notification_center")
+)
+
+(allow iokit-open
+       (iokit-user-client-class "IOUSBDeviceUserClientV2")
+)

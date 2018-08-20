@@ -1,0 +1,34 @@
+;;
+;; pfd - sandbox profile
+;; Copyright (c) 2012 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute 
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice. The contents of this file are also auto-generated and not
+;; user editable; it may be overwritten at any time.
+;;
+(version 1)
+
+(deny default)
+
+(import "system.sb")
+
+(allow authorization-right-obtain
+       (right-name "com.apple.pf.rule"))
+
+(allow file-ioctl
+       (literal "/dev/pfm"))
+
+(allow file-read*
+       (literal "/dev/pfm")
+       (literal "/usr/libexec")
+       (literal "/usr/libexec/pfd"))
+
+(allow file-write-data
+       (literal "/dev/pfm"))
+
+(allow ipc-posix-shm-read-data
+       (ipc-posix-name "apple.shm.notification_center"))
+
+(allow mach-lookup
+       (global-name "com.apple.distributed_notifications@1v3"))

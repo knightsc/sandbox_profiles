@@ -1,0 +1,45 @@
+;;
+;; Spotlight importer - sandbox profile
+;; Copyright (c) 2006-2008 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute 
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice. The contents of this file are also auto-generated and not
+;; user editable; it may be overwritten at any time.
+;;
+
+(version 1)
+(deny default)
+(import "system.sb")
+
+;; Suppress log noise from Carbon / frameworks.
+(deny process-exec (with no-log))
+(deny file-write*
+    (literal "/private/var/empty/Library")
+    (with no-log))
+    
+(deny mach-lookup (global-name "com.apple.ls.boxd") (with no-log))
+
+;; comment out and check violations
+;;(allow distributed-notification-post)
+;;(allow mach-lookup)
+(allow mach-lookup (global-name "com.apple.CoreServices.coreservicesd"))
+(allow mach-lookup (global-name "com.apple.DiskArbitration.diskarbitrationd"))
+(allow mach-lookup (global-name "com.apple.SecurityServer"))
+(allow mach-lookup (global-name "com.apple.ocspd"))
+
+(allow mach-lookup (global-name "com.apple.distributed_notifications@Uv3"))
+
+(allow file-search)
+(allow ipc-posix-shm)
+(allow sysctl*)
+(allow system-sched)
+
+(allow file-read* file-fsctl file-ioctl)
+
+(allow ipc-posix-shm-read-data (ipc-posix-name-regex #"^/tmp/com\.apple\.csseed\.[0-9]+$"))
+
+(allow file-read* (literal "/Library/Preferences/com.apple.SpotlightServer.plist"))
+
+(allow file-read* file-write* (extension "com.apple.spotlight.tempdirectory"))
+(allow file-read* file-write* (extension "com.apple.spotlight.cachedirectory"))

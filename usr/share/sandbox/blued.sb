@@ -1,0 +1,75 @@
+;; Copyright (c) 2012 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute 
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice. The contents of this file are also auto-generated and not
+;; user editable; it may be overwritten at any time.
+;;
+
+(version 1)
+
+(deny default)
+(import "system.sb")
+
+(allow distributed-notification-post)
+
+(allow mach-per-user-lookup)
+(allow mach-lookup
+       (global-name "com.apple.distributed_notifications@1v3")
+       (global-name "com.apple.CoreServices.coreservicesd")
+       (global-name "com.apple.bluetoothUIServer")
+       (global-name "com.apple.bnepd")
+       (global-name "com.apple.blued")
+       (global-name "com.apple.BluetoothDOServer")
+       (global-name "com.apple.SystemConfiguration.configd")
+       (global-name "com.apple.SecurityServer")
+       (global-name "com.apple.btsa")
+       (global-name "com.apple.bluetoothaudiod"))
+
+(allow file*
+       (literal "/private/var/root/Library/Preferences/blued.plist")
+	   (literal "/private/var/root/Library/Preferences/com.apple.blued.plist")
+
+       (regex   "^/private/var/root/Library/Preferences/ByHost/com\.apple\.blued\..*\.plist$")
+       (regex   "^/private/var/root/Library/Preferences/ByHost/\.GlobalPreferences\..*\.plist$")
+       (regex   "^/private/var/root/Library/Preferences/ByHost/com\.apple\.Bluetooth\..*\.plist$")
+
+	   (regex   "^/Library/Preferences/com\.apple\.Bluetooth\.plist")
+	   (literal "/private/tmp/com.apple.Bluetooth.plist")
+
+       (literal "/private/var/log/blued.log")
+       (literal "/private/var/log/bluetoothAudio.log")
+       (literal "/private/var/log/bluetoothUserAgent.log")
+       (literal "/private/var/log/bluetoothFramework.log")
+       (literal "/Library/Preferences/SystemConfiguration/com.apple.Bluetooth")
+       (literal "/Library/Preferences/SystemConfiguration/com.apple.Bluetooth-lock")
+       (literal "/Library/Preferences/SystemConfiguration/com.apple.Bluetooth-new"))
+
+(allow file-read*
+       (literal "/Library/Preferences/SystemConfiguration/preferences.plist")
+	   
+       (literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist")
+	   
+	   (literal "/Library/Preferences/.GlobalPreferences.plist")
+	   
+       (literal "/AppleInternal")
+       (literal "/usr/sbin")
+       (literal "/usr/sbin/blued")
+       (literal "/private/var/root")
+       (literal "/dev/console")
+       (literal "/private/var/db/.AppleSetupDone"))
+
+(allow ipc-posix-shm
+       (ipc-posix-name "apple.shm.notification_center"))
+
+(allow iokit-open
+       (iokit-user-client-class "IOBluetoothDeviceUserClient")
+       (iokit-user-client-class "IOHIDResourceDeviceUserClient")
+       (iokit-user-client-class "IOBluetoothHCIUserClient")
+       (iokit-user-client-class "IOBluetoothL2CAPChannelUserClient")
+       (iokit-user-client-class "IOHIDLibUserClient")
+       (iokit-user-client-class "RootDomainUserClient"))
+
+(allow iokit-set-properties)
+
+(allow system-socket)

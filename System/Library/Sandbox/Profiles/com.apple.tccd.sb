@@ -1,0 +1,47 @@
+(version 1)
+
+(import "system.sb")
+
+(define system (equal? "YES" (param "SYSTEM")))
+
+(allow generic-issue-extension
+       (extension-class-regex #"^com\.apple\.tcc\."))
+
+(allow file-read*)
+
+(allow file-write*
+       (subpath (param "CACHEDIR"))
+       (subpath (param "TEMPDIR")))
+
+(let ((home (if system "" (param "HOME"))))
+  (if home
+      (begin
+        (allow file-write-create
+               (literal (string-append home "/Library"))
+               (literal (string-append home "/Library/Application Support")))
+        (allow file-write*
+               (subpath (string-append home "/Library/Application Support/com.apple.TCC"))))))
+
+(allow ipc-posix-shm
+       (ipc-posix-name-regex #"^/tmp/com\.apple\.csseed\.")
+       (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+(allow mach-lookup
+       (global-name-regex #"^com\.apple\.distributed_notifications@")
+       (global-name "com.apple.CoreServices.coreservicesd")
+       (global-name "com.apple.SecurityServer")
+       (global-name "com.apple.UNCUserNotification")
+       (global-name "com.apple.ocspd"))
+
+(allow system-fsctl
+       (fsctl-command 31255))           ; afpfsByteRangeLock2FSCTL
+
+(if system
+    (begin
+      (allow file-write-data
+             (literal "/private/var/db/mds/system/mds.lock"))
+      (allow ipc-posix-shm-read*
+             (ipc-posix-name "apple.shm.notification_center"))
+      (allow mach-lookup
+             (global-name "com.apple.tccd"))
+      (allow mach-per-user-lookup)))

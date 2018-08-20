@@ -1,0 +1,57 @@
+; Copyright (c) 2010 Apple Inc. All rights reserved.
+; xscertd-helper sandbox profile
+(version 1)
+
+(deny default)
+(import "system.sb")
+
+(allow distributed-notification-post)
+
+(allow file-read*
+       (regex #"^/Library/Keychains/.")
+       (literal "/Library/Keychains/System.keychain")
+       (literal "/Library/Preferences/com.apple.security.plist")
+       (literal "/private/etc/openldap/ldap.conf")
+       (regex #"^/private/var/db/mds/")
+       (regex #"^/private/var/root/Library/Application Support/Certificate Authority/")
+       (regex #"^.*/Library/Preferences/(ByHost/)?\.GlobalPreferences.*\.plist$")
+       (literal "/private/var/root/Library/Preferences/com.apple.security.plist")
+       (literal "/usr/libexec")
+       (literal "/usr/libexec/xscertd")
+       (literal "/usr/libexec/xscertd-helper"))
+
+(allow file-read-metadata
+       (literal "/")
+       (literal "/Library")
+       (literal "/Library/Keychains")
+       (regex #"^/Library/Keychains/System.keychain.")
+       (literal "/Library/Keychains/apsd.keychain")
+       (literal "/private")
+       (literal "/private/var")
+       (literal "/private/var/db")
+       (literal "/private/var/db/mds")
+       (literal "/private/var/db/mds/system")
+       (literal "/private/var/root")
+       (literal "/private/var/folders")
+       (regex #"^/private/var/folders/")
+       (literal "/private/var/run/systemkeychaincheck.done"))
+
+(allow file-write*
+       (literal "/Library/Keychains/System.keychain")
+       (regex #"^/Library/Keychains/System.keychain.")
+       (literal "/private/var/log/xscertd.log"))
+
+(allow file-write-data
+       (literal "/private/var/db/mds/system/mds.lock"))
+
+(allow ipc-posix-shm
+       (ipc-posix-name "apple.shm.notification_center")
+       (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+(allow mach-lookup
+       (global-name "com.apple.SecurityServer")
+       (global-name "com.apple.distributed_notifications@1v3"))
+
+(allow network-outbound
+       (literal "/private/var/run/ldapi")
+       (literal "/private/var/run/mDNSResponder"))

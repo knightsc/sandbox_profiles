@@ -1,0 +1,42 @@
+;;;;;; Sandbox profile for xpchelper(8)
+;;;;;;
+;;;;;; Copyright (c) 2008-2010 Apple Inc.  All Rights reserved.
+;;;;;;
+;;;;;; WARNING: The sandbox rules in this file currently constitute
+;;;;;; Apple System Private Interface and are subject to change at any time and
+;;;;;; without notice. The contents of this file are also auto-generated and
+;;;;;; not user editable; it may be overwritten at any time.
+
+(version 1)
+
+;; remove "(with no-callout)" to debug sandbox problems
+(deny default (with no-callout))
+;;(deny default)
+
+(import "system.sb")
+
+(import "com.apple.corefoundation.sb")
+(corefoundation)
+
+;; Allow container creation and file migration.
+;; Ideally file-write* would be limited to the user's home directory.
+(allow file*)
+
+;; TMPDIR; could use a better solution
+(allow file-write* (subpath "/private/var/folders"))
+
+(allow ipc-posix-shm 
+	(ipc-posix-name "apple.shm.notification_center")
+	(ipc-posix-name "com.apple.AppleDatabaseChanged")
+	)
+	
+(allow mach-lookup
+	(global-name "com.apple.CoreServices.coreservicesd")
+	(global-name "com.apple.FSEvents")
+	(global-name "com.apple.metadata.mds")
+	(global-name "com.apple.SecurityServer")
+	(global-name "com.apple.ocspd")
+	(global-name "com.apple.system.DirectoryService.membership_v1"))
+    
+;; Tracing
+(allow network* (regex #"^/private/tmp/sandbox\."))

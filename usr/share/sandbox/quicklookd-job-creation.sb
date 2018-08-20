@@ -1,0 +1,17 @@
+;;
+;; Quick Look Include - sandbox profile
+;; Copyright (c) 2006-2008 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute 
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice. The contents of this file are also auto-generated and not
+;; user editable; it may be overwritten at any time.
+;;
+;; This file is meant to be included in a sandbox that needs access to Quick Look helper
+
+(version 1)
+
+(debug deny)
+
+(allow job-creation
+       (regex #"^/System/Library/Frameworks/QuickLook.framework/Versions/A/Resources/quicklookd(32)?.app/Contents/MacOS/(qlmanage|quicklookd(32)?)$"))

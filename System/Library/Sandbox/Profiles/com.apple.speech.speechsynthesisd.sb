@@ -1,0 +1,157 @@
+;;
+;; Speech Synthesis daemon - sandbox profile
+;; Copyright (c) 2013 Apple Inc. All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice. The contents of this file are also auto-generated and not
+;; user editable; it may be overwritten at any time.
+;;
+
+(version 1)
+(deny default)
+(import "system.sb")
+
+;;; Home Directory
+(define (home-subpath home-relative-subpath)
+    (subpath (string-append (param "_HOME") home-relative-subpath)))
+(define (home-literal home-relative-literal)
+    (literal (string-append (param "_HOME") home-relative-literal)))
+(define (home-regex home-relative-regex)
+    (regex (string-append "^" (regex-quote (param "_HOME")) home-relative-regex)))
+    
+(allow user-preference-read
+    (preference-domain "com.apple.speech.voice.prefs")
+    (preference-domain "com.apple.menuextra.clock"))
+    
+(allow user-preference*
+    (preference-domain "loginwindow")
+    (preference-domain "com.apple.speech.synthesis.general.prefs"))
+    
+(allow file-read* file-write* file-read-metadata
+    (home-subpath "/Library/Caches/com.apple.speech.speechsynthesisd"))
+    
+;;; Allow reading files for which we have a read-only app-sandbox extension
+(allow file-read* (extension "com.apple.app-sandbox.read"))
+
+;;; Allow writing of files for which we have an extension
+(allow file-read* file-write* (extension "com.apple.app-sandbox.read-write"))
+    
+;;; Audio
+(allow device-microphone)
+(allow ipc-posix-shm-read*
+    ipc-posix-shm-write-data
+    (ipc-posix-name-regex "^AudioIO"))
+    
+(allow iokit-set-properties
+    (iokit-property "IOAudioControlValue"))
+    
+(allow ipc-posix-shm-read*
+    (ipc-posix-name "apple.shm.notification_center")
+    (ipc-posix-name-regex #"^/tmp/com\.apple\.csseed\.")
+    (ipc-posix-name-regex #"^ls\."))
+
+(allow ipc-posix-shm-read*
+    ipc-posix-shm-write-data
+    (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+       
+;;; Allow IPC to standard system agents.
+(allow ipc-posix-shm-read*
+    (ipc-posix-name-regex #"^apple\.shm\.cfprefsd\."))
+
+(allow file-read-metadata)
+
+(allow mach-lookup
+    (global-name "com.apple.audio.audiohald")
+    (global-name "com.apple.audio.coreaudiod")
+    (global-name "com.apple.CoreServices.coreservicesd")
+    (global-name "com.apple.coreservices.launchservicesd")
+    (global-name "com.apple.distributed_notifications@1v3")
+    (global-name "com.apple.distributed_notifications@Uv3")
+    (global-name "com.apple.speechArbitrationServer")
+    (global-name "com.apple.speech.synthesis.console")
+    (global-name "com.apple.speech.speechsynthesisd"))
+
+(allow iokit-open
+    (iokit-user-client-class "IOAudioControlUserClient")
+    (iokit-user-client-class "IOAudioEngineUserClient")
+    (iokit-user-client-class "RootDomainUserClient"))
+
+(allow file-read*
+    (subpath "/Library/Speech/Synthesizers")
+    (subpath "/Library/Speech/Voices")
+    (subpath "/Library/Audio")
+    (home-subpath "/Library/Speech/Synthesizers")
+    (home-subpath "/Library/Speech/Voices")
+    (home-subpath "/Library/Audio"))
+    
+(allow file-read*
+    (home-literal "/Library/Preferences/.GlobalPreferences.plist")
+    (home-regex "/Library/Preferences/ByHost/\.GlobalPreferences\.")
+    (literal "/Library/Preferences/.GlobalPreferences.plist"))
+    
+;;; Temp Directory
+(allow file-read* file-write* file-read-metadata (subpath (param "_TEMPDIR")))
+
+;;; Third Party Support
+(allow file-read* (subpath "/Library/Frameworks"))
+(allow process-exec 
+    (subpath "/Library/Speech/Synthesizers")
+    (home-subpath "/Library/Speech/Synthesizers"))
+(allow process-fork)
+
+;; DTalker
+(allow file-read* file-write* (home-subpath "/Library/Preferences/Createsystem"))
+
+;; Acapela Synthesizers (Infovox iVox / Acapela TTS)
+(allow file-read* file-write* (home-subpath "/Library/Application Support/Acapela Group"))
+(allow file-read* file-write* (subpath "/Library/Application Support/Infovox_iVox"))
+
+(allow file-read*
+    (literal "/")
+    (literal "/private/var/db/mds/messages/se_SecurityMessages")
+    (subpath "/Applications/Infovox iVox Voice Manager.app")
+    (subpath "/Library/Application Support")
+    (subpath "/Applications/Acapela TTS for Mac"))
+
+(deny file-read*
+      (subpath "/Library/Application Support/AppStoreContent")
+      (subpath "/Library/Application Support/AppStore"))
+
+(allow mach-lookup
+    (global-name "com.apple.cookied")
+    (global-name "com.apple.SystemConfiguration.configd"))
+    
+(allow network-outbound
+    (literal "/private/var/run/mDNSResponder")
+    (remote tcp))
+    
+(allow ipc-posix-shm-read-data (ipc-posix-name "FNetwork.defaultStorageSession"))
+
+;;; (system-network) - Allow access to the network.
+(define (system-network)
+    (allow file-read*
+        (literal "/Library/Preferences/com.apple.networkd.plist"))
+    (allow mach-lookup
+        (global-name "com.apple.SystemConfiguration.PPPController")
+        (global-name "com.apple.SystemConfiguration.SCNetworkReachability")
+        (global-name "com.apple.networkd")
+        (global-name "com.apple.symptomsd")
+        (global-name "com.apple.usymptomsd"))
+    (allow network-outbound
+        (control-name "com.apple.netsrc")
+        (control-name "com.apple.network.statistics"))
+    (allow system-socket
+        (require-all (socket-domain AF_SYSTEM)
+            (socket-protocol 2)) ; SYSPROTO_CONTROL
+            (socket-domain AF_ROUTE)))
+(system-network)
+
+;; Cepstral
+(allow file-read*
+    (literal "/private/tmp/swift.lock")
+    (home-literal "/.CFUserTextEncoding")
+    (subpath "/Library/Application Support/Cepstral")
+    (literal "/Library/Preferences/com.cepstral.swift"))
+
+(allow user-preference-read (preference-domain "com.cepstral.swift"))

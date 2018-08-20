@@ -1,0 +1,55 @@
+;;
+;; Spotlight importer - sandbox profile
+;; Copyright (c) 2006-2008 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute 
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice. The contents of this file are also auto-generated and not
+;; user editable; it may be overwritten at any time.
+;;
+
+(version 1)
+(deny default)
+(debug deny)
+(import "system.sb")
+
+;; Suppress log noise from Carbon / frameworks.
+(deny process-exec (with no-log))
+(deny file-write*
+    (literal "/private/var/empty/Library")
+    (with no-log))
+
+;;(allow distributed-notification-post)
+
+(allow file-fsctl)
+(allow file-ioctl)
+(allow file-search)
+
+(allow file-read*)
+(allow file-write* (literal "/dev/dtracehelper"))
+
+(allow ipc-posix-shm (ipc-posix-name "apple.shm.notification_center"))
+
+(allow mach-lookup (global-name "com.apple.DiskArbitration.diskarbitrationd"))
+(allow mach-lookup (global-name "com.apple.PowerManagement.control"))
+(allow mach-lookup (global-name "com.apple.metadata.mds"))
+(allow mach-lookup (global-name "com.apple.FSEvents"))
+
+(allow mach-lookup (global-name "com.apple.distributed_notifications@Uv3"))
+(allow mach-lookup (global-name "com.apple.CoreServices.coreservicesd"))
+
+;;(allow ipc-posix-shm)
+;;(allow mach-lookup)
+
+(allow network-outbound
+    (remote unix-socket (path-literal "/private/var/run/asl_input"))
+    (remote unix-socket (path-literal "/private/var/run/syslog")))
+
+(allow signal (target self))
+(allow sysctl*)
+(allow system-sched)
+
+(allow ipc-posix-shm-read-data (ipc-posix-name-regex #"^/tmp/com\.apple\.csseed\.[0-9]+$"))
+
+(allow file-read* file-write* (extension "com.apple.spotlight.tempdirectory"))
+(allow file-read* file-write* (extension "com.apple.spotlight.cachedirectory"))

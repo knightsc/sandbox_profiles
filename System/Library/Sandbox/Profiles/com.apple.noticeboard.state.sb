@@ -1,0 +1,37 @@
+(version 1)
+(deny default)
+
+(import "system.sb")
+(import "com.apple.corefoundation.sb")
+(corefoundation)
+
+(allow file-read-metadata)
+
+(allow mach-register
+       (global-name "com.apple.noticeboard.state"))
+	   
+(allow file-read*
+       (subpath "/System/Library/PrivateFrameworks/Noticeboard.framework")
+       (literal "/private/var/db/mds/system/mdsDirectory.db")
+       (literal "/private/var/db/mds/system/mdsObject.db")
+	   (literal "/private/var/db/mds/messages/se_SecurityMessages")
+	   (literal "/private/var/db/DetachedSignatures")
+       (regex #"/Library/Preferences/\.GlobalPreferences\.plist$")
+       (regex #"/Library/Preferences/ByHost/\.GlobalPreferences\.")
+       (regex #"/Library/Preferences/com.apple.security\.plist$"))
+	   
+(allow file-read* file-write*
+       (literal "/Library/Preferences/com.apple.storeagent.plist")
+       (literal "/Library/Preferences/com.apple.noticeboard.plist"))
+	   
+(allow mach-lookup
+       (global-name "com.apple.SecurityServer"))
+	   	   
+(allow file*
+    (literal "/Library/Keychains/System.keychain")
+    (literal "/private/var/db/mds/system/mdsObject.db")
+    (literal "/private/var/db/mds/system/mds.lock")
+    (literal "/private/var/db/mds/system/mdsDirectory.db"))
+	
+(allow network-outbound)
+(allow system-socket)

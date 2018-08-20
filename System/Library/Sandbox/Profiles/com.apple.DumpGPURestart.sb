@@ -1,0 +1,52 @@
+(version 1)
+
+(deny default)
+(import "system.sb")
+(import "com.apple.corefoundation.sb")
+(corefoundation)
+
+(allow file-read*
+       (subpath "/")
+	   (literal "/Library/Caches/com.apple.DiagnosticReporting.Networks.plist")
+       (literal "/Library/Logs/DiagnosticReports")
+       (literal "/Library/Preferences/.GlobalPreferences.plist")
+       (literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist")
+       (regex #"^/private/var/root/Library/Preferences/ByHost/\.GlobalPreferences\."))
+
+(allow file-read-metadata
+       (subpath "/")
+       (literal "/Library")
+       (literal "/Library/Caches/com.apple.DiagnosticReporting.HasBeenAppleInternal")
+       (literal "/Library/Logs")
+	   (literal "/var")
+       (literal "/private/var/root")
+	   (subpath "/Library/Logs/DiagnosticReports"))
+
+(allow file-read-xattr
+       (subpath "/Library/Logs/DiagnosticReports"))
+
+(allow file-write*
+       (subpath "/Library/Logs/DiagnosticReports")
+       (subpath "/Library/Application Support/SubmitDiagInfo")
+	   (literal "/private/var/db/GPURestartReporter")
+       (literal "/private/var/db/GPURestartReporter/current.gpuRestart")
+	   (subpath "/Library/Caches"))
+
+(allow file-write-mode
+       (literal "/Library/Application Support/SubmitDiagInfo")
+       (literal "/Library/Logs/DiagnosticReports"))
+
+(allow file-write-owner
+       (literal "/Library/Application Support/SubmitDiagInfo"))
+
+(allow iokit-open
+       (iokit-user-client-class "IORestartUserClient"))
+
+(allow iokit-open
+       (iokit-user-client-class "IOAccelRestartUserClient"))
+
+(allow mach-lookup
+       (global-name "com.apple.SystemConfiguration.configd"))
+
+(allow ipc-posix-shm
+       (ipc-posix-name "apple.shm.notification_center"))

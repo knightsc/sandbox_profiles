@@ -1,0 +1,35 @@
+;;
+;; Spotlight importer - sandbox profile
+;; Copyright (c) 2006-2012 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute 
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice. The contents of this file are also auto-generated and not
+;; user editable; it may be overwritten at any time.
+;;
+
+(version 1)
+(deny default)
+(import "mdworker.sb")
+
+;; Make changes just for Mail importer
+
+;; Allow Mail to read mail messages anywhere
+(allow file-read* (regex #"/Library/Mail(/|$)"))
+(allow file-read* (regex #"\.emlxpart$"))
+
+(if (positive? (string-length (param "_HOME")))
+    (begin
+        (allow file-read* (home-subpath "/Library/Mail"))))
+
+(if (positive? (string-length (param "_LIBRARY")))
+    (begin
+        (allow file-read* (param-subpath "_LIBRARY" "/Mail"))))
+
+(if (positive? (string-length (param "_MAIL")))
+    (begin
+        (allow file-read* (subpath (param "_MAIL")))))
+
+(if (positive? (string-length (param "_MAIL_V2")))
+    (begin
+        (allow file-read* (subpath (param "_MAIL_V2")))))

@@ -1,0 +1,25 @@
+(version 1)
+
+(deny default)
+
+(import "system.sb")
+
+(deny file-write* (regex #"^/cores/"))
+
+(allow file-read-metadata (regex "^/$"))
+(allow file-read-metadata (regex "^/Volumes"))
+(allow file-read-metadata (regex "^/private$"))
+(allow file-read-metadata (regex "^/private/var$"))
+
+(allow file-read-metadata (regex "^/private/var/folders"))
+(allow file-read-data (regex "^/private/var/folders"))
+
+(allow file-write-unlink (regex "^/private/var/folders/[a-zA-Z]+/[_a-zA-Z0-9]+/[CT]/com.apple.IconServices/"))
+
+(allow mach-lookup
+	(global-name "com.apple.CoreServices.coreservicesd"))
+
+(allow mach-lookup 
+	(global-name "com.apple.distributed_notifications@Uv3")
+	(global-name "com.apple.distributed_notifications@1v3"))
+	

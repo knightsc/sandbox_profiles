@@ -1,0 +1,44 @@
+;;
+;; Quick Look Manage - sandbox profile
+;; Copyright (c) 2006-2008 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute 
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice. The contents of this file are also auto-generated and not
+;; user editable; it may be overwritten at any time.
+;;
+
+(version 1)
+(deny default)
+(debug deny)
+
+(allow job-creation
+       (regex #"^/System/Library/Frameworks/QuickLook.framework/Versions/A/Resources/quicklookd(32)?.app/Contents/MacOS/(qlmanage|quicklookd(32)?)$")
+       (regex #"^/System/Library/Frameworks/QTKit.framework/"))
+(allow process-fork)
+
+;; Avoid some Carbon noise
+(allow process-exec)
+
+;; Make sure we can do OpenGL stuff in qlmanage
+(allow iokit-open)
+
+(allow file-fsctl)
+(allow file-ioctl)
+
+(allow file-read* file-write*)
+
+(allow file-issue-extension)
+
+(allow ipc-posix-shm)
+
+(allow mach-lookup)
+(allow mach-per-user-lookup)
+
+(allow network-outbound (to unix-socket))
+(if (defined? 'system-socket)
+    (allow system-socket))
+
+(allow signal (target self))
+
+(allow sysctl*)

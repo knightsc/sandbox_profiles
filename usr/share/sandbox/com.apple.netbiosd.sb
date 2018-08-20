@@ -1,0 +1,80 @@
+; Copyright (c) 2010 Apple Inc. All rights reserved.
+; Sandbox profile for netbiosd.
+
+(version 1)
+(deny default)
+(import "system.sb")
+(import "opendirectory.sb")
+(import "gss-initiator.sb")
+
+(allow file-read-metadata
+    (literal "/usr/sbin")
+    (literal "/usr/sbin/netbiosd")
+)
+
+; Needed for POSIX shared memory pieces like ctime and such
+(allow ipc-posix-shm (ipc-posix-name "apple.shm.notification_center"))
+
+(allow iokit-open (iokit-user-client-class "RootDomainUserClient"))
+
+(allow file-read-data
+       (literal "/usr/sbin/netbiosd")
+       (literal "/private/etc/hosts")
+       (literal "/Library/Preferences/SystemConfiguration/com.apple.smb.server.plist")
+       (regex #"^/System/Library/Frameworks/SystemConfiguration.framework(/|$)")
+       (regex #"^/usr/share/icu/.*$")
+       (regex #"^/usr/share/locale/.*$")
+       (regex #"^/System/Library/CoreServices/Encodings/*.*$")
+       (literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist")
+       (literal "/Library/Preferences/.GlobalPreferences.plist")
+       (literal "/usr/share/zoneinfo/UTC")
+       (literal "/usr/share/zoneinfo/posixrules")
+       (literal "/private/etc/nsmb.conf")
+)
+
+(allow file-read*
+       (literal "/Library/Caches/com.apple.DiagnosticReporting.HasBeenAppleInternal")
+       (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
+)
+
+; Squash logging from CFBundleGetMainBundle.
+(deny file-read-data
+       (literal "/usr/sbin")
+       (with no-log)
+)
+
+(allow file-read*
+       file-write*
+       file-ioctl
+           (regex #"^/dev/nsmb.*$")
+)
+
+(allow mach-lookup
+       (global-name
+             "com.apple.smbfs_load_kext"
+             "com.apple.SystemConfiguration.configd"
+             "com.apple.system.notification_center"
+             "com.apple.system.logger"
+             "com.apple.KernelExtensionServer"
+       )
+)
+
+; network-inbound implies network-bind
+(allow network-inbound (local udp4 "*:*"))
+
+; need to allow outbound calls to any port on IPv4, and only port 445 on IPv6
+(allow network-outbound
+       (literal "/private/var/run/mDNSResponder")
+       (remote tcp "*:139")
+       (remote tcp "*:445")
+       (remote udp "*:137")
+       (remote udp "*:138"))
+
+
+; Netcore's RFC3484 implementation support.
+(allow system-socket (require-all (socket-domain AF_SYSTEM) (socket-protocol 2))) ; SYSPROTO_CONTROL
+(allow network-outbound
+       (control-name "com.apple.network.statistics")
+       (control-name "com.apple.netsrc"))
+       
+(allow system-kext* (kext-bundle-id "com.apple.filesystems.smbfs"))

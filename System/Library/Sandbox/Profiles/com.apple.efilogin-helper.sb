@@ -1,0 +1,23 @@
+(version 1)
+(deny default)
+
+(deny file-write-data (with no-report))
+(deny ipc-posix-shm (with no-report))
+(deny mach-lookup (with no-report))
+
+(import "system.sb")
+(allow file-read-metadata)
+
+(allow file-read*
+       (literal "/Library/Preferences/com.apple.FindMyMac.plist")
+       (literal "/Library/Preferences/com.apple.loginwindow.plist")
+       (subpath "/private/var/root/Library/Preferences")
+       (subpath "/Library/Keyboard Layouts")
+       (subpath "/Library/Input Methods")
+       (subpath "/Library/Components")
+       (subpath "/Library/Preferences")
+       (subpath "/Library/Fonts"))
+
+(allow mach-lookup 
+       (global-name "com.apple.CoreServices.coreservicesd")
+       (global-name "com.apple.windowserver.active"))

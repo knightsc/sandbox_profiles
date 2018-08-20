@@ -1,0 +1,79 @@
+;;
+;; Speech Recognition daemon - sandbox profile
+;; Copyright (c) 2013 Apple Inc. All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice. The contents of this file are also auto-generated and not
+;; user editable; it may be overwritten at any time.
+;;
+
+(version 1)
+(deny default)
+(import "system.sb")
+
+;;; Home Directory
+(define (home-subpath home-relative-subpath)
+    (subpath (string-append (param "_HOME") home-relative-subpath)))
+(define (home-literal home-relative-literal)
+    (literal (string-append (param "_HOME") home-relative-literal)))
+(define (home-regex home-relative-regex)
+    (regex (string-append "^" (regex-quote (param "_HOME")) home-relative-regex)))
+    
+(allow user-preference*
+    (preference-domain "com.apple.SpeechRecognitionCore")
+    (preference-domain "com.apple.ironwood.support"))
+    
+;;; Allow reading files for which we have a read-only app-sandbox extension
+(allow file-read* (extension "com.apple.app-sandbox.read"))
+
+;;; Allow writing of files for which we have an extension
+(allow file-read* file-write* (extension "com.apple.app-sandbox.read-write"))
+    
+;;; Audio
+(allow device-microphone)
+(allow ipc-posix-shm-read*
+       ipc-posix-shm-write-data
+       (ipc-posix-name-regex "^AudioIO"))
+       
+(allow iokit-set-properties
+    (iokit-property "IOAudioControlValue"))
+    
+(allow ipc-posix-shm-read*
+       (ipc-posix-name "apple.shm.notification_center"))
+
+(allow ipc-posix-shm-read*
+       ipc-posix-shm-write-data
+       (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+       
+;;; Allow IPC to standard system agents.
+(allow ipc-posix-shm-read*
+       (ipc-posix-name-regex #"^apple\.shm\.cfprefsd\."))
+
+(allow file-read-metadata)
+
+(allow mach-lookup
+        (global-name "com.apple.audio.audiohald")
+        (global-name "com.apple.audio.coreaudiod")
+        (global-name "com.apple.CoreServices.coreservicesd")
+        (global-name "com.apple.coreservices.launchservicesd")
+        (global-name "com.apple.distributed_notifications@1v3")
+        (global-name "com.apple.distributed_notifications@Uv3"))
+
+(allow iokit-open
+        (iokit-user-client-class "IOAudioControlUserClient")
+        (iokit-user-client-class "IOAudioEngineUserClient"))
+        
+(allow file-read* (home-subpath "/Library/Audio"))
+(allow file-read* (subpath "/Library/Audio"))
+
+(allow file-read* file-write* file-read-metadata
+    (home-subpath "/Library/Caches/com.apple.SpeechRecognitionCore"))
+    
+(allow file-read*
+    (home-literal "/Library/Preferences/.GlobalPreferences.plist")
+    (home-regex "/Library/Preferences/ByHost/\.GlobalPreferences\.")
+    (literal "/Library/Preferences/.GlobalPreferences.plist"))
+    
+;;; Temp Directory
+(allow file-read* file-write* file-read-metadata (subpath (param "_TEMPDIR")))

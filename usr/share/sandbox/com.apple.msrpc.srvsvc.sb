@@ -1,0 +1,24 @@
+; Copyright (c) 2010-2011 Apple Inc. All rights reserved.
+; lsarpc sandbox profile
+
+(version 1)
+(deny default)
+(import "system.sb")
+(import "opendirectory.sb")
+(import "com.apple.corefoundation.sb")
+(corefoundation)
+
+; Squash logging from CFBundleGetMainBundle.
+(deny file-read-metadata
+    (literal "/usr/libexec")
+    (with no-log)
+)
+
+(allow mach-lookup
+       (global-name "com.apple.CoreServices.coreservicesd")
+       (global-name "com.apple.distributed_notifications@1v3")
+       (global-name "com.apple.system.opendirectoryd.api"))
+
+(allow file-read*)
+(allow network-outbound (literal "/private/var/run/cupsd"))
+(allow ipc-posix-shm (ipc-posix-name "apple.shm.notification_center"))

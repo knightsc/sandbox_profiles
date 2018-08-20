@@ -1,0 +1,45 @@
+;;
+;; Quick Look Plug-in - sandbox profile
+;; Copyright (c) 2011 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute 
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice. The contents of this file are also auto-generated and not
+;; user editable; it may be overwritten at any time.
+;;
+
+(version 1)
+(import "quicklook-satellite.sb")
+
+(system-graphics)
+
+;; Plug-in specific extensions
+;; Text
+(preference-read "com.apple.TextEdit")
+(preference-read "pbs")
+(preference-read "com.apple.ServicesMenu.Services")
+
+;; Audio
+(allow file-read* (home-subpath "/Music/iTunes"))
+(allow file-read* (home-subpath "/Library/Audio/Plug-Ins"))
+
+(preference-read "com.apple.iApps")
+
+(allow iokit-open (iokit-user-client-class "IOAudioEngineUserClient"))
+
+;; Movie
+(allow file-read* (home-subpath "/Library/Video/Plug-Ins"))
+
+(preference-read "com.apple.coremedia")
+
+;; EPS
+(allow file-read* file-write* (regex #"^/private/var/folders/.+/com\.apple\.psnormalizer\.fontcache\.[^/]+$"))
+
+;; Web
+(allow file-read* (subpath "/Applications/Safari.app")) ;; to read Safari's icon
+
+(preference-read "com.apple.WebFoundation")
+
+;; QC
+(allow file-read* (home-subpath "/Library/Graphics"))
+(allow file-read* (home-subpath "/Library/Compositions"))

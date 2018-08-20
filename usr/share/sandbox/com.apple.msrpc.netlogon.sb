@@ -1,0 +1,89 @@
+; Copyright (c) 2010-2011 Apple Inc. All rights reserved.
+; NETLOGON sandbox profile
+
+(version 1)
+(deny default)
+(import "system.sb")
+(import "opendirectory.sb")
+(import "gss-initiator.sb")
+(allow signal (target self))
+
+(allow file-read*
+       (literal "/usr/libexec")
+       (literal "/usr/libexec/rpcsvchost"))
+
+; Squash logging from CFBundleGetMainBundle.
+(deny file-read-metadata
+    (literal "/usr/libexec")
+    (with no-log)
+)
+
+(allow network-bind)
+
+(allow network-outbound
+    (literal "/private/var/run/systemkeychaincheck.socket")
+)
+
+(allow file-read-data
+    (literal "/private/etc/hosts")
+    (literal "/Library/Preferences/SystemConfiguration/com.apple.smb.server.plist")
+    (literal "/Library/Preferences/.GlobalPreferences.plist")
+    (regex #"^/Library/Preferences/OpenDirectory/Configurations/Active Directory/.*\.plist")
+    (regex #"^/private/var/db/mds(/.*)?")
+    (literal "/")
+)
+
+(allow file-write-data
+    (literal "/Library/Keychains/System.keychain")
+    (literal "/private/var/db/mds/system/mds.lock")
+)
+
+(allow file-read-metadata
+    (literal "/Library/Keychains/System.keychain")
+    (regex #"^/private/var/db/mds/.*")
+    (literal "/Library")
+    (literal "/")
+    (literal "/private")
+    (literal "/private/var")
+    (literal "/private/var/db")
+    (literal "/private/var/root")
+    (literal "/private/var/root/systemkeychaincheck.done")
+    (literal "/private/var/run/systemkeychaincheck.done")
+    (literal "/Library/Keychains")
+)
+
+(allow mach-lookup
+    (global-name "com.apple.SystemConfiguration.configd")
+    (global-name "com.apple.SecurityServer")
+    (global-name "com.apple.CoreServices.coreservicesd")
+    (global-name-regex #"^com\.apple\.distributed_notifications")
+)
+
+(allow ipc-posix-shm
+    (ipc-posix-name "com.apple.AppleDatabaseChanged")
+    (ipc-posix-name "apple.shm.notification_center")
+)
+
+; The following rules allow us to access and update the machine trust password
+; in the System keychain.
+
+(allow file-read-data
+    (literal "/Library/Keychains/System.keychain")
+    (regex #"^/Library/Keychains/\..*")
+)
+
+(allow file-write-mode
+    (literal "/Library/Keychains/,System.keychain")
+)
+
+(allow file-write-unlink
+    (literal "/Library/Keychains/,System.keychain")
+    (literal "/Library/Keychains/System.keychain")
+)
+
+(allow file-write-create
+    (literal "/Library/Keychains/,System.keychain")
+    (literal "/Library/Keychains/System.keychain")
+)
+
+(allow system-kext* (kext-bundle-id "com.apple.filesystems.smbfs"))

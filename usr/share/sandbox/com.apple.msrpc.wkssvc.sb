@@ -1,0 +1,22 @@
+; Copyright (c) 2012 Apple Inc. All rights reserved.
+; WKSSVC sandbox profile
+
+(version 1)
+(deny default)
+(import "system.sb")
+
+; wkssvc needs configd access since it gets netbios name.
+(allow mach-lookup
+       (global-name
+             "com.apple.smbfs_load_kext"
+             "com.apple.SystemConfiguration.configd"
+             "com.apple.system.notification_center"
+             "com.apple.system.logger"
+             "com.apple.KernelExtensionServer"
+       )
+)
+
+; Needed for POSIX shared memory pieces. eg ctime
+(allow ipc-posix-shm (ipc-posix-name "apple.shm.notification_center")); 
+
+
