@@ -10,6 +10,8 @@
 (version 1)
 (deny default)
 (import "system.sb")
+(import "com.apple.corefoundation.sb")
+(corefoundation)
 
 ;; We must be allowed to obtain any right that an AuthorizationRef we *create* will be asked to obtain, including the
 ;; full set queried by installd. (AuthorizationServices checks the auth creator's sandbox explicitly.)
@@ -19,6 +21,7 @@
        (right-name "system.install.apple-software")
        (right-name "system.install.apple-software.standard-user")
        (right-name "system.install.app-store-software")
+       (right-name "com.apple.softwareupdate.manage_daemon")
        (right-name "system.install.software.iap")
        (right-name "system.install.software"))
 
@@ -63,6 +66,7 @@
        (global-name "com.apple.cfnetwork.cfnetworkagent")
        (global-name "com.apple.distributed_notifications@1v3")
        (global-name "com.apple.installd")
+       (global-name "com.apple.system_installd")
        (global-name "com.apple.networkd")
        (global-name "com.apple.ocspd")
        (global-name "com.apple.softwareupdated")
@@ -77,7 +81,22 @@
        (global-name "com.apple.nsurlsessiond")
        (global-name "com.apple.nsurlstorage-cache")
        (global-name "com.apple.AssetCacheLocatorService")
+       (global-name "com.apple.xpc.activity.control")
+       (global-name "com.apple.dock.server")
+       (global-name "com.apple.dock.fullscreen")
+       (global-name "com.apple.lsd.mapdb")
+       (global-name "com.apple.lsd.modifydb")
        (global-name "com.apple.softwareupdate_download_service"))
+
+;; from application.sb
+(allow system-fsctl
+       (fsctl-command (_IO "h" 24))
+       (fsctl-command (_IO "h" 30))
+       (fsctl-command (_IO "h" 31))
+       (fsctl-command (_IO "h" 32))
+       (fsctl-command (_IO "z" 12))
+       (fsctl-command (_IO "z" 19))
+       (fsctl-command (_IO "z" 23)))
 
 (allow mach-per-user-lookup)
 

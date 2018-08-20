@@ -1,0 +1,88 @@
+(version 1)
+(import "system.sb")
+
+(define (home-subpath home-relative-subpath)
+        (subpath (string-append (param "_HOME") home-relative-subpath)))
+(define (home-literal home-relative-literal)
+        (literal (string-append (param "_HOME") home-relative-literal)))
+
+(allow file-read* file-write*
+    (home-subpath "/Library/Suggestions")
+    (home-subpath "/Library/Metadata/com.apple.IntelligentSuggestions")
+    (home-literal "/Library/SyncedPreferences/com.apple.CoreSuggestions.plist")
+    (home-literal "/Library/Keychains/login.keychain") ;; Security.framework
+    (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/") ;; Security.framework
+    (subpath (param "_TMPDIR")) ;; AddressBook lock, SQLite
+    (mount-relative-regex "^/\\.TemporaryItems(/|$)") ;; NSData atomic write
+    (home-subpath "/Library/Calendars") ;; EventKit
+    (home-subpath "/Library/Application Support/AddressBook") ;; this needs to be r/w even if we only read: <rdar://problem/20454859>
+)
+
+(allow file-write-create
+    (home-literal "/Library/Metadata")
+)
+
+(allow file-read*
+    (literal "/Library/Keychains/System.keychain") ;; Security.framework
+    (literal "/private/var/db/mds/messages/se_SecurityMessages") ;; Security.framework
+    (literal "/private/var/db/mds/system/mdsObject.db") ;; Security.framework
+    (literal "/private/var/db/mds/system/mdsDirectory.db") ;; Spotlight
+    (home-literal "/Library/Application Support/SyncServices/Local/SyncingClients.plist") ;; EventKit
+    (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains") ;; MessageTracer
+)
+
+(allow file-read* file-write*
+    (literal "/private/var/db/mds/system/mds.lock") ;; Security.framework
+)
+
+(allow mach-lookup
+    (global-name "com.apple.accountsd.accountmanager") ;; EventKit
+    (global-name "com.apple.AddressBook.abd")
+    (global-name "com.apple.AddressBook.AddressBookApplicationFrameworkIPC")
+    (global-name "com.apple.AddressBook.SourceSync")
+    (global-name "com.apple.CalendarAgent")
+    (global-name "com.apple.CalendarAgent.database")
+    (global-name "com.apple.CalendarAgent.proxy")
+    (global-name "com.apple.coreduetd") ;; SGDPowerBudget
+    (global-name "com.apple.CoreServices.coreservicesd") ;; apparently needed by -[NSURL getResourceValue:forKey:error:]
+    (global-name "com.apple.DiskArbitration.diskarbitrationd") ;; NSData atomic write
+    (global-name "com.apple.distributed_notifications@Uv3")
+    (global-name "com.apple.corerecents.recentsd") ;; for significant pseudo-contacts
+    (global-name "com.apple.reversetemplated")
+    (global-name "com.apple.rtcreportingd")
+    (global-name "com.apple.SecurityServer") ;; Security.framework
+    (global-name "com.apple.syncdefaultsd")
+    (global-name "com.apple.system.opendirectoryd.api") ;; AddressBook.framework
+    (global-name "com.apple.tccd"))
+
+(allow file-read-metadata
+    (literal "/Library/Caches/com.apple.DiagnosticReporting.HasBeenAppleInternal"))
+
+;; See <rdar://problem/21827956>
+;; We can't use shared-preferences-read as it's only defined in application.sb
+(allow user-preference-read (preference-domain "com.apple.security"))
+(allow file-read* (home-literal "/Library/Preferences/com.apple.security.plist"))
+(allow file-read* (literal "/Library/Preferences/com.apple.security.plist"))
+(allow user-preference-read (preference-domain "com.apple.security.revocation"))
+(allow file-read* (home-literal "/Library/Preferences/com.apple.security.revocation.plist"))
+(allow file-read* (literal "/Library/Preferences/com.apple.security.revocation.plist"))
+
+;;; Homedir readable paths
+(allow file-read* (home-literal "/.CFUserTextEncoding"))
+
+
+(allow file-read-metadata) ;; :-( see <rdar://problem/18320786>
+
+(allow distributed-notification-post) ;; AddressBook is posting notifications when doing [ABAddressBook sharedAddressBook]
+
+(allow ipc-posix-shm-read* ipc-posix-shm-write-data
+    (ipc-posix-name "com.apple.AppleDatabaseChanged") ;; Security.framework
+)
+
+(allow system-fsctl ; <rdar://problem/20724399>
+    (fsctl-command (_IO "h" 47)) ; HFSIOC_SET_HOTFILE_STATE
+    (fsctl-command (_IO "z" 23)) ; afpfsByteRangeLock2FSCTL
+)
+
+;; <rdar://problem/22190886> suggestd(2678) deny file-read-data /Users/kvv/Library/Caches/GeoServices/networkDefaults.plist
+(allow file-read* (home-subpath "/Library/Caches/GeoServices"))

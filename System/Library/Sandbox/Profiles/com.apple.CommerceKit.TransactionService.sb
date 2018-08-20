@@ -9,7 +9,8 @@
 
 (allow file-issue-extension
        (subpath "/Library/Documentation/Help/MacHelp.help")
-       (regex #"[a-z0-9]+\.app(/|$)"))
+       (regex #"[a-z0-9]+\.app(/|$)")
+       (regex #"/Library/Caches/com.apple.CommerceKit.TransactionService"))
 
 (allow file-read*
    (regex #"\.app(/|$)")
@@ -96,8 +97,11 @@
        (global-name "com.apple.softwareupdated")
        (global-name "com.apple.SystemConfiguration.configd")
        (global-name "com.apple.storeassetd")
+       (global-name "com.apple.storeassetd.daemon")
        (global-name "com.apple.storeaccountd")
+       (global-name "com.apple.storeaccountd.daemon")
        (global-name "com.apple.storedownloadd")
+       (global-name "com.apple.storedownloadd.daemon")
        (global-name "com.apple.storeainappd")
        (global-name "com.apple.storeuid")
        (global-name "com.apple.storeagent.pushservice-xpc")
@@ -131,7 +135,9 @@
 	   (global-name "com.apple.coreservices.quarantine-resolver")
        (global-name "com.apple.familycontrols")
        (global-name "com.apple.askpermissiond")
-       (global-name "com.apple.cfnetwork.AuthBrokerAgent"))
+       (global-name "com.apple.CrashReporterSupportHelper")
+       (global-name "com.apple.cfnetwork.AuthBrokerAgent")
+       (global-name "com.apple.nsurlstorage-cache"))
 
 (allow authorization-right-obtain
        (right-name "system.install.app-store-software")

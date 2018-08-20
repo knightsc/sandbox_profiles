@@ -4,9 +4,11 @@
 
 (import "system.sb")
 
+(deny process-info*)
 (deny file-write* (subpath #"/cores"))
+(deny file-write* (literal "/private/var/empty/Library") (with no-log))
 
-(allow file-write* (literal "/private/var/empty/Library"))
+(allow process-info-dirtycontrol)
 
 (allow file-read-metadata (literal "/"))
 (allow file-read-metadata (literal "/Volumes"))
@@ -19,7 +21,10 @@
 (allow file-read* (literal "/Library/Preferences/.GlobalPreferences.plist"))
 
 (define (apply-write-and-issue-extension op path-filter)
-	(op file-write* path-filter)
+	(op file-write-create path-filter)
+	(op file-write-data path-filter)
+	(op file-write-unlink path-filter)
+	(op file-write-mode)
 	(op file-read* path-filter)
 	(op file-issue-extension (require-all (extension-class "com.apple.app-sandbox.read") path-filter)))
 
@@ -27,12 +32,13 @@
 	(subpath (param "STORE_PATH")))
 
 (allow mach-lookup
-	(global-name "com.apple.CoreServices.coreservicesd"))
+	(global-name "com.apple.CoreServices.coreservicesd")
+	(global-name "com.apple.lsd.mapdb"))
 
 (allow mach-lookup 
 	(global-name "com.apple.distributed_notifications@Uv3")
 	(global-name "com.apple.distributed_notifications@1v3"))
-	
+
 (allow ipc-posix-shm-read* (ipc-posix-name-regex #"^/tmp/com\.apple\.csseed\."))
 
 ;; FIXME: Should be removed after <rdar://problem/10463881> is fixed.

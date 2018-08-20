@@ -70,9 +70,10 @@
        (subpath (string-append (param "_APP_SUPPORT") "/Ubiquity"))
        (subpath (param "_CACHE"))
        (subpath (param "_ROOT"))
-       (regex (string-append "^" (regex-quote (param "_ROOT")) "\.")) ;; <rdar://problem/16981507>
+       (regex (string-append "^" (regex-quote (param "_ROOT")) #"\.")) ;; <rdar://problem/16981507>
        (subpath (param "_TMP"))
        (literal (string-append (param "_HOME") "/Library/Caches")) ;; <rdar://problem/16784836>
+       (literal (string-append (param "_HOME") "/Library/Caches/CloudKit")) ;; <rdar://problem/23748070>
        (subpath (string-append (param "_HOME") "/Library/Caches/CloudKit/com.apple.clouddocs"))
        (subpath (string-append (param "_HOME") "/Library/Caches/CloudKit/com.apple.bird"))
        (subpath (string-append (param "_HOME") "/Library/Caches/com.apple.ubd"))
@@ -82,8 +83,6 @@
        (subpath (string-append (param "_HOME") "/Library/Caches/CloudKit/com.apple.cloudd"))
        ;; <rdar://problem/17536698> nsurlsessiond cache
        (home-subpath "/Library/Caches/com.apple.nsurlsessiond/Downloads/com.apple.bird")
-       ;; <rdar://problem/19800994> failing to accept a share - stuck at Connecting to iCloud
-       (subpath (string-append (param "_APP_SUPPORT") "/AddressBook"))
 )
 
 ;;; Revisiond client (stolen from iOS, should go to GS framework.sb eventually)
@@ -138,6 +137,7 @@
 
 (preference-read ".GlobalPreferences")
 (preference-read "com.apple.bird")
+(preference-read "com.apple.mmcs")
 (preference-read "com.apple.CloudKit.BehaviorOptions")
 (preference-read "com.apple.DebugSymbols")
 (preference-read "com.apple.security.revocation")
@@ -168,6 +168,8 @@
        (global-name "com.apple.windowserver.active")
        (global-name "com.apple.UNCUserNotification")
        (global-name "com.apple.coreservices.quarantine-resolver")
+       (global-name "com.apple.DiskArbitration.diskarbitrationd")
+       (global-name "com.apple.cache_delete")
 ;; IOPMConnectionGetSystemCapabilities
        (global-name "com.apple.PowerManagement.control")
 ;; CloudKit
@@ -183,6 +185,8 @@
 ;; OS X only: NSURL bookmarkDataWithOptions calls LaunchServices which calls IconServices rdar://17761890
 	(global-name "com.apple.iconservices")
 	(global-name "com.apple.iconservices.store")
+;; OS X only: LaunchServices brings lsd to OS X (see 19378357)
+       (global-name "com.apple.lsd.mapdb")
 ;; aps
        (global-name "com.apple.apsd")
 ;; core duet
@@ -198,6 +202,13 @@
        (global-name "com.apple.nsurlsessiond")
        (global-name "com.apple.securityd.xpc")
        (global-name "com.apple.accountsd.accountmanager")
+       (global-name "com.apple.usernoted.client")
+;; SFL <rdar://problem/20117921>
+        (global-name "com.apple.coreservices.sharedfilelistd.xpc")
+        (global-name "com.apple.coreservices.sharedfilelistd.mig")
+        (global-name "com.apple.coreservices.sharedfilelistd.async-mig")
+;; LS Register App <rdar://problem/20454752>
+        (global-name "com.apple.lsd.modifydb")
 )
 
 ;; from application.sb

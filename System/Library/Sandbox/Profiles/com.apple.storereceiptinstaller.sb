@@ -19,7 +19,8 @@
        (literal "/Library/Preferences/com.apple.storeagent.plist")
        (literal "/Library/Preferences/com.apple.commerce.plist")
        (regex #"/Contents/_MASReceipt$")
-       (regex #"/Contents/_MASReceipt/receipt(\.saved)?$"))
+       (regex #"/Contents/_MASReceipt/receipt(\.saved)?$")
+       (subpath "/System/Library/Caches/com.apple.receiptInstaller"))
 
 ;; App deletion and placeholder management
 (allow file-read* file-write*

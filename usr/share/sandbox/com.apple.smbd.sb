@@ -14,6 +14,9 @@
 
 (allow process-exec (literal "/usr/sbin/smbd"))
 
+; Allow smbd to register for power event notification
+(allow iokit-open (iokit-user-client-class "RootDomainUserClient"))
+
 (allow ipc-posix-shm (ipc-posix-name "apple.shm.notification_center"))
 
 (allow mach-lookup

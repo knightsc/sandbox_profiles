@@ -23,5 +23,10 @@
 
 (allow mach-lookup
         (global-name "com.apple.DuetHeuristic-thermald")
-        (global-name "com.apple.coreservices.launchservicesd"))
+        (global-name "com.apple.coreservices.launchservicesd")
+        (global-name "com.apple.metadata.mds")
+        (global-name "com.apple.coreduetd.knowledge")
+        (global-name "com.apple.coreduetd.people")
+        (global-name "com.apple.coreduetd.knowledgebase")
+        (global-name "com.apple.coreduetd.batterysaver"))
 

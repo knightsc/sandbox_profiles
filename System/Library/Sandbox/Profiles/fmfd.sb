@@ -6,89 +6,279 @@
 (system-network)
 
 (define (home-regex home-relative-regex)
-       (regex (string-append "^" (regex-quote (param "_HOME")) home-relative-regex)))
+(regex (string-append "^" (regex-quote (param "_HOME")) home-relative-regex)))
 (define (home-subpath home-relative-subpath)
-       (subpath (string-append (param "_HOME") home-relative-subpath)))
+(subpath (string-append (param "_HOME") home-relative-subpath)))
 (define (home-literal home-relative-literal)
-       (literal (string-append (param "_HOME") home-relative-literal)))
+(literal (string-append (param "_HOME") home-relative-literal)))
 
 (allow file-issue-extension
-       (home-literal "/Library/Caches/com.apple.icloud.fmfd"))
+(home-literal "/Library/Caches/com.apple.icloud.fmfd"))
 
+(allow distributed-notification-post)
+
+(allow process-exec*)
+
+(allow process-fork)
+
+(allow lsopen)
+;
+(define entitlement-legacy-names
+'(("com.apple.security.device.microphone" "com.apple.security.microphone")
+("com.apple.security.device.camera" "com.apple.security.camera")
+("com.apple.security.personal-information.addressbook"
+"com.apple.security.addressbook")
+("com.apple.security.personal-information.calendars"
+"com.apple.security.calendars")
+("com.apple.security.personal-information.location"
+"com.apple.security.location")
+("com.apple.security.files.user-selected.read-only"
+"com.apple.security.documents.user-selected.read"
+"com.apple.security.files.user-selected.read")
+("com.apple.security.files.user-selected.read-write"
+"com.apple.security.documents.user-selected.read-write")))
+(macro (with-filter form)
+(let* ((ps (cdr form)) (extra-filter (car ps)) (rules (cdr ps)))
+`(letrec ((collect
+(lambda (l filters non-filters)
+(if (null? l)
+(list filters non-filters)
+(let* ((x (car l)) (rest (cdr l)))
+(if (and (list? x) (eq? (car x) 'filter))
+(collect rest (cons x filters) non-filters)
+(collect rest filters (cons x non-filters)))))))
+(inject-filter
+(lambda args
+(let* ((collected (collect args '() '()))
+(filters (car collected))
+(non-filters (cadr collected)))
+(if (null? filters)
+(cons ,extra-filter non-filters)
+(cons (require-all
+(apply require-any filters)
+,extra-filter)
+non-filters)))))
+(orig-allow allow)
+(orig-deny deny)
+(wrapper
+(lambda (action)
+(lambda args
+(apply action (apply inject-filter args))))))
+(set! allow (wrapper orig-allow))
+(set! deny (wrapper orig-deny))
+,@rules
+(set! deny orig-deny)
+(set! allow orig-allow))))
+(define (%string-split separator str)
+(let split-loop ((unprocessed (reverse (string->list str)))
+(processing (list))
+(processed (list)))
+(cond ((null? unprocessed) (map list->string (cons processing processed)))
+((char=? separator (car unprocessed))
+(split-loop (cdr unprocessed) (list) (cons processing processed)))
+(else
+(split-loop
+(cdr unprocessed)
+(cons (car unprocessed) processing)
+processed)))))
+(define (%string-prefix? pattern str)
+(let loop ((i 0))
+(cond ((>= i (string-length pattern)) #t)
+((>= i (string-length str)) #f)
+((char=? (string-ref pattern i) (string-ref str i)) (loop (+ i 1)))
+(else #f))))
+(define (sandbox-array-entitlement name fun)
+(let ((ls (entitlement name)))
+(cond ((list? ls) (for-each (lambda (x) (if (string? x) (fun x))) ls))
+((string? ls) (fun ls)))))
+(define (apply-read-and-issue-extension op path-filter)
+(op file-read* path-filter)
+(op file-issue-extension
+(require-all
+(extension-class "com.apple.app-sandbox.read")
+path-filter)))
+(define (apply-write-and-issue-extension op path-filter)
+(op file-write* path-filter)
+(op file-issue-extension
+(require-all
+(extension-class "com.apple.app-sandbox.read-write")
+path-filter)))
+(define (read-only-and-issue-extensions path-filter)
+(apply-read-and-issue-extension allow path-filter))
+(define (read-write-and-issue-extensions path-filter)
+(apply-read-and-issue-extension allow path-filter)
+(apply-write-and-issue-extension allow path-filter))
+(define (allow-read-directory-contents path)
+(if path (apply-read-and-issue-extension allow (subpath path))))
+(define (allow-read-write-directory-contents path)
+(if path
+(begin
+(apply-read-and-issue-extension allow (subpath path))
+(apply-write-and-issue-extension
+allow
+(regex (string-append "^" (regex-quote path) "/")))
+(allow file-write-create
+file-write-data
+(require-all (vnode-type DIRECTORY) (literal path))))))
+(define resolving-literal literal)
+(define resolving-subpath subpath)
+(define resolving-regex regex)
+(define (protect-redirected-paths))
+(define (protect-redirectable-paths))
+(macro (with-transparent-redirection rules)
+`(let ((literal resolving-literal)
+(subpath resolving-subpath)
+(regex resolving-regex))
+,@rules))
+(define (home-regex home-relative-regex)
+(resolving-regex
+(string-append "^" (regex-quote (param "_HOME")) home-relative-regex)))
+(define regex-home home-regex)
+(define (home-subpath home-relative-subpath)
+(resolving-subpath (string-append (param "_HOME") home-relative-subpath)))
+(define (home-literal home-relative-literal)
+(resolving-literal (string-append (param "_HOME") home-relative-literal)))
+(define (container-regex container-relative-regex)
+(resolving-regex
+(string-append
+"^"
+(regex-quote (param "application_container"))
+container-relative-regex)))
+(define (container-subpath container-relative-subpath)
+(resolving-subpath
+(string-append
+(param "application_container")
+container-relative-subpath)))
+(define (container-literal container-relative-literal)
+(resolving-literal
+(string-append
+(param "application_container")
+container-relative-literal)))
+;
+
+(begin
+(allow distributed-notification-post)
+(with-filter
+(extension "com.apple.tcc.kTCCServiceAddressBook")
+(allow mach-lookup
+(global-name
+"com.apple.AddressBook.AddressBookApplicationFrameworkIPC")
+(global-name "com.apple.AddressBook.SourceSync")
+(global-name "com.apple.AddressBook.AssistantService")
+(global-name "com.apple.AddressBook.abd"))
 (allow file-read*
-       (home-literal "/Library/Preferences/.GlobalPreferences.plist")
-       (home-literal "/Library/Preferences/com.apple.GEO.plist")
-       (home-literal "/Library/Preferences/com.apple.logging.plist")
-       (home-literal "/Library/Preferences/com.apple.icloud.fmfd.plist")
-       (home-literal "/Library/Preferences/MobileMeAccounts.plist")
-       (home-literal "/Library/Preferences/com.apple.security.revocation.plist")
-       (home-literal "/Library/Caches/GeoServices/ActiveTileGroup.pbd")
-       (home-literal "/Library/Caches/GeoServices/networkDefaults.plist")
-       (home-literal "/Library/Caches/com.apple.icloud.fmfd/Cache.db")
-       (home-literal "/Library/Keychains/login.keychain")
+file-write*
+(home-subpath "/Library/Application Support/AddressBook"))
+(allow-read-write-directory-contents
+(param "application_addressbook_lock_dir"))
+(read-write-and-issue-extensions (home-subpath "/Library/Images/People"))
+(read-only-and-issue-extensions
+(require-any
+(subpath "/Library/Images/People")
+(subpath "/System/Library/Images/People")
+(subpath "/Network/Library/Images/People")))))
+(allow file-read*
+(home-literal "/Library/Preferences/.GlobalPreferences.plist")
+(home-literal "/Library/Preferences/com.apple.GEO.plist")
+(home-literal "/Library/Preferences/com.apple.logging.plist")
+(home-literal "/Library/Preferences/com.apple.icloud.fmfd.plist")
+(home-literal "/Library/Preferences/MobileMeAccounts.plist")
+(home-literal "/Library/Preferences/com.apple.security.revocation.plist")
+(home-literal "/Library/Caches/GeoServices/ActiveTileGroup.pbd")
+(home-literal "/Library/Caches/GeoServices/networkDefaults.plist")
+(home-literal "/Library/Caches/com.apple.icloud.fmfd")
+(home-literal "/Library/Caches/com.apple.icloud.fmfd/Cache.db")
+(home-literal "/Library/Keychains/login.keychain")
+(home-literal "/Library/Preferences/com.apple.security.plist")
+(home-literal "/Library/Application Support/AddressBook")
+(home-literal "/Library/Preferences/com.apple.AddressBook.plist")
+(home-literal "/Library/Application Support/AddressBook/Configuration.plist")
 
-       (literal "/Library/Keychains/System.keychain")
-       (literal "/Library/Preferences/com.apple.security.plist")
-       (literal "/Library/Preferences/.GlobalPreferences.plist")
-       (literal (string-append "/Library/Managed Preferences/" (param "_USER") "/.GlobalPreferences.plist"))
-       (literal (string-append "/Library/Managed Preferences/" (param "_USER") "/com.apple.logging.plist"))
-       (literal "/Library/Managed Preferences/com.apple.logging.plist")
-       (literal "/Library/Managed Preferences/.GlobalPreferences.plist")
-       (literal "/private/var/db/DetachedSignatures")
-       (literal "/private/var/db/mds/messages/se_SecurityMessages")
-       (literal "/private/var/db/mds/system/mdsDirectory.db")
-       (literal "/private/var/db/mds/system/mdsObject.db")
-       (literal "/usr/libexec")
-       (literal "/usr/libexec/fmfd")
-       (literal "/usr/libexec/fmfd/..namedfork/rsrc")
+(literal "/")
+(literal "/Users/local/Library/Caches/com.apple.icloud.fmfd")
+(literal "/Library/Keychains/System.keychain")
+(literal "/Library/Preferences/com.apple.security.plist")
+(literal "/Library/Preferences/.GlobalPreferences.plist")
+(literal (string-append "/Library/Managed Preferences/" (param "_USER") "/.GlobalPreferences.plist"))
+(literal (string-append "/Library/Managed Preferences/" (param "_USER") "/com.apple.logging.plist"))
+(literal "/Library/Managed Preferences/com.apple.logging.plist")
+(literal "/Library/Managed Preferences/.GlobalPreferences.plist")
+(literal "/private/var/db/DetachedSignatures")
+(literal "/private/var/db/mds/messages/se_SecurityMessages")
+(literal "/private/var/db/mds/system/mdsDirectory.db")
+(literal "/private/var/db/mds/system/mdsObject.db")
+(literal "/usr/libexec")
+(literal "/usr/libexec/fmfd")
+(literal "/usr/libexec/fmfd/..namedfork/rsrc")
+(literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
 
-       (home-regex #"/Library/Keychains/\.[\w]*")
-       (home-regex #"/Library/Preferences/ByHost/\.GlobalPreferences\.[-\w.]*")
-       (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsDirectory\.db$")
-       (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsObject\.db$")
-       (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mds\.lock$"))
+(home-regex #"/Library/Keychains/\.[\w]*")
+(home-regex #"/Library/Preferences/ByHost/\.GlobalPreferences\.[-\w.]*")
+(home-regex #"/Library/Application Support/AddressBook/.*")
+(regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsDirectory\.db$")
+(regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsObject\.db$")
+(regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mds\.lock$")
+(regex #"^/private/var/folders/[^/]+/[^/]+/T/\.AddressBookLocks.*"))
 
 (allow file-read-metadata)
 
 (allow file-write*
-       (literal "/Users/local/Library/Caches/com.apple.icloud.fmfd")
-       (home-literal "/Library/Keychains/login.keychain")
-       (home-literal "/Library/Logs/com.apple.icloud.fmfd.log")
-       (home-literal "/Library/Preferences/com.apple.icloud.fmfd.plist")
-       (regex (string-append "^" (param "_HOME") #"/Library/Keychains/login\.keychain\.sb-[-\w]*"))
-       (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsDirectory\.db$")
-       (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsDirectory\.db_$")
-       (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsObject\.db$")
-       (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsObject\.db_$"))
+(literal "/Users/local/Library/Caches/com.apple.icloud.fmfd")
+(home-literal "/Library/Keychains/login.keychain")
+(home-literal "/Library/Logs/com.apple.icloud.fmfd.log")
+(home-literal "/Library/Preferences/com.apple.icloud.fmfd.plist")
+(home-literal "/Library/Caches/com.apple.icloud.fmfd")
+(regex (string-append "^" (param "_HOME") #"/Library/Keychains/login\.keychain\.sb-[-\w]*"))
+(regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsDirectory\.db$")
+(regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsDirectory\.db_$")
+(regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsObject\.db$")
+(regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsObject\.db_$")
+(regex #"^/private/var/folders/[^/]+/[^/]+/T/com.apple.scheduler.lock")
+(regex #"^/private/var/folders/[^/]+/[^/]+/T/\.AddressBookLocks.*"))
 
 (allow file-write-data
-       (home-literal "/Library/Caches/com.apple.icloud.fmfd/Cache.db")
-       (home-literal "/Library/Logs/com.apple.icloud.fmfd.log")
-       (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mds\.lock$"))
+(home-literal "/Library/Caches/com.apple.icloud.fmfd/Cache.db")
+(home-literal "/Library/Logs/com.apple.icloud.fmfd.log")
+(regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mds\.lock$"))
 
 (allow ipc-posix-shm-read-data
-       (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+(ipc-posix-name "com.apple.AppleDatabaseChanged"))
 
 (allow ipc-posix-shm-write-data
-       (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+(ipc-posix-name "com.apple.AppleDatabaseChanged"))
 
 (allow mach-lookup
-       (global-name "com.apple.CoreServices.coreservicesd")
-       (global-name "com.apple.SecurityServer")
-       (global-name "com.apple.SystemConfiguration.SCNetworkReachability")
-       (global-name "com.apple.apsd")
-       (global-name "com.apple.cmfsyncagent.auth")
-       (global-name "com.apple.cookied")
-       (global-name "com.apple.coreservices.launchservicesd")
-       (global-name "com.apple.distributed_notifications@Uv3")
-       (global-name "com.apple.marco")
-       (global-name "com.apple.networkd")
-       (global-name "com.apple.nsurlstorage-cache")
-       (global-name "com.apple.ocspd")
-       (global-name "com.apple.windowserver.active"))
+(global-name "com.apple.system.opendirectoryd.api")
+(global-name "com.apple.coreservices.quarantine-resolver")
+(global-name "com.apple.UNCUserNotification")
+(global-name "com.apple.icloud.fmfd")
+(global-name "com.apple.logind")
+(global-name "com.apple.identityservicesd.desktop.auth")
+(global-name "com.apple.CoreServices.coreservicesd")
+(global-name "com.apple.SecurityServer")
+(global-name "com.apple.SystemConfiguration.SCNetworkReachability")
+(global-name "com.apple.apsd")
+(global-name "com.apple.cmfsyncagent.auth")
+(global-name "com.apple.cookied")
+(global-name "com.apple.coreservices.launchservicesd")
+(global-name "com.apple.distributed_notifications@Uv3")
+(global-name "com.apple.marco")
+(global-name "com.apple.networkd")
+(global-name "com.apple.nsurlstorage-cache")
+(global-name "com.apple.ocspd")
+(global-name "com.apple.windowserver.active")
+(global-name "com.apple.tccd")
+(global-name "com.apple.ak.anisette.xpc")
+(global-name "com.apple.AddressBook.SourceSync")
+(global-name "com.apple.AddressBook.AddressBookApplicationFrameworkIPC")
+(global-name "com.apple.lsd.mapdb"))
+
+(allow iokit-open
+(iokit-user-client-class "RootDomainUserClient"))
 
 (allow network-outbound
-       (literal "/private/var/run/mDNSResponder")
-       (remote tcp "*:443")
-       (remote tcp "*:8888"))
+(literal "/private/var/run/mDNSResponder")
+(remote tcp "*:443")
+(remote tcp "*:8888")
+(remote tcp "*:80"))
 

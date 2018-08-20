@@ -23,4 +23,6 @@
        (literal "/private/var/db/SUPrefOverrides.plist")
        (regex #"/.GlobalPreferences[^/]*\.plist")
        (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
-       (literal "/Library/Caches/com.apple.DiagnosticReporting.HasBeenAppleInternal"))
+       (literal "/Library/Caches/com.apple.DiagnosticReporting.HasBeenAppleInternal")
+       (subpath "/Library/Bundles"))
+

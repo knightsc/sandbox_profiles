@@ -10,3 +10,21 @@
 ;; this is not active yet due to debugging issues
 (deny default (no-callout))
 (import "system.sb")
+
+(deny mach-lookup
+    (global-name "com.apple.CoreServices.coreservicesd")
+    (with no-log)
+)
+
+;; restrict where we write
+(allow file-write*
+    ;; current trace files
+    (regex
+        #"^(/private)?/var/db/diagnostics(/|$)"
+    )
+
+    ;; additional required
+    (literal "/dev/dtracehelper")
+    (literal "/dev/null")
+    (literal "/dev/random")
+)

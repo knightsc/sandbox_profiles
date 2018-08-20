@@ -11,26 +11,6 @@
 
 (deny default)
 (debug deny)
+(import "system.sb")
 
-(allow signal)
-
-(allow file-read*)
-
-(allow file-write*
-       (subpath "/System/Library/Fonts")
-       (subpath "/System/Library/Fonts (Removed)")
-       (subpath "/Library/Fonts")
-       (subpath "/Library/Fonts (Removed)"))
-
-(allow file-issue-extension)
-
-(allow ipc-posix-shm)
-
-(allow mach-lookup)
-
-(allow sysctl-read)
-
-(allow authorization-right-obtain
-       (right-name "com.apple.XType.fontmover.install")
-       (right-name "com.apple.XType.fontmover.restore")
-       (right-name "com.apple.XType.fontmover.remove"))
+(import "fontmoverinternal.sb")

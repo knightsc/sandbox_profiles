@@ -1,0 +1,26 @@
+(version 1)
+
+(import "system.sb")
+
+(deny default iokit-get-properties process-info*)
+
+(deny process-info*)
+(allow process-info-pidinfo)
+(allow process-info-pidfdinfo (target self))
+(allow process-info-pidfileportinfo (target self))
+(allow process-info-setcontrol (target self))
+(allow process-info-dirtycontrol (target self))
+(allow process-info-rusage (target self))
+
+(allow file-read-metadata file-read-data (literal "/"))
+(allow file-read-metadata)
+
+(allow authorization-right-obtain (right-name "system.colorsync.install.profile"))
+
+(allow file-read* file-write-data file-write-create file-write-unlink file-write-owner (subpath "/Library/ColorSync/Profiles"))
+(deny file-write-data file-write-create file-write-unlink file-write-owner (literal "/Library/ColorSync/Profiles"))
+
+(allow file-write-create
+   (require-all
+      (vnode-type DIRECTORY)
+      (literal "/Library/ColorSync/Profiles" "/Library/ColorSync" "/Library")))

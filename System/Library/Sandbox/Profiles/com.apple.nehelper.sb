@@ -44,7 +44,9 @@
 	(global-name "com.apple.ocspd")
 	(global-name "com.apple.networking.captivenetworksupport")
 	(global-name "com.apple.SystemConfiguration.helper")
-	(global-name "com.apple.metadata.mds"))
+	(global-name "com.apple.metadata.mds")
+	(global-name "com.apple.UNCUserNotification")
+	(global-name "com.apple.DiskArbitration.diskarbitrationd"))
 
 (allow sysctl-read)
 
@@ -69,3 +71,6 @@
 
 (allow authorization-right-obtain
  	(right-name "system.services.systemconfiguration.network"))
+
+(allow system-fsctl
+	(fsctl-command (_IO "h" 47)))    ; HFSIOC_SET_HOTFILE_STATE

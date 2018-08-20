@@ -1,0 +1,148 @@
+;;
+;; fontd - internal sandbox profile
+;; Copyright 2015 Apple, Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice.
+;;
+;;
+
+(import "com.apple.fontd.support.sb")
+
+(allow sysctl-write (sysctl-name "vfs.generic.noremotehang"))
+
+(allow ipc-posix-shm (ipc-posix-name "apple.shm.notification_center"))
+
+(allow iokit-open (iokit-user-client-class "RootDomainUserClient"))
+
+(allow distributed-notification-post)
+
+(allow mach-per-user-lookup)
+
+(allow mach-lookup
+    (global-name "com.apple.FSEvents")
+    (global-name "com.apple.FontWorker")
+    (global-name "com.apple.FontWorker.ATS")
+    (global-name-regex #"^com\.apple\.FontObjectsServer.*")
+    (global-name "com.apple.SystemConfiguration.PPPController")
+    (global-name "com.apple.SystemConfiguration.SCNetworkReachability")
+    (global-name "com.apple.DiskArbitration.diskarbitrationd")
+    (global-name "com.apple.SystemConfiguration.configd")
+    (global-name "com.apple.CoreServices.coreservicesd")
+    (global-name "com.apple.distributed_notifications@Uv3")
+    (global-name "com.apple.distributed_notifications@1v3")
+    (global-name "com.apple.SystemConfiguration.configd")
+    (global-name "com.apple.lsd.mapdb")
+)
+
+(allow file-read*
+    (literal "/Library/Dictionaries") ;; icu
+    (subpath "/Library/Managed Preferences")
+)
+
+(deny file-write*
+    (literal "/private/var/empty/Library")
+    (with no-log)
+)
+
+(allow mach-register
+    (global-name-regex #"^com\.apple\.FontObjectsServer.*")
+    (global-name "com.apple.FontObjectsServer_VALIDATOR_%V")
+)
+
+(allow process-fork)
+
+(allow process-exec* (with no-sandbox) (literal "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/Support/ATSServer"))
+(allow process-exec* (with no-sandbox) (literal "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/Support/genatsdb"))
+(allow process-exec* (with no-sandbox) (literal "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/Support/fontmover"))
+(allow process-exec* (with no-sandbox) (literal "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/Support/fontworker"))
+(allow process-exec* (literal "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/Support/fontd"))
+
+; File system access
+
+(define (allow-read-access-and-issue-extensions path)
+    (allow file-read*
+        (require-all
+            (subpath path)
+            (font-file-or-directory)
+        )
+    )
+    (allow file-read-metadata (subpath path))
+    (allow file-issue-extension
+        (require-all
+            (subpath path)
+;           XType needs to vend a named extension
+;           (extension-class "com.apple.app-sandbox.read")
+        )
+    )
+)
+
+(define (allow-read-write-access-and-issue-extensions path)
+    (allow file-read*
+        (require-all
+            (subpath path)
+            (font-file-or-directory)
+        )
+    )
+    (allow file-write*
+        (require-all
+            (subpath path)
+            (font-file)
+        )
+    )
+    (allow file-issue-extension
+        (require-all
+            (subpath path)
+;           XType needs to vend a named extension
+;            (require-any
+;                (extension-class "com.apple.app-sandbox.read")
+;                (extension-class "com.apple.app-sandbox.read-write")
+;            )
+        )
+    )
+)
+
+(allow file-read* file-write* (subpath (param "DARWIN_USER_CACHE_DIR")))
+(allow file-read* file-write* (subpath (param "DARWIN_USER_TEMP_DIR")))
+(allow file-read* file-write* (subpath "/var/tmp"))
+
+(allow file-read-metadata (subpath "/"))
+
+; <rdar://problem/21447525> Fontd should use sandbox extensions for font activation
+(allow file-read*
+    (font-file-or-directory)
+)
+(allow file-issue-extension
+    (font-file-or-directory)
+)
+
+(allow file-read*
+    ;; System and user preferences
+    (literal "/Library/Preferences/.GlobalPreferences.plist")
+    (home-literal "/Library/Preferences/.GlobalPreferences.plist")
+    (home-literal "/Library/Preferences/com.apple.FontRegistry.user.plist")
+    (home-literal "/.CFUserTextEncoding")
+    (home-regex #"/Library/Preferences/ByHost/\.GlobalPreferences\.")
+)
+
+(allow file-write*
+    (home-literal "/Library/Preferences/com\.apple\.FontRegistry.user.plist")
+)
+
+(allow file-write* file-read*
+    (regex #"/private/var/folders/.*/.*/C/com.apple.FontRegistry/*")
+)
+
+(allow-read-access-and-issue-extensions (param "__HOME"))
+(allow-read-access-and-issue-extensions "/Library/Fonts")
+(allow-read-access-and-issue-extensions "/System/Library/Fonts")
+(allow-read-access-and-issue-extensions "/Library/Application Support/Apple/Fonts")
+
+(allow-read-write-access-and-issue-extensions (string-append (param "__HOME") "/Library/Fonts"))
+
+(deny file-write-xattr)
+
+; And override everything else if we get given an extension
+(allow file-read* (extension "com.apple.app-sandbox.read"))
+(allow file-read* file-write* (extension "com.apple.app-sandbox.read-write"))

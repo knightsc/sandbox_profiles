@@ -22,7 +22,8 @@
 	(literal "/usr/sbin/wirelessproxd"))
     
 (allow file-read-metadata
-	(literal "/private/var/root"))
+	(literal "/private/var/root")
+    (literal "/private/var/log/blued.log"))
 	
 (allow file-read* file-write*
     (literal "/private/var/log/wirelessproxd.log"))

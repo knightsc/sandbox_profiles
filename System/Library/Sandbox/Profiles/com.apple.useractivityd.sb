@@ -1,0 +1,40 @@
+(version 1)
+
+(deny default)
+
+(import "system.sb")
+
+;; We call LaunchServies to resolve which app can open a given activity type.  LaunchServices reads the filesystem to make sure that app still exists.  Furthermore, apps can exist anywhere on the filesystem on a Mac.  Hence, this is necessary. 
+(allow file-read*)
+
+(allow file-write*
+       (subpath (param "LOG_DIR")))
+
+(allow user-preference*
+      (preference-domain-regex #"^com\.apple\.coreservices\.useractivityd"))
+       
+(allow sysctl-read)
+
+(allow iokit-open
+       (iokit-user-client-class "IOBluetoothHCIUserClient"))
+
+(allow ipc-posix-shm-read-data
+       (ipc-posix-name "apple.shm.cfprefsd.daemon")
+       (ipc-posix-name "apple.shm.cfprefsd.501")
+       (ipc-posix-name-regex #"/tmp/com\.apple\.csseed\."))
+
+(allow mach-lookup
+       (global-name "com.apple.CoreServices.coreservicesd")
+       (global-name "com.apple.coreservices.launchservicesd")
+       (global-name "com.apple.distributed_notifications@Uv3")
+       (global-name "com.apple.lsd.mapdb")
+       (global-name "com.apple.marco")
+       (global-name "com.apple.sharingd.nsxpc")
+       (global-name "com.apple.windowserver.active")
+       (global-name "com.apple.system.logger")
+       (global-name "com.apple.cfprefsd.daemon")
+       (global-name "com.apple.diagnosticd")
+       (global-name "com.apple.cfprefsd.agent")
+       (global-name "com.apple.bird")
+       (global-name "com.apple.awdd"))
+

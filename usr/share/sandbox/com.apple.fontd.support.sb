@@ -1,0 +1,124 @@
+;;
+;; ATS sandbox support
+;; Copyright 2015 Apple, Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice.
+;;
+;;
+
+
+;; Utility functions for home directory relative path filters
+(define (home-regex home-relative-regex)
+    (regex (string-append "^" (regex-quote (param "__HOME")) home-relative-regex))
+)
+
+(define (home-subpath home-relative-subpath)
+    (subpath (string-append (param "__HOME") home-relative-subpath))
+)
+(define (home-literal home-relative-literal)
+    (literal (string-append (param "__HOME") home-relative-literal))
+)
+
+; fontd currently expects to be able to walk the entire file system in
+; a search for missing fonts.
+; It accepts these font extensions:
+;   ttf
+;   ttc
+;   otf
+;   otc
+;   sfont
+;   dfont
+;   suit
+
+(define (font-file)
+    (require-any
+        (require-all
+            (require-any
+                (regex #"\.ttf$")
+                (regex #"\.ttc$")
+                (regex #"\.otf$")
+                (regex #"\.otc$")
+                (regex #"\.namedfork")
+            )
+            (if (defined? 'vnode-type)
+                (vnode-type REGULAR-FILE)
+            )
+        )
+        (regex #"\.sfont$")
+        (regex #"\.dfont$")
+        (regex #"\.suit$")
+        (require-all
+            (if (defined? 'vnode-type)
+                (vnode-type DIRECTORY)
+            )
+            (regex #"\.namedfork")
+        )
+    )
+)
+
+(define (font-file-or-directory)
+    (require-any
+        (font-file)
+        (if (defined? 'vnode-type)
+            (vnode-type DIRECTORY)
+        )
+    )
+)
+
+(define (allow-read-access path)
+    (allow file-read*
+        (require-all
+            (subpath path)
+            (font-file-or-directory)
+        )
+    )
+    (allow file-read-metadata (subpath path))
+)
+
+(define (allow-read-file-access path)
+    (allow file-read*
+        (require-all
+            (subpath path)
+            (font-file)
+        )
+    )
+    (allow file-read-metadata (subpath path))
+)
+
+(allow file-read*
+    (regex #"/private/var/folders/.*/.*/C/com.apple.FontRegistry/*")
+)
+
+(allow-read-access (param "DARWIN_USER_CACHE_DIR"))
+(allow-read-access (param "DARWIN_USER_TEMP_DIR"))
+(allow-read-access (param "__HOME"))
+(allow-read-access "/Library/Fonts")
+(allow-read-access "/System/Library/Fonts")
+(allow-read-access "/Library/Application Support/Apple/Fonts")
+(allow-read-file-access "/Volumes")
+
+;; ATS ports
+(allow mach-per-user-lookup)
+(allow mach-lookup
+    (global-name "com.apple.ATS.FontValidator")
+    (global-name "com.apple.ATS.FontValidatorConduit")
+    (global-name "com.apple.CoreServices.coreservicesd")
+    (global-name-regex #"^com\.apple\.FontObjectsServer.*")
+)
+
+(allow file-read*
+;; System and user preferences
+    (literal "/Library/Preferences/.GlobalPreferences.plist")
+    (home-literal "/Library/Preferences/.GlobalPreferences.plist")
+    (home-literal "/Library/Preferences/com.apple.ATSDefaults.plist")
+    (home-literal "/Library/Preferences/com.apple.FontRegistry.user.plist")
+    (home-literal "/.CFUserTextEncoding")
+    (home-regex #"/Library/Preferences/ByHost/\.GlobalPreferences\.")
+)
+
+(allow file-read* (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains"))
+
+(allow file-read* (extension "com.apple.app-sandbox.read"))
+(allow file-read* (extension "com.apple.app-sandbox.read-write"))

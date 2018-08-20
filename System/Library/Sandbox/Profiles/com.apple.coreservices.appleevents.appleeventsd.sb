@@ -5,8 +5,9 @@
 ;
 (import "system.sb")
 
-; Need to be able to talk with launchservicesd
-(allow mach-lookup (global-name "com.apple.coreservices.launchservicesd"))
+
+; Need to be able to talk with launchservicesd and ocspd
+(allow mach-lookup (global-name "com.apple.coreservices.launchservicesd") (global-name "com.apple.ocspd") )
 
 ; We need to lstat this to determine the console user
 (allow file-read-data (literal "/dev/console"))
@@ -14,11 +15,74 @@
 
 ; this all seems necessary for SecCode calls
 (allow file-read-metadata (literal "/"))
-(allow file-read-metadata (literal "/Library/Preferences/com.apple.security.plist"))
-(allow file-read-data (literal "/Library/Preferences/com.apple.security.plist"))
 (allow mach-lookup (global-name "com.apple.distributed_notifications@1v3"))
 (allow mach-lookup (global-name "com.apple.SecurityServer"))
 (allow ipc-posix-shm-read-data (ipc-posix-name "com.apple.AppleDatabaseChanged"))
 (allow ipc-posix-shm-write-data (ipc-posix-name "com.apple.AppleDatabaseChanged"))
-(allow file* (subpath "/private/var/folders" ))
-(allow file-read* (subpath "/private" ))
+
+; Give us access to our own temporary directory
+(if (param "TEMPDIR")
+	(allow file-read* file-write* (regex (string-append "^" (param "TEMPDIR") "/*" ) ) ) )
+
+
+; If appleeventsd is built for the DEBUG configuration, then let it write log files to /var/tmp/
+(define debug (equal? "1" (param "__AEDEBUGSERVER")))
+(if debug
+	(begin
+		; Give read and write access to /tmp and /var/tmp in DEBUG configurations, mostly for logging
+		(allow file-read* file-write* (subpath "/private/tmp"))
+		(allow file-read* file-write* (subpath "/private/var/tmp"))
+
+		; If MallocStackLogging is true, then we need to allow writes to the place it's going to put them.
+		(if (param "MallocStackLoggingDirectory")
+			(allow file-write* (regex (string-append "^/" (param "MallocStackLoggingDirectory")))) )
+		)
+	)
+
+
+;
+; The calls we make to Security.framework require a bunch of sandbox exceptions.  Someday they'll make a security.sb file that
+; we can just import, but until then, I need all of this to be included here.
+
+; cf <rdar://problem/21459280> 14D136 - appleeventsd deny file-read-metadata /Library
+; BEGIN
+
+;	Seems necessary to call SessionGetInfo()
+	(allow system-audit)
+
+	; Our Module Directory Services cache
+	(allow file-read-data
+		(subpath "/private/var/tmp/mds")
+		(subpath "/private/var/db/mds"))
+
+	(allow file-read* file-write*
+		(regex #"^/private/var/tmp/mds/[0-9]+(/|$)")
+		(regex #"^/private/var/db/mds/[0-9]+(/|$)")
+		(regex #"^/private/var/folders/[^/]+/[^/]+/C/mds(/|$)"))
+
+	(allow mach-lookup
+		(global-name "com.apple.ocspd")
+		(global-name "com.apple.securityd"))
+
+	(allow file-read*
+		(regex #"^.*/Library/Preferences/(ByHost/)?\.GlobalPreferences.*\.plist$")
+		(regex #"^/private/var/db/mds/")
+		(literal "/Library/Preferences/com.apple.security.plist")
+		(literal "/usr/libexec")
+		(literal "/usr/libexec/xscertd"))
+
+	(allow file* (subpath "/private/var/folders" ))
+
+	(allow file-read-metadata
+		(literal "/Library")
+		(literal "/Library/Keychains")
+		(literal "/Library/Keychains/System.keychain")
+		(literal "/private/var/empty")
+		(literal "/private/var/run/systemkeychaincheck.done"))
+
+	; KSS I added these to the list from the Radar, because they seem necessary
+	(allow file-read-metadata (literal "/private") (literal "/private/var") (literal "/private/var/db") )
+	(allow file-read* (literal "/private/var/db/DetachedSignatures"))
+
+; END
+

@@ -12,6 +12,8 @@
 
 (import "system.sb")
 
+(system-network)
+
 (allow authorization-right-obtain
     (right-name "system.keychain.modify")
     (right-name "system.keychain.create.loginkc")
@@ -71,7 +73,7 @@
     (literal "/private/var/db/mds/system/mds.lock")
     (literal "/private/var/log/wifi.log")
     (regex #"^/private/tmp/wifi")
-	(regex #"^/private/tmp/AWDL")
+    (regex #"^/private/tmp/AWDL")
     (literal "/private/var/log/corewifi.log")
     (subpath "/Library/Keychains")
     (subpath "/private/var/db/mds")
@@ -112,6 +114,7 @@
     (global-name "com.apple.wifid")
     (global-name "com.apple.UNCUserNotification")
     (global-name "com.apple.coreservices.quarantine-resolver")
+    (global-name "com.apple.lsd.mapdb")
     (global-name "com.apple.awdd")
 )
 

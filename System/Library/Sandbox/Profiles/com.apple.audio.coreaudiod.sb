@@ -16,6 +16,7 @@
 	(subpath "/Library/Extensions")
 	(subpath "/Library/Frameworks")
 	(literal "/Library/Preferences/.GlobalPreferences.plist")
+	(literal "/Library/Preferences/com.apple.Bluetooth.plist")
 	(literal "/dev/autofs_nowait")
 	(literal "/dev/dtracehelper")
 	(literal "/dev/null")
@@ -139,4 +140,5 @@
 	(kext-bundle-id "com.apple.iokit.IOTimeSyncFamily")
 	(kext-bundle-id "com.apple.plugin.IOMRPPlugin")
 	(kext-bundle-id "com.apple.iokit.IONetworkingFamily")
+	(kext-bundle-id "com.apple.plugin.IOAVBDiscoveryPlugin")
 )

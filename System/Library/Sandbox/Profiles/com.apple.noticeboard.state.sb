@@ -35,3 +35,9 @@
 	
 (allow network-outbound)
 (allow system-socket)
+
+; this all seems necessary for SecCode calls
+(allow file-read-metadata (literal "/"))
+(allow mach-lookup (global-name "com.apple.distributed_notifications@1v3"))
+(allow ipc-posix-shm-read-data (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+(allow ipc-posix-shm-write-data (ipc-posix-name "com.apple.AppleDatabaseChanged"))

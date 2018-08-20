@@ -67,6 +67,7 @@
     (regex (string-append "^" (string-append (param "application_darwin_cache_dir") "/mds/mds.*$")))
     (home-literal "/Library/Preferences/SpotlightNetHelper.plist")
     (home-literal "/Library/Application Support/com.apple.spotlight/com.apple.Spotlight.counts.V3")
+    (home-literal "/Library/Application Support/com.apple.spotlight/subscriptions.plist")
     (home-literal "/Library/Preferences/com.apple.calculateframework.plist")
     (home-literal "/Library/WebKit/LocalStorage/StorageTracker.db")
     (home-subpath "/Library/Caches/com.apple.metadata.SpotlightNetHelper")
@@ -77,8 +78,10 @@
     (home-subpath "/Library/Caches/GeoServices")
     (home-literal "/Library/Preferences/com.apple.Spotlight.plist")
     (home-literal "/Library/Application Support/com.apple.spotlight/com.apple.Spotlight.counts.V3")
+    (home-literal "/Library/Application Support/com.apple.spotlight/subscriptions.plist")
     (home-literal "/Library/Preferences/SpotlightNetHelper.plist")
     (home-literal "/Library/Preferences/com.apple.calculateframework.plist")
+    (home-literal "/Library/Preferences/com.apple.security.*")
     (home-literal "/Library/WebKit/LocalStorage/StorageTracker.db")
     (home-subpath "/Library/Caches/com.apple.metadata.SpotlightNetHelper")
 )
@@ -97,7 +100,6 @@
     (mount-relative-regex #"^/\.TemporaryItems(/|$)"))
 
 (allow system-socket)
-(allow distributed-notification-post)
 
 (system-network)
 
@@ -112,7 +114,9 @@
 (allow mach-lookup 
     (global-name "com.apple.cookied")
     (global-name "com.apple.coreduetd")
+    (global-name "com.apple.syncdefaultsd")
     (global-name "com.apple.CoreLocation.agent")
+    (global-name "com.apple.CrashReporterSupportHelper")
     (global-name "com.apple.coreservices.launchservicesd")
     (global-name "com.apple.CoreServices.coreservicesd")
     (global-name "com.apple.DiskArbitration.diskarbitrationd")
@@ -128,7 +132,10 @@
     (global-name "com.apple.SystemConfiguration.SCNetworkReachability")
     (global-name "com.apple.SystemConfiguration.configd")
     (global-name "com.apple.cfnetwork.cfnetworkagent")
-    (global-name "com.apple.windowserver.active"))
+    (global-name "com.apple.windowserver.active")
+    (global-name "com.apple.pasteboard.1")
+    (global-name "com.apple.parsec.subscriptionservice.internal")
+    (global-name "com.apple.parsec.subscriptionservice"))
 
 (allow mach-register
     (global-name "com.apple.metadata.SpotlightNetHelper"))

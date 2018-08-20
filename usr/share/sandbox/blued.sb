@@ -18,6 +18,7 @@
        (global-name "com.apple.distributed_notifications@1v3")
        (global-name "com.apple.CoreServices.coreservicesd")
        (global-name "com.apple.bluetoothUIServer")
+       (global-name "com.apple.bluetoothuserd")
        (global-name "com.apple.cloudpaird")
        (global-name "com.apple.bnepd")
        (global-name "com.apple.blued")
@@ -27,7 +28,12 @@
        (global-name "com.apple.SecurityServer")
        (global-name "com.apple.btsa")
        (global-name "com.apple.bluetoothaudiod")
+       (global-name "com.apple.lsd.mapdb")
        (global-name "com.apple.bluetoothReporter"))
+
+(allow file-write-create
+       (regex   #"^/private/var/log/bluetoothCoreDump-\..*\.log$")
+)
 
 (allow file-read* file-write*
        (literal "/private/var/root/Library/Preferences/blued.plist")
@@ -46,6 +52,7 @@
        (literal "/private/var/log/bluetoothAudio.log")
        (literal "/private/var/log/bluetoothUserAgent.log")
        (literal "/private/var/log/bluetoothFramework.log")
+       (literal "/private/var/log/bluetoothCoreDump.log")
        (literal "/private/var/log/cloudpaird.log")
        (literal "/Library/Preferences/SystemConfiguration/com.apple.Bluetooth")
        (literal "/Library/Preferences/SystemConfiguration/com.apple.Bluetooth-lock")
@@ -63,6 +70,7 @@
        (literal "/usr/sbin/blued")
        (literal "/private/var/root")
        (literal "/dev/console")
+       (literal "/private/var/log/Bluetooth")
        (literal "/private/var/log/bluetooth.pklg")
        (literal "/private/var/db/.AppleSetupDone")
        (literal "/Library/Preferences/SystemConfiguration/com.apple.nat.plist"))

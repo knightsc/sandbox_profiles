@@ -1,0 +1,34 @@
+;;
+;; SpotlightIndexAgent - sandbox profile
+;; Copyright (c) 2015 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice. The contents of this file are also auto-generated and not
+;; user editable; it may be overwritten at any time.
+;;
+
+(version 1)
+
+(deny default)
+
+(allow file-read-metadata
+    (literal "/AppleInternal"))
+
+(allow ipc-posix-shm-read-data
+    (ipc-posix-name-regex #"^/tmp/com.apple.csseed.[^/]+$"))
+
+(allow mach-lookup
+    (global-name "com.apple.CoreServices.coreservicesd")
+    (global-name "com.apple.corespotlight.receiver.coreduet")
+    (global-name "com.apple.corespotlight.receiver.corespotlight")
+    (global-name "com.apple.corespotlight.receiver.suggestions")
+    (global-name "com.apple.lsd.mapdb")
+    (global-name "com.apple.pluginkit.pkd")
+    (global-name "com.apple.system.logger")
+    (global-name "com.apple.tccd")
+    (global-name "com.apple.distributed_notifications")
+    (global-name "com.apple.distributed_notifications@1v3")
+    (global-name "com.apple.distributed_notifications@Uv3")
+    (global-name-regex #"^com\.apple\.distributed_notifications"))
+

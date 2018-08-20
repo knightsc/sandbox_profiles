@@ -77,6 +77,10 @@
 (allow mach-lookup (global-name "com.apple.lsd.mapdb"))
 (allow mach-lookup (global-name "com.apple.lsd.modifydb"))
 
+(allow mach-lookup (global-name "com.apple.spotlight.IndexAgent"))
+
+(allow mach-lookup (global-name "com.apple.accountsd.accountmanager"))
+
 (allow file-search)
 (allow file-read-metadata)
 (allow ipc-posix-shm)
@@ -228,6 +232,7 @@
         (allow file-read* (home-subpath "/Library/Audio/Plug-Ins"))
         (allow file-read* (home-subpath "/Library/Components"))
         (allow file-read* (home-subpath "/Library/Keychains"))
+        (allow file-read* (home-subpath "/Library/Preferences/com.apple.security.revocation.plist"))
         (allow file-read* (home-literal "/Library/Preferences/com.apple.HIToolbox.plist"))
         (allow file-read* (home-literal "/Library/Preferences/mdworker.plist"))
         (allow file-read* (home-literal "/Library/Preferences/com.apple.iApps.plist"))
@@ -295,6 +300,9 @@
                     (require-any (regex #"\.ipspot_update$")
                                  (mount-relative-regex #"^/\.TemporaryItems(/|$)"))))
 
+(allow file-read*
+    (require-all (extension "com.apple.mdworker.calendar_extension")
+        (home-subpath "/Library/Calendars")))
 
 ;;
 ;; This is ONLY used by the manual 'mdimport' command when run from the command line.  This is a testing/development tool

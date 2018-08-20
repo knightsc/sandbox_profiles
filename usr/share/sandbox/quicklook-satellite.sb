@@ -150,5 +150,9 @@
        (global-name "com.apple.librariand")
        (global-name "com.apple.FileCoordination")
        (global-name "com.apple.dock.server")
-	   (global-name "com.apple.distributed_notifications@Uv3"))
+	   (global-name "com.apple.distributed_notifications@Uv3")
+       (global-name "com.apple.lsd.mapdb")
+       (global-name "com.apple.lsd.modifydb")
+       (global-name "com.apple.dock.fullscreen"))
+
        

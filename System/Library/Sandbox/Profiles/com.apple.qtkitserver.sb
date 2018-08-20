@@ -173,6 +173,7 @@
 (allow mach-lookup
        (global-name "com.apple.coreservices.launchservicesd")
        (global-name "com.apple.ls.boxd")
+       (global-name "com.apple.lsd.mapdb")
        (global-name "com.apple.metadata.mds")
        (global-name "com.apple.cookied")
        (global-name "com.apple.cfnetwork.AuthBrokerAgent")
@@ -187,6 +188,7 @@
        (global-name "com.apple.audio.coreaudiod")
        (global-name "com.apple.dock.server")
        (global-name "com.apple.pasteboard.1")
+       (global-name "com.apple.pbs.fetch_services")
        (global-name "com.apple.printtool.agent")
        (global-name "com.apple.tsm.uiserver")
        (global-name "com.apple.UNCUserNotification")

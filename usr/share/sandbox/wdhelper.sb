@@ -32,6 +32,9 @@
     (literal "/private/tmp")
     (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.eapolclient\.plist")
     (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.airport\.preferences\.plist")
+    (literal "/Library/Preferences/com.apple.CoreCaptureEnable.plist")
+    (literal "/Library/Preferences/com.apple.CoreCaptureDisable.plist")
+    (literal "/Library/Preferences/com.apple.Bluetooth.plist")
 )
 
 (allow file-ioctl
@@ -71,7 +74,10 @@
     (literal "/private/var/log")
     (literal "/Library/Logs")
     (literal "/Library/Logs/CrashReporter")
+    (literal "/usr/local/bin/wl")
     (subpath "/Library/Logs/DiagnosticReports")
+    (literal "/Library/Preferences/com.apple.CoreCaptureEnable.plist")
+    (literal "/Library/Preferences/com.apple.CoreCaptureDisable.plist")
 )
 
 (allow file-write-create
@@ -88,9 +94,7 @@
     (literal "/Library/Preferences/SystemConfiguration/preferences.plist-new")
     (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.eapolclient\.plist")
     (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.airport\.preferences\.plist")
-    (literal "/dev/io8log")
-    (literal "/dev/io8logmt")
-    (literal "/dev/io8logtemp")
+    (subpath (param "TMP_DIR"))
 )
 
 (allow file-write-unlink
@@ -122,6 +126,7 @@
     (global-name "com.apple.CoreServices.coreservicesd")
     (global-name "com.apple.SecurityServer")
     (global-name "com.apple.airportd")
+    (global-name "com.apple.corecaptured")
 )
 
 (allow authorization-right-obtain
@@ -156,6 +161,10 @@
     (literal "/usr/sbin/ioreg")
     (literal "/usr/bin/darwinup")
     (literal "/usr/sbin/discoveryutil")
+    (literal "/usr/local/bin/wl")
+    (literal "/sbin/ping")
+    (literal "/usr/sbin/ndp")
+    (literal "/usr/sbin/arp")
 )
 
 (allow iokit-open

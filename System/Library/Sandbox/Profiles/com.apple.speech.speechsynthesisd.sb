@@ -153,9 +153,9 @@
 
 ;; Cepstral
 (allow file-read*
-    (literal "/private/tmp/swift.lock")
     (home-literal "/.CFUserTextEncoding")
     (subpath "/Library/Application Support/Cepstral")
     (literal "/Library/Preferences/com.cepstral.swift"))
-
+(allow file-read* file-write*
+    (literal "/private/tmp/swift.lock"))
 (allow user-preference-read (preference-domain "com.cepstral.swift"))

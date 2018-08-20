@@ -130,6 +130,7 @@
 	   (global-name "com.apple.coreservices.quarantine-resolver")
        (global-name "com.apple.familycontrols")
        (global-name "com.apple.nsurlstorage-cache")
+       (global-name "com.apple.CrashReporterSupportHelper")
        (global-name "com.apple.cfnetwork.AuthBrokerAgent"))
 
 (allow authorization-right-obtain

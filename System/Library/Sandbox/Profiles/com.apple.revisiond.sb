@@ -22,6 +22,7 @@
     (global-name "com.apple.PowerManagement.control")
     (global-name "com.apple.system.notification_center")
     (global-name "com.apple.CoreServices.coreservicesd")
+    (global-name "com.apple.lsd.mapdb")
     (global-name "com.apple.system.DirectoryService.membership_v1")
     (global-name "com.apple.system.DirectoryService.libinfo_v1")
     (global-name "com.apple.DiskArbitration.diskarbitrationd")

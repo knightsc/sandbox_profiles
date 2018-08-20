@@ -33,3 +33,7 @@
 (if (positive? (string-length (param "_MAIL_V2")))
     (begin
         (allow file-read* (subpath (param "_MAIL_V2")))))
+
+(if (positive? (string-length (param "_HOME")))
+    (begin
+        (allow file-write* (home-subpath "/Library/Logs/mdworker"))))

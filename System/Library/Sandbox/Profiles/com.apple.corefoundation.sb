@@ -32,5 +32,7 @@
         (subpath "/Library/Dictionaries")
         (subpath "/Network/Library/Dictionaries")
         (subpath "/Library/Managed Preferences"))
+  (allow system-fsctl
+        (fsctl-command (_IO "h" 47)))
 )
 

@@ -49,6 +49,8 @@
 (allow file-read* file-write* (extension "com.apple.spotlight.tempdirectory"))
 (allow file-read* file-write* (extension "com.apple.spotlight.cachedirectory"))
 
+(allow file-read* file-write* (regex #"/\.Spotlight-V100($|/)"))
+
 (allow file-read-metadata (literal "/AppleInternal"))
 
 (allow ipc-posix-shm)
@@ -62,6 +64,7 @@
     (global-name "com.apple.coreduetd")
     (global-name "com.apple.lsd.mapdb")
     (global-name "com.apple.lsd.modifydb")
+    (global-name "com.apple.spotlight.IndexAgent")
     )
 
 (allow network-outbound

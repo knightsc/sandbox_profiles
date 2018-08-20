@@ -1,0 +1,61 @@
+;;
+;; fontworker - sandbox profile
+;; Copyright 2011-2012 Apple, Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice.
+;;
+;;
+
+(import "com.apple.corefoundation.sb")
+(corefoundation)
+
+(allow file-read* (extension "com.apple.app-sandbox.read"))
+(allow file-read* file-write* (extension "com.apple.app-sandbox.read-write"))
+(allow file-read-metadata (extension "com.apple.app-sandbox.read"))
+
+(allow file-read*
+    (subpath "/usr")
+    (subpath "/var")
+    (subpath "/private")
+    (literal "/Library/Dictionaries") ;; icu
+    (subpath "/Library/Managed Preferences")
+    (literal "/Library/Preferences/.GlobalPreferences.plist")
+    (literal (string-append (param "__HOME") "/.CFUserTextEncoding"))
+    (subpath (string-append (param "__HOME") "/Library/Preferences"))
+    (subpath "/System/Library") ;; Frameworks, ProvateFrameworks, CoreServices
+)
+
+(allow file-write*
+    (subpath "/private/var/folders")
+    (subpath (param "DARWIN_USER_TEMP_DIR"))
+    (subpath (param "DARWIN_USER_CACHE_DIR"))
+)
+
+(allow file-read-metadata
+    (subpath "/")
+    (subpath (param "__HOME"))
+    (literal "/Users/")
+)
+
+(allow file-issue-extension-read)
+
+;; Suppress log noise from Carbon / frameworks.
+(deny process-exec)
+(deny file-write*
+    (literal "/private/var/empty/Library")
+    (with no-log)
+)
+
+(allow distributed-notification-post)
+
+(allow sysctl*)
+(allow ipc-posix-shm)
+
+(allow mach-lookup
+    (global-name "com.apple.SystemConfiguration.configd")
+    (global-name "com.apple.CoreServices.coreservicesd")
+    (global-name "com.apple.lsd.mapdb")
+    (global-name "com.apple.DiskArbitration.diskarbitrationd")
+)

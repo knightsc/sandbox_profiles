@@ -10,6 +10,8 @@
 (version 1)
 (deny default)
 (import "system.sb")
+(import "com.apple.corefoundation.sb")
+(corefoundation)
 
 ;; We must be allowed to obtain any right that an AuthorizationRef we *create* will be asked to obtain, including the
 ;; full set queried by installd. (AuthorizationServices checks the auth creator's sandbox explicitly.)
@@ -67,6 +69,7 @@
        (global-name "com.apple.nsnetworkd")
        (global-name "com.apple.nsurlsessiond")
        (global-name "com.apple.nsurlstorage-cache")
+       (global-name "com.apple.lsd.modifydb")
        (global-name "com.apple.AssetCacheLocatorService"))
 
 (allow mach-per-user-lookup)

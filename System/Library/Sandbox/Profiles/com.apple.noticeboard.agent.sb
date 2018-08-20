@@ -15,6 +15,7 @@
        (global-name "com.apple.ocspd")
 	   (global-name "com.apple.installd.user")
        (global-name "com.apple.installd")
+       (global-name "com.apple.system_installd")
        (global-name "com.apple.usernoted.daemon_client")
        (global-name "com.apple.cookied")
 	   (global-name "com.apple.SecurityServer")

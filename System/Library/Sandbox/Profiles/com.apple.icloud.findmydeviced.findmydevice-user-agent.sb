@@ -1,0 +1,33 @@
+(version 1)
+
+(deny default)
+
+(import "system.sb")
+
+(define (home-regex home-relative-regex)
+       (regex (string-append "^" (regex-quote (param "_HOME")) home-relative-regex)))
+(define (home-literal home-relative-literal)
+       (literal (string-append (param "_HOME") home-relative-literal)))
+
+(allow file-read-metadata)
+
+(allow file-read*
+       (home-literal "")
+       (home-literal "/Library/Preferences/.GlobalPreferences.plist")
+       (home-literal "/Library/Preferences/com.apple.icloud.findmydeviced.findmydevice-user-agent.plist")
+
+       (literal "/Library/Preferences/.GlobalPreferences.plist")
+       (literal "/AppleInternal")
+       (literal "/usr/libexec/findmydevice-user-agent")
+
+       (home-regex #"/Library/Preferences/ByHost/\.GlobalPreferences\.[-\w.]*"))
+
+(allow mach-lookup
+       (global-name "com.apple.icloud.findmydeviced")
+       (global-name "com.apple.icloud.findmydeviced.user-agent")
+       (global-name "com.apple.CoreServices.coreservicesd")
+       (global-name "com.apple.distributed_notifications")  
+       (global-name "com.apple.UNCUserNotification"))
+
+(allow authorization-right-obtain
+       (right-name "admin"))

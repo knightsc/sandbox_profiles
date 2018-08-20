@@ -19,7 +19,7 @@
 
 ;; Various patterns used by cache-delete services.
 (allow mach-lookup
-	(global-name-regex #"^com\.apple\.cache_delete_")
+	(global-name-regex #"^com\.apple\.cache_delete_.+")
 	(global-name-regex #"^com\.apple\..+cache-delete$")
 	(global-name-regex #"^com\.apple\..+[cC]ache[dD]elete$")
     (global-name "com.apple.windowserver.active"))

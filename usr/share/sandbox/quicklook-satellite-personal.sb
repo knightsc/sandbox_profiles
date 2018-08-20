@@ -41,3 +41,5 @@
 
 ;; Notes
 (allow file-read* (home-subpath "/Library/Containers/com.apple.Notes"))
+(allow file-read* (home-subpath "/Library/Group Containers/group.com.apple.Notes"))
+(allow file-read* (home-subpath "/Library/Group Containers/group.com.apple.ironcademac"))

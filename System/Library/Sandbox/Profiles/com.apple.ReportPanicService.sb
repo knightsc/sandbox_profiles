@@ -43,6 +43,9 @@
        (regex #"/LaunchAgents/.+\.plist$")
        (subpath "/Library")
        (subpath "/Applications"))
-       
+
 (deny file-write-unlink
        (subpath "/System/Library/LaunchAgents"))
+
+(allow file-read* file-write-unlink
+        (literal "/private/var/db/PanicReporter/current.panic"))

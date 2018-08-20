@@ -1,0 +1,48 @@
+(version 1)
+
+(deny default)
+
+(allow file-read*
+(subpath "/System/Library/Components/CoreAudio.component/Contents/SharedSupport/SystemSounds")
+(literal "/Library/Audio/Plug-Ins/Components")
+(literal "/Library/Audio/Plug-Ins/HAL")
+(literal "/usr/sbin")
+(literal "/usr/sbin/systemsoundserverd")
+(literal "/usr/sbin/systemsoundserverd/..namedfork/rsrc")
+(literal "/private/etc/master.passwd")
+(subpath "/System")
+(subpath "/usr/share"))
+
+(allow file-read-metadata
+(literal "/etc")
+(literal "/private/etc/localtime")
+(literal "/private/etc/master.passwd")
+(subpath "/usr")
+(subpath "/var")
+(subpath "/private/var/root")
+(subpath "/Users"))
+
+(allow file-read-data
+(literal "/Library/Preferences/.GlobalPreferences.plist")
+(literal "/private/etc/localtime")
+(subpath "/Users"))
+
+(allow iokit-open
+(iokit-user-client-class "IOAudioControlUserClient")
+(iokit-user-client-class "IOAudioEngineUserClient")
+(iokit-user-client-class "RootDomainUserClient"))
+
+(allow ipc-posix-shm)
+
+(allow mach-lookup
+(global-name "com.apple.CoreServices.coreservicesd")
+(global-name "com.apple.audio.audiohald")
+(global-name "com.apple.cfprefsd.agent")
+(global-name "com.apple.cfprefsd.daemon")
+(global-name "com.apple.distributed_notifications@Uv3")
+(global-name "com.apple.system.logger")
+(global-name "com.apple.system.notification_center")
+(global-name "com.apple.system.opendirectoryd.libinfo")
+(global-name "com.apple.distributed_notifications@1v3"))
+
+(allow sysctl-read)

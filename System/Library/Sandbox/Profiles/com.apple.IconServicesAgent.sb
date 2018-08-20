@@ -9,7 +9,9 @@
 (define icon-service-cache-path (string-append "^/private" (regex-quote (param "CACHE_PATH"))))
 
 (define (apply-write-and-issue-extension op path-filter)
-	(op file-write* path-filter)
+	(op file-write-create path-filter)
+	(op file-write-data path-filter)
+	(op file-write-unlink path-filter)
 	(op file-issue-extension (require-all (extension-class "com.apple.app-sandbox.read") path-filter)))
 
 (apply-write-and-issue-extension allow
@@ -20,7 +22,8 @@
 	(global-name "com.apple.CoreServices.coreservicesd")
 	(global-name "com.apple.KernelExtensionServer")
 	(global-name "com.apple.coreservices.quarantine-resolver")
-	(global-name "com.apple.ls.boxd"))
+	(global-name "com.apple.lsd.mapdb")
+	(global-name "com.apple.lsd.modifydb"))
        
 (allow system-sched)
 (allow system-fsctl)
@@ -30,3 +33,11 @@
 	(global-name "com.apple.distributed_notifications@1v3"))
 
 (allow ipc-posix-shm-read* (ipc-posix-name-regex #"^/tmp/com\.apple\.csseed\."))
+
+;; FIXME: Should be removed once <rdar://problem/16329087> is fixed.
+(deny file-write-xattr (xattr "com.apple.quarantine") (with no-log))
+
+;; Reserve a namespace for additional protected extended attributes.
+(if (defined? 'xattr-regex)
+	(deny file-read-xattr file-write-xattr (xattr-regex #"^com\.apple\.security\.private\."))
+	(deny file-read-xattr file-write-xattr (xattr #"^com\.apple\.security\.private\.")))
