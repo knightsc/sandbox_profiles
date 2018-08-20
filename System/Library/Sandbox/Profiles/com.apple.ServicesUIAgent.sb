@@ -1,0 +1,109 @@
+;;; Copyright (c) 2018 Apple Inc.  All Rights reserved.
+;;;
+;;; WARNING: The sandbox rules in this file currently constitute
+;;; Apple System Private Interface and are subject to change at any time and
+;;; without notice.
+;;;
+(version 1)
+
+;; (allow (with report) default)
+;; (allow (with report) file-map-executable iokit-get-properties process-info* nvram*)
+;; (allow (with report) dynamic-code-generation)
+(deny default)
+(deny file-map-executable iokit-get-properties process-info* nvram*)
+(deny dynamic-code-generation)
+
+(import "system.sb")
+(import "com.apple.corefoundation.sb")
+(corefoundation)
+(system-graphics)
+
+;;; Homedir-relative path filters
+(define (home-regex home-relative-regex)
+    (regex (string-append "^" (regex-quote (param "HOME")) home-relative-regex)))
+
+(define (home-subpath home-relative-subpath)
+    (subpath (string-append (param "HOME") home-relative-subpath)))
+
+(define (home-prefix home-relative-prefix)
+    (prefix (string-append (param "HOME") home-relative-prefix)))
+
+(define (home-literal home-relative-literal)
+    (literal (string-append (param "HOME") home-relative-literal)))
+
+
+(allow process-info* (target self))
+
+;; For resolving symlinks, realpath(3), and equivalents.
+(allow file-read-metadata)
+
+;; For validating the entitlements of clients.
+(allow process-info-codesignature)
+
+;; ServiceUIAgent’s preference domain.
+(allow user-preference-read user-preference-write
+    (preference-domain "com.apple.ServicesUIAgent"))
+
+;; Allow reading preferences for Services
+(allow user-preference-read
+    (preference-domain "kCFPreferencesAnyApplication")
+    (preference-domain "pbs"))
+
+;; Read/write access to a temporary directory.
+(allow file-read* file-write*
+    (subpath (param "TMPDIR"))
+    (subpath (param "DARWIN_CACHE_DIR")))
+
+;; Read/write access to ServiceUIAgent’s cache.
+(let ((cache-path-filter (home-subpath "/Library/Caches/com.apple.ServicesUIAgent")))
+    (allow file-read* file-write* cache-path-filter)
+    (allow file-issue-extension
+        (require-all
+            (extension-class "com.apple.app-sandbox.read" "com.apple.app-sandbox.read-write")
+            cache-path-filter)))
+
+;; Allow reading app extension/workflow data
+(allow file-read*
+    (regex "/PlugIns/.*\.appex")
+    (subpath "/Library/Services")
+    (home-subpath "/Library/Services"))
+
+;; Mach services
+(allow mach-lookup
+    (global-name "com.apple.coreservices.appleevents")
+    (global-name "com.apple.coreservices.launchservicesd")
+    (global-name "com.apple.coreservices.quarantine-resolver")
+    (global-name "com.apple.dock.fullscreen")
+    (global-name "com.apple.dock.server")
+    (global-name "com.apple.fonts")
+    (global-name "com.apple.lsd.mapdb")
+    (global-name "com.apple.lsd.modifydb")
+    (global-name "com.apple.lsd.xpc")
+    (global-name "com.apple.pasteboard.1")
+    (global-name "com.apple.pbs.fetch_services")
+    (global-name "com.apple.pluginkit.pkd")
+    (global-name "com.apple.touchbarserver.mig")
+    (global-name "com.apple.window_proxies")
+    (global-name "com.apple.windowserver.active"))
+
+;; Needed for graphics
+(allow iokit-get-properties)
+
+;; Other preferences
+(allow user-preference-read
+    (preference-domain ".GlobalPreferences")
+    (preference-domain "com.apple.AppleMultitouchTrackpad")
+    (preference-domain "com.apple.driver.AppleBluetoothMultitouch.mouse")
+    (preference-domain "com.apple.driver.AppleBluetoothMultitouch.trackpad")
+    (preference-domain "com.apple.driver.AppleHIDMouse")
+    (preference-domain "com.apple.HIToolbox")
+    (preference-domain "com.apple.universalaccess"))
+
+;; Other folders
+(allow file-read*
+    (home-subpath "/Library/Input Methods")
+    (home-subpath "/Library/Keyboard Layouts")
+    (literal "/Library/Preferences/com.apple.ViewBridge.plist")
+    (home-literal "/.CFUserTextEncoding")
+    (path "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
+    (subpath "/Library/MessageTracer"))

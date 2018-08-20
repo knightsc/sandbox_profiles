@@ -22,9 +22,15 @@
     (literal "/Library/Dictionaries") ;; icu
     (subpath "/Library/Managed Preferences")
     (literal "/Library/Preferences/.GlobalPreferences.plist")
-    (literal (string-append (param "__HOME") "/.CFUserTextEncoding"))
-    (subpath (string-append (param "__HOME") "/Library/Preferences"))
     (subpath "/System/Library") ;; Frameworks, ProvateFrameworks, CoreServices
+)
+(if (positive? (string-length (param "__HOME")))
+	(begin
+		(allow file-read*
+			(literal (string-append (param "__HOME") "/.CFUserTextEncoding"))
+			(subpath (string-append (param "__HOME") "/Library/Preferences"))
+		)
+	)
 )
 
 (allow file-write*
@@ -34,8 +40,14 @@
 
 (allow file-read-metadata
     (subpath "/")
-    (subpath (param "__HOME"))
     (literal "/Users/")
+)
+(if (positive? (string-length (param "__HOME")))
+	(begin
+		(allow file-read-metadata
+			(subpath (param "__HOME"))
+		)
+	)
 )
 
 (allow file-issue-extension

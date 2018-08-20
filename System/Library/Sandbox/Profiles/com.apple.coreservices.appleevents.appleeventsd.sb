@@ -7,7 +7,7 @@
 
 
 ; Need to be able to talk with launchservicesd and ocspd
-(allow mach-lookup (global-name "com.apple.coreservices.launchservicesd") (global-name "com.apple.ocspd") )
+(allow mach-lookup (global-name "com.apple.coreservices.launchservicesd") (global-name "com.apple.ocspd") (global-name "com.apple.tccd.system" ))
 
 ; We need to lstat this to determine the console user
 (allow file-read-data (literal "/dev/console"))
@@ -84,4 +84,3 @@
 	(allow file-read* (literal "/private/var/db/DetachedSignatures"))
 
 ; END
-

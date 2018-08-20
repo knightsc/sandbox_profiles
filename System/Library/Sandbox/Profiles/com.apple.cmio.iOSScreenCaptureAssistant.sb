@@ -106,6 +106,9 @@
 	(global-name "com.apple.coremedia.routediscoverer.xpc")
 	(global-name "com.apple.coremedia.routingcontext.xpc")
 	(global-name "com.apple.analyticsd")
+
+	(global-name "com.apple.tccd.system")
+	(global-name "com.apple.tccd")
 )
 
 ;; Preferences

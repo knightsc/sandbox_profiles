@@ -80,4 +80,5 @@
     (global-name "com.apple.metadata.mds")
     (global-name "com.apple.nehelper")
     (global-name "com.apple.SecurityServer")
-    (global-name "com.apple.windowserver.active"))
+    (global-name "com.apple.windowserver.active")
+    (global-name "com.apple.usernoted.daemon_client"))

@@ -12,6 +12,6 @@
 (deny default)
 (debug deny)
 
-(import "com.apple.fontd.support.sb")
+(import "com.apple.atsd.support.sb")
 (import "system.sb")
 

@@ -13,8 +13,9 @@
     (global-name "com.apple.parsecd") ;; to get flight information from Parsec (for flight template-less)
 )
 
+(allow user-preference-read (preference-domain "com.apple.suggestions"))
+
 ;; SGAsset
 (allow file-read* (require-all
     (subpath "/Library/Assets")
     (extension "com.apple.assets.read")))
-

@@ -84,6 +84,9 @@
        (regex #"^/private/var/folders/[^/]+/[^/]+/[A-Z]/com\.apple\.iBooksX")
        (regex #"/Library/Caches/storedownloadd"))
 
+(allow user-preference-read
+       (preference-domain "com.apple.AppleMediaServices"))
+
 (allow ipc-posix-shm-read-data
        (ipc-posix-name "FNetwork.defaultStorageSession")
        (ipc-posix-name-regex #"ls\.[a-f0-9\.]+")

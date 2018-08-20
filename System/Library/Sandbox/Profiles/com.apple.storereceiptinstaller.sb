@@ -7,6 +7,7 @@
 
 (allow file-read*
        (literal "/private/var/root/Library/Preferences")
+       (literal "/Library/Preferences/com\.apple\.ViewBridge\.plist")
 	   (literal "/Library/Preferences/.GlobalPreferences.plist")
 	   (literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist")
 	   (regex #"^/private/var/root/Library/Preferences/ByHost/\.GlobalPreferences\..*\.plist$")
@@ -43,6 +44,7 @@
 (allow mach-lookup
        (global-name "com.apple.lsd.mapdb")
        (global-name "com.apple.lsd.modifydb")
+       (global-name "com.apple.coreservices.quarantine-resolver")
        (global-name "com.apple.CoreServices.coreservicesd")
        (global-name "com.apple.DiskArbitration.diskarbitrationd")) ;used by [[NSWorkspace sharedWorkspace] setIcon:forFile:options:];
 

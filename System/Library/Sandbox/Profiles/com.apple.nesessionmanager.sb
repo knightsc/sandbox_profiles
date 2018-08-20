@@ -51,6 +51,7 @@
 (allow signal)
 
 (allow file-read*
+    (literal "/Library/Preferences/com.apple.networkextension.uuidcache.plist")
 	(literal "/private/etc/master.passwd")
 	(literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist")
 	(literal "/private/var/root/Library/Preferences/com.apple.networkextension.plist"))

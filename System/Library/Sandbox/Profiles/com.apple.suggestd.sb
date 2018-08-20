@@ -10,6 +10,7 @@
 
 (allow file-read* file-write*
     (home-subpath "/Library/Suggestions")
+    (home-subpath "/Library/PersonalizationPortrait")
     (home-subpath "/Library/Metadata/com.apple.IntelligentSuggestions")
     (home-literal "/Library/SyncedPreferences/com.apple.CoreSuggestions.plist")
     (home-literal "/Library/Keychains/login.keychain") ;; Security.framework
@@ -54,15 +55,10 @@
 (allow mach-lookup
     (global-name "com.apple.accountsd.accountmanager") ;; EventKit
     (global-name "com.apple.apsd") ;; SGDCloudKitSync (APNS)
-    (global-name "com.apple.AddressBook.abd")
-    (global-name "com.apple.AddressBook.AddressBookApplicationFrameworkIPC")
-    (global-name "com.apple.AddressBook.ContactsAccountsService") ;; [ABAddressBook sharedAddressBook]
-    (global-name "com.apple.AddressBook.SourceSync")
     (global-name "com.apple.CalendarAgent")
     (global-name "com.apple.CalendarAgent.database")
     (global-name "com.apple.CalendarAgent.proxy")
     (global-name "com.apple.ContactsAgent.general")
-    (global-name "com.apple.ContactsAgent.addressbook")
     (global-name "com.apple.cloudd") ;; SGDCloudKitSync (CloudKit)
     (global-name "com.apple.coreduetd") ;; SGDPowerBudget
     (global-name "com.apple.coreduetd.knowledge.user") ;; PersonalizationPortrait
@@ -88,13 +84,16 @@
     (global-name "com.apple.windowserver.active") ;; AGDCloudKitSync (APNS)
     (global-name "com.apple.awdd") ;; Trystero training sessions and stats (AWD)
     (global-name "com.apple.FileCoordination") ;; MailServices for reimport
-    (global-name "com.apple.suggestd.PersonalizationPortrait.DeletionTracking")) ;; PersonalizationPortrait for examining some privileged settings
+    (global-name "com.apple.duetactivityscheduler")) ;; Duet activityStartedWithParameters:/activityStoppedWithParameters
 
 (allow file-read-metadata
     (literal "/Library/Caches/com.apple.DiagnosticReporting.HasBeenAppleInternal"))
 
 ;; See <rdar://problem/21827956>
 ;; We can't use shared-preferences-read as it's only defined in application.sb
+(allow user-preference-read (preference-domain "com.apple.iCal"))
+(allow user-preference-read user-preference-write (preference-domain "com.apple.suggestions"))
+(allow user-preference-read user-preference-write (preference-domain "com.apple.corespotlightui"))
 (allow user-preference-read (preference-domain "com.apple.security"))
 (allow file-read* (home-literal "/Library/Preferences/com.apple.security.plist"))
 (allow file-read* (literal "/Library/Preferences/com.apple.security.plist"))
@@ -114,8 +113,6 @@
 
 
 (allow file-read-metadata) ;; :-( see <rdar://problem/18320786>
-
-(allow distributed-notification-post) ;; AddressBook is posting notifications when doing [ABAddressBook sharedAddressBook]
 
 (allow ipc-posix-shm-read* ipc-posix-shm-write-data
     (ipc-posix-name "com.apple.AppleDatabaseChanged") ;; Security.framework
@@ -143,4 +140,21 @@
 
 ;; PersonalizationPortrait rdar://problem/33593450
 (allow user-preference-read (preference-domain "com.apple.assistant.support"))
+;; PersonalizationPortrait <rdar://problem/41010496> suggestd: Couldn't read values in CFPrefsPlistSource<0x7f8809d0de30> (Domain: com.apple.proactive.PersonalizationPortrait
+(allow user-preference-read (preference-domain "com.apple.proactive.PersonalizationPortrait"))
 
+;; Address book
+;; Copied and pasted from application.sb,
+;; excluding the addressbook lock dir part and everything below it (we don't need it and relies on functions only provided in application.sb)
+(allow distributed-notification-post)
+(with-filter (extension "com.apple.tcc.kTCCServiceAddressBook")
+    (allow mach-lookup
+           (global-name "com.apple.AddressBook.abd")
+           (global-name "com.apple.AddressBook.AddressBookApplicationFrameworkIPC")
+           (global-name "com.apple.AddressBook.AssistantService")
+           (global-name "com.apple.AddressBook.ContactsAccountsService")
+           (global-name "com.apple.AddressBook.SourceSync")
+           (global-name "com.apple.ContactsAgent.addressbook"))
+    (allow user-preference-read user-preference-write (preference-domain "com.apple.AddressBook")) ; (this line modified from application.sb to remove dependency on a function)
+    (allow file-read* file-write*
+           (home-subpath "/Library/Application Support/AddressBook")))

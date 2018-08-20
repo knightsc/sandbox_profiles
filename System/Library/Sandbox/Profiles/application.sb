@@ -281,6 +281,9 @@
   (resolving-prefix (string-append (param "_HOME") home-relative-subpath)))
 (define (home-literal home-relative-literal)
   (resolving-literal (string-append (param "_HOME") home-relative-literal)))
+(define (home-path-ancestors home-relative-path)
+  (with-transparent-redirection
+    (path-ancestors (string-append (param "_HOME") home-relative-path))))
 (define (container-regex container-relative-regex)
   (resolving-regex
     (string-append
@@ -472,6 +475,13 @@
 (bundle-id-can-register-service
   "com.sparrowmailapp.sparrowlite"
   "Sparrow-Port")
+(when (entitlement "com.apple.developer.storage.fileutil")
+      (allow system-kext-query)
+      (allow system-socket
+             (require-all (socket-domain AF_SYSTEM) (socket-protocol 2)))
+      (allow network-outbound
+             (control-name "com.apple.fileutil.kext.stateful.ctl")
+             (control-name "com.apple.fileutil.kext.stateless.ctl")))
 (deny process-info*)
 (allow process-info-pidinfo)
 (allow process-info-pidfdinfo (target self))
@@ -499,6 +509,7 @@
       (subpath "/Library/Logs")
       (subpath "/Library/Managed Preferences")
       (subpath "/Library/Preferences"))
+(allow file-read* (subpath "/Library/Preferences/Logging"))
 (when (param "application_bundle")
       (allow-read-directory-contents (param "application_bundle"))
       (allow process-exec (subpath (param "application_bundle"))))
@@ -552,8 +563,7 @@
   (for-each
     (lambda (domain)
       (begin
-        (if (defined? `user-preference-read)
-          (allow user-preference-read (preference-domain domain)))
+        (allow user-preference-read (preference-domain domain))
         (allow file-read*
                (home-literal
                  (string-append "/Library/Preferences/" domain ".plist"))
@@ -567,10 +577,9 @@
   (for-each
     (lambda (domain)
       (begin
-        (if (defined? `user-preference-write)
-          (allow user-preference-read
-                 user-preference-write
-                 (preference-domain domain)))
+        (allow user-preference-read
+               user-preference-write
+               (preference-domain domain))
         (allow file-read*
                file-write*
                (home-regex
@@ -1030,6 +1039,9 @@
 (shared-preferences-read-write
   "com.apple.preferences.extensions.ServicesWithUI"
   "com.apple.preferences.extensions.ShareMenu")
+(allow file-read*
+       (home-literal
+         "/Library/Preferences/com.apple.LaunchServices/com.apple.LaunchServices.plist"))
 (read-only-and-issue-extensions
   (require-any
     (home-subpath "/Library/Sounds")
@@ -1100,11 +1112,10 @@
        (literal "/Library/Preferences/.GlobalPreferences.plist")
        (literal "/Library/Preferences/com.apple.AppleShareClient.plist")
        (literal "/Library/Preferences/com.apple.HIToolbox.plist")
+       (prefix "/Library/Preferences/com.apple.PowerManagement.")
        (literal "/Library/Preferences/com.apple.loginwindow.plist")
        (regex "^/Library/Preferences/com\\.apple\\.security")
        (subpath "/Library/Preferences/Logging/Subsystems")
-       (literal
-         "/Library/Preferences/SystemConfiguration/com.apple.PowerManagement.plist")
        (literal "/Library/Preferences/SystemConfiguration/preferences.plist")
        (subpath "/Users/Shared/SC Info"))
 (allow file-read*
@@ -1116,6 +1127,11 @@
        (subpath "/Library/PDF Services")
        (subpath "/Developer")
        (require-all (file-mode 4) (subpath "/Applications")))
+(allow file-issue-extension
+       (require-all
+         (extension-class "com.apple.app-sandbox.read")
+         (file-mode 4)
+         (subpath "/Applications")))
 (allow mach-lookup (global-name "com.apple.ocspd"))
 (allow file-read* file-write* (home-prefix "/Library/Keychains/"))
 (deny file-read*
@@ -1180,6 +1196,7 @@
        (global-name "com.apple.icdd")
        (global-name "com.apple.iconservices")
        (global-name "com.apple.iconservices.store")
+       (global-name "com.apple.iiod")
        (global-name "com.apple.ImageCaptureExtension2.presence")
        (global-name "com.apple.ink.private")
        (global-name "com.apple.inputmethodkit.getxpcendpoint")
@@ -1211,6 +1228,7 @@
        (global-name "com.apple.quicklook.ui.helper.active")
        (global-name "com.apple.revisiond")
        (global-name "com.apple.rtcreportingd")
+       (global-name "com.apple.secinitd.fileoperations")
        (global-name "com.apple.security.pboxd")
        (global-name "com.apple.securityd.xpc")
        (global-name "com.apple.SecurityServer")
@@ -1237,6 +1255,7 @@
        (global-name "com.apple.TrustEvaluationAgent")
        (global-name "com.apple.tsm.uiserver")
        (global-name "com.apple.UNCUserNotification")
+       (global-name "com.apple.usernotifications.usernotificationservice")
        (global-name "com.apple.VoiceOver.running")
        (global-name "com.apple.window_proxies")
        (global-name "com.apple.windowserver.active")
@@ -1283,7 +1302,8 @@
 (allow mach-lookup
        (global-name "com.apple.notificationcenterui.widgetcontent")
        (global-name "com.apple.usernoted.client")
-       (global-name "com.apple.usernoted.daemon_client"))
+       (global-name "com.apple.usernoted.daemon_client")
+       (global-name "com.apple.usernoted.push"))
 (allow signal (target same-sandbox))
 (if (or (entitlement "com.apple.security.library-repair.extensions")
         (entitlement "com.apple.security.library-repair.ostype"))
@@ -1314,9 +1334,20 @@
        file-write*
        (mount-relative-regex "^/\\.Trashes(/|$)")
        (home-subpath "/.Trash"))
+(when (or (entitlement "com.apple.security.device.microphone")
+          (entitlement "com.apple.security.device.audio-input"))
+      (allow iokit-open
+             (require-all
+               (iokit-connection "AppleHDAEngineInput")
+               (iokit-user-client-class
+                 "IOAudioControlUserClient"
+                 "IOAudioEngineUserClient"))))
 (allow iokit-open
-       (iokit-user-client-class "IOAudioControlUserClient")
-       (iokit-user-client-class "IOAudioEngineUserClient"))
+       (require-all
+         (iokit-connection "AppleHDAEngineOutput")
+         (iokit-user-client-class
+           "IOAudioControlUserClient"
+           "IOAudioEngineUserClient")))
 (allow iokit-open
        (iokit-user-client-class "AppleUpstreamUserClient")
        (iokit-user-client-class "AudioAUUC"))
@@ -1392,6 +1423,10 @@
        (home-subpath "/Library/Dictionaries")
        (subpath "/Library/Dictionaries")
        (subpath "/Network/Library/Dictionaries"))
+(allow authorization-right-obtain
+       (right-name "com.apple.app-sandbox.create-symlink")
+       (right-name "com.apple.app-sandbox.set-attributes")
+       (right-name "com.apple.app-sandbox.replace-file"))
 (sandbox-array-entitlement
   "com.apple.security.temporary-exception.apple-events"
   (lambda (name) (allow appleevent-send (appleevent-destination name))))

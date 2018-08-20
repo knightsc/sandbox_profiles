@@ -149,6 +149,8 @@
     (global-name-regex #"^com\.apple\.distributed_notifications")
 	(global-name "com.apple.telephonyutilities.callservicesdaemon.callstatecontroller")
 	(global-name "com.apple.telephonyutilities.callservicesdaemon.callcapabilities")
+	(global-name "com.apple.siri.external_request")
+	(global-name "com.apple.siri.activation")
 )
 
 (allow iokit-open

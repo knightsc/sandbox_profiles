@@ -11,11 +11,14 @@
 (allow file-read*
        (literal "/Library/Preferences/com.apple.FindMyMac.plist")
        (literal "/Library/Preferences/com.apple.loginwindow.plist")
+       (literal "/Library/Managed Preferences/com.apple.FindMyMac.plist")
+       (literal "/Library/Managed Preferences/com.apple.loginwindow.plist")
        (subpath "/private/var/root/Library/Preferences")
        (subpath "/Library/Keyboard Layouts")
        (subpath "/Library/Input Methods")
        (subpath "/Library/Components")
        (subpath "/Library/Preferences")
+       (subpath "/Library/Managed Preferences")
        (subpath "/Library/Fonts"))
 
 (allow mach-lookup 

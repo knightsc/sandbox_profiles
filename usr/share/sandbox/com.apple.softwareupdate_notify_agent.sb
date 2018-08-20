@@ -16,13 +16,31 @@
        (global-name "com.apple.softwareupdated")
        (global-name "com.apple.appstoreupdateagent")
        (global-name "com.apple.distributed_notifications@Uv3")
-       (global-name "com.apple.system.logger"))
+       (global-name "com.apple.system.logger")
+       (global-name "com.apple.distributed_notifications@Uv3")
+       (global-name "com.apple.distributed_notifications@1v3"))
 
 (allow file-read*
        (literal "/Library/Preferences/com.apple.SoftwareUpdate.plist")
        (literal "/private/var/db/SUPrefOverrides.plist")
        (regex #"/.GlobalPreferences[^/]*\.plist")
+       (regex #"/Library/Preferences/com\.apple\.systempreferences\.plist$")
        (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
        (literal "/Library/Caches/com.apple.DiagnosticReporting.HasBeenAppleInternal")
        (subpath "/Library/Bundles"))
+
+(allow file-read-metadata)
+
+(allow user-preference-read user-preference-write
+       (preference-domain "com.apple.systempreferences")
+       (preference-domain "com.apple.preferences.softwareupdate"))
+
+(allow user-preference-read
+       (preference-domain "com.apple.commerce"))
+
+(allow file-read*
+       (literal "/Library/Preferences/.GlobalPreferences.plist")
+       (regex #"^/Library/Preferences/\.GlobalPreferences\.plist")
+       (regex #"^/private/var/root/Library/Preferences/\.GlobalPreferences\.plist")
+       (regex #"^/private/var/root/Library/Preferences/ByHost/\.GlobalPreferences\."))
 

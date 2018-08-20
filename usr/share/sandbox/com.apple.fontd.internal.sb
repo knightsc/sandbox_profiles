@@ -10,8 +10,6 @@
 
 (import "com.apple.fontd.support.sb")
 
-(allow sysctl-write (sysctl-name "vfs.generic.noremotehang"))
-
 (allow ipc-posix-shm (ipc-posix-name "apple.shm.notification_center"))
 
 (allow iokit-open (iokit-user-client-class "RootDomainUserClient"))
@@ -22,7 +20,6 @@
     (global-name "com.apple.FSEvents")
     (global-name "com.apple.FontWorker")
     (global-name "com.apple.FontWorker.ATS")
-    (global-name-regex #"^com\.apple\.FontObjectsServer.*")
     (global-name "com.apple.SystemConfiguration.PPPController")
     (global-name "com.apple.SystemConfiguration.SCNetworkReachability")
     (global-name "com.apple.DiskArbitration.diskarbitrationd")
@@ -31,7 +28,10 @@
     (global-name "com.apple.distributed_notifications@Uv3")
     (global-name "com.apple.distributed_notifications@1v3")
     (global-name "com.apple.SystemConfiguration.configd")
+    (global-name "com.apple.lsd.mapdb")
     (global-name "com.apple.mobileassetd")
+    (global-name "com.apple.fonts.atsbridge")
+    (global-name "com.apple.FontObjectsServer")
 )
 
 (allow file-read*
@@ -43,19 +43,6 @@
     (literal "/private/var/empty/Library")
     (with no-log)
 )
-
-(allow mach-register
-    (global-name-regex #"^com\.apple\.FontObjectsServer.*")
-    (global-name "com.apple.FontObjectsServer_VALIDATOR_%V")
-)
-
-(allow process-fork)
-
-(allow process-exec* (with no-sandbox) (literal "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/Support/ATSServer"))
-(allow process-exec* (with no-sandbox) (literal "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/Support/genatsdb"))
-(allow process-exec* (with no-sandbox) (literal "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/Support/fontmover"))
-(allow process-exec* (with no-sandbox) (literal "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/Support/fontworker"))
-(allow process-exec* (literal "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/Support/fontd"))
 
 ; File system access
 
@@ -111,34 +98,49 @@
 (allow file-read*
     ;; System and user preferences
     (literal "/Library/Preferences/.GlobalPreferences.plist")
-    (home-literal "/Library/Preferences/.GlobalPreferences.plist")
-    (home-literal "/Library/Preferences/com.apple.ATSDefaults.plist")
-    (home-literal "/Library/Preferences/com.apple.FontRegistry.user.plist")
-    (home-literal "/.CFUserTextEncoding")
-    (home-regex #"/Library/Preferences/ByHost/\.GlobalPreferences\.")
 )
 
-(allow file-write*
-    (home-literal "/Library/Preferences/com\.apple\.FontRegistry.user.plist")
+(if (positive? (string-length (param "__HOME")))
+	(begin
+		(home-literal "/Library/Preferences/.GlobalPreferences.plist")
+		(home-literal "/Library/Preferences/com.apple.FontRegistry.user.plist")
+		(home-literal "/.CFUserTextEncoding")
+		(home-regex #"/Library/Preferences/ByHost/\.GlobalPreferences\.")
+	)
+)
+
+(if (positive? (string-length (param "__HOME")))
+	(begin
+		(allow file-write*
+    		(home-literal "/Library/Preferences/com\.apple\.FontRegistry.user.plist")
+		)
+	)
 )
 
 (allow file-write* file-read*
     (regex #"/private/var/folders/[^/]+/[^/]+/C/com.apple.FontRegistry/*")
 )
 
-(allow-read-access-and-issue-extensions (param "__HOME"))
+(if (positive? (string-length (param "__HOME")))
+	(begin
+		(allow-read-access-and-issue-extensions (param "__HOME"))
+	)
+)
 (allow-read-access-and-issue-extensions "/Library/Fonts")
 (allow-read-access-and-issue-extensions "/System/Library/Fonts")
 (allow-read-access-and-issue-extensions "/Library/Application Support/Apple/Fonts")
 
-(allow-read-write-access-and-issue-extensions (string-append (param "__HOME") "/Library/Fonts"))
+(if (positive? (string-length (param "__HOME")))
+	(begin
+		(allow-read-write-access-and-issue-extensions (string-append (param "__HOME") "/Library/Fonts"))
+	)
+)
 
 (deny file-write-xattr)
 
 ; And override everything else if we get given an extension
 (allow file-read* (extension "com.apple.app-sandbox.read"))
 (allow file-read* (extension "com.apple.app-sandbox.read-write"))
-(allow file-issue-extension (extension "com.apple.app-sandbox.read"))
 
 ; Bookmark with SecurityScope
 (allow mach-lookup (global-name "com.apple.scopedbookmarksagent.xpc"))

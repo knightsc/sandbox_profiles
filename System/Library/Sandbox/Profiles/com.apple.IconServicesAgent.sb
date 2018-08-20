@@ -5,17 +5,30 @@
 (import "system.sb")
 
 (allow file-read*)
+(allow distributed-notification-post)
 
 (define icon-service-cache-path (string-append "^/private" (regex-quote (param "CACHE_PATH"))))
 
 (define (apply-write-and-issue-extension op path-filter)
 	(op file-write-create path-filter)
 	(op file-write-data path-filter)
-	(op file-write-unlink path-filter)
+    (op file-write-mode path-filter)
+    (op file-write-unlink path-filter)
 	(op file-issue-extension (require-all (extension-class "com.apple.app-sandbox.read") path-filter)))
 
 (apply-write-and-issue-extension allow
 	(regex icon-service-cache-path))
+
+(define temporary-items-path (string-append "^/private" (regex-quote (param "TEMPORARY_ITEMS_PATH"))))
+
+(define (apply-write-create-mode-data-unlink op path-filter)
+    (op file-write-create path-filter)
+    (op file-write-data path-filter)
+    (op file-write-mode path-filter)
+    (op file-write-unlink path-filter))
+
+(apply-write-create-mode-data-unlink allow
+    (regex temporary-items-path))
 
 (allow mach-lookup
 	(global-name (param "ICONSERVICES_STORE_SERVICE_NAME"))

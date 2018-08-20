@@ -24,6 +24,10 @@
        (global-name "com.apple.tccd")) ;; <rdar://problem/10955407> resolve quicklooksatellite tcc.allow or not (or no ui entitlement)
 (allow file-read* file-write*
        (home-subpath "/Library/Application Support/AddressBook"))
+
+(if (param "application_darwin_temp_parent_dir")
+    (read-write-and-issue-extensions (subpath (string-append (param "application_darwin_temp_parent_dir") "/.AddressBookLocks"))))
+
 (read-only-and-issue-extensions
     (require-any
        (subpath "/Library/Images/People")

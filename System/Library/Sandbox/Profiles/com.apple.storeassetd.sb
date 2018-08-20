@@ -39,6 +39,7 @@
        (regex #"/Library/Preferences/\.GlobalPreferences\.plist$")
        (regex #"/Library/Preferences/ByHost/\.GlobalPreferences\.")
        (regex #"/Library/Preferences/com.apple.security\.plist$")
+       (regex #"/Library/Preferences/com\.apple\.mdmclient\.plist$")
 	   (regex #"/\.CFUserTextEncoding$")
        (regex #"/Library/Caches/com\.apple\.commerce/updates-com\.apple\.appstore\.updateQueue\.plist$"))
 
@@ -79,6 +80,9 @@
 	   (regex #"/(macOS|OS X) Install Data(/|$)")
        (regex #"\.appdownload(/|$)")
        (regex #"^/etilqs_"))
+
+(allow user-preference-read
+       (preference-domain "com.apple.AppleMediaServices"))
 
 (allow ipc-posix-shm-read-data
        (ipc-posix-name "FNetwork.defaultStorageSession")
@@ -153,6 +157,7 @@
        (global-name "com.apple.cfnetwork.AuthBrokerAgent")
        (global-name "com.apple.cfnetwork.cfnetworkagent")
        (global-name "com.apple.rtcreportingd")
+       (global-name "com.apple.mdmclient.daemon.unrestricted")
        (global-name "com.apple.pasteboard.1"))
 
 (allow authorization-right-obtain

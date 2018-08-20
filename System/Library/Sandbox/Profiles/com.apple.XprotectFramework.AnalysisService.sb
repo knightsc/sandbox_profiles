@@ -35,6 +35,7 @@
     (home-subpath "/Library/Caches/com.apple.XprotectFramework.AnalysisService"))
 
 (allow mach-lookup
+    (global-name "com.apple.awdd")
     (global-name "com.apple.lsd.modifydb")
     (global-name "com.apple.lsd.mapdb")
     (global-name "com.apple.security.syspolicy")
@@ -42,7 +43,8 @@
     (global-name "com.apple.ocspd")
     (global-name "com.apple.nsurlstorage-cache")
     (global-name "com.apple.CoreServices.coreservicesd")
-    (global-name "com.apple.dz.dznd"))
+    (global-name "com.apple.dz.dznd")
+    (global-name "com.apple.dz.dznd.xpc"))
 
 ;;More Security framework allows
 (allow ipc-posix-shm-read* ipc-posix-shm-write-data

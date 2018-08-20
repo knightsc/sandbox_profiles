@@ -48,6 +48,8 @@
     (extension-class "com.apple.app-sandbox.read-write")
     (home-subpath "/Library/Caches/com.apple.assistantd")))
 
+(allow file-issue-extension (home-subpath "/Library/Caches/VoiceTrigger/SATUpdate"))
+
 (allow user-preference*
        (preference-domain "com.apple.assistant")
        (preference-domain "com.apple.assistant.support")
@@ -59,7 +61,9 @@
 
 (allow file-read* file-write* 
        (home-subpath "/Library/Keychains")
-       (home-subpath "/Library/Security"))
+       (home-subpath "/Library/Security")
+       (home-subpath "/Library/VoiceTrigger")
+       (home-subpath "/Library/Caches/VoiceTrigger"))
 
 (allow file-read*
        (subpath "/private/var/db/mds")
@@ -89,6 +93,7 @@
        (home-subpath "/Library/Caches/com.apple.assistantd")
        (home-literal "/Library/Preferences/com.apple.assistant.backedup.plist")
        (home-literal "/Library/Preferences/com.apple.assistant.backedup.encrypted.plist")
+       (home-literal "/Library/Preferences/com.apple.AddressBook.plist")
        (literal "/Library/Caches/com.apple.DiagnosticReporting.HasBeenAppleInternal"))
 
 (allow file-read* file-read-metadata
@@ -124,6 +129,8 @@
        (global-name "com.apple.ContactsAgent.addressbook")
        (global-name "com.apple.accountsd.accountmanager")
        (global-name "com.apple.accountsd.oauthsigner")
+       (global-name "com.apple.assertiond.processassertionconnection")
+       (global-name "com.apple.audio.SystemSoundServer-OSX")
        (global-name "com.apple.tccd")
        (global-name "com.apple.coreduetd")
        (global-name "com.apple.geod.defaults")
@@ -184,9 +191,13 @@
        (global-name "com.apple.symptom_analytics")
        (global-name "com.apple.symptom_diagnostics")
        (global-name "com.apple.siri.invoke")
+       (global-name "com.apple.siri.activation")
        (global-name "com.apple.remoted")
        (global-name "com.apple.PowerManagement.control")
-       (global-name "com.apple.siriknowledged"))
+       (global-name "com.apple.siriknowledged")
+       (global-name "com.apple.homed.xpc")
+       (global-name "com.apple.BTLEAudioController.xpc")
+       (global-name "com.apple.mobileassetd"))
 
 (allow ipc-posix-shm
        (ipc-posix-name-regex #"^AudioIO")

@@ -72,7 +72,7 @@
        (subpath "/Library/QuickTime")
        (subpath "/Library/Filesystems/NetFSPlugins"))
 
-(allow file-read*
+(allow file-read-data
        (subpath "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
        (subpath "/Users/Shared/SC Info")
        (subpath "/private/var")

@@ -61,7 +61,11 @@
 (regex #"/Library/Keychains/")
 (regex #"^/etilqs_"))
 
+(allow file-write-create
+    (regex #"/Library/Cookies"))
+
 (allow user-preference-read
+    (preference-domain "com.apple.AppleMediaServices")
     (preference-domain "kCFPreferencesAnyApplication"))
 
 (allow user-preference*
@@ -88,9 +92,11 @@
 (allow mach-register (global-name "com.apple.commerce"))
 
 (allow mach-lookup
+(global-name "com.apple.usernotifications.usernotificationservice")
 (global-name "com.apple.apsd")
 (global-name "com.apple.adid")
 (global-name "com.apple.ak.anisette.xpc")
+(global-name "com.apple.ak.auth.xpc")
 (global-name "com.apple.fpsd")
 (global-name "com.apple.askpermissiond")
 (global-name "com.apple.AssetCacheLocatorService")

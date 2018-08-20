@@ -109,7 +109,10 @@
 
 ;;;Allow mach lookups on service names and access to IOKit user-clients for which we have a received an extension
 (allow iokit-open iokit-set-properties (extension "com.apple.audio.driver-host.iokit-user-client-class"))
-(allow mach-lookup (extension "com.apple.audio.driver-host.mach-service-name"))
+(allow mach-lookup 
+	(extension "com.apple.audio.driver-host.mach-service-name")
+	(global-name "com.apple.tccd.system")
+)
 
 (allow network*)
 

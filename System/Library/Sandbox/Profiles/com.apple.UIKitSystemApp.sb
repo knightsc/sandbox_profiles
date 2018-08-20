@@ -1,0 +1,118 @@
+;;; WARNING: The sandbox rules in this file currently constitute
+;;; Apple System Private Interface and are subject to change at any time and
+;;; without notice.
+;;;
+;;; Created by rbishopjr on 4/25/18.
+;;; Copyright © 2018 Apple. All rights reserved.
+(version 1)
+
+(deny default)
+(deny file-write*)
+(deny file-map-executable)
+(deny nvram*)
+(deny dynamic-code-generation)
+
+;;; Homedir-relative path filters
+(define (home-regex home-relative-regex)
+(regex (string-append "^" (regex-quote (param "HOME")) home-relative-regex)))
+
+(define (home-subpath home-relative-subpath)
+(subpath (string-append (param "HOME") home-relative-subpath)))
+
+(define (home-prefix home-relative-prefix)
+(prefix (string-append (param "HOME") home-relative-prefix)))
+
+(define (home-literal home-relative-literal)
+(literal (string-append (param "HOME") home-relative-literal)))
+
+(import "system.sb")
+(import "com.apple.corefoundation.sb")
+(corefoundation)
+(system-graphics)
+
+;; Need to allow /System/iOSSupport because default system.sb doesn't yet allow that
+(allow file-map-executable (subpath "/System/iOSSupport"))
+
+;; Allow FrontBoard writes
+(allow file-write* (home-subpath "/Library/FrontBoard"))
+
+;; Security.framework
+; mds: mds.lock, mdsDirectory.db, mdsObject.db
+; 1. extension "mds"
+;    uid == 0: r+w /private/var/db/mds/system
+;    uid  > 0: r+w <_DARWIN_USER_CACHE_DIR>/mds
+; 2. /private/var/db/mds/system/{mdsDirectory.db,mdsObject.db}
+;    uid == 0: r+w (already covered by (extension "UIKitSystemApp:mds"))
+;    uid  > 0: r
+(allow file-read* file-write* (extension "UIKitSystemApp:mds"))
+(allow file-read*
+    (literal "/private/var/db/mds/system/mdsDirectory.db")
+    (literal "/private/var/db/mds/system/mdsObject.db"))
+; 3. se_SecurityMessages:
+;    uid  < 500: /private/var/db/mds/messages/se_SecurityMessages
+;    uid >= 500: /private/var/db/mds/messages/<uid>/se_SecurityMessages
+(allow file-read* (extension "UIKitSystemApp:securitymessages"))
+
+;; Allow all file reads since we have to look at bundles in random locations
+(allow file-read*)
+
+;; Allow temp and cache
+(allow file-read* file-write* (subpath (param "DARWIN_CACHE_DIR")))
+(allow file-read* file-write* (subpath (param "TMPDIR")))
+
+;; For validating entitlements, getting pids, etc
+(allow process-info*)
+(allow process-codesigning-status-get)
+
+;; Allow iokit get props
+(allow iokit-get-properties)
+
+;; UIKitSystemApp's preference domain.
+(allow user-preference-read user-preference-write
+       (preference-domain "com.apple.UIKitSystemApp"))
+;; UIKit pref domain
+(allow user-preference-read user-preference-write
+       (preference-domain "com.apple.UIKit"))
+(allow user-preference-read
+        (preference-domain "kCFPreferencesAnyApplication"))
+(allow user-preference-read user-preference-write
+       (preference-domain "com.apple.Accessibility"))
+(allow user-preference-read user-preference-write
+       (preference-domain "com.apple.BaseBoard.transactions"))
+(allow user-preference-read user-preference-write
+       (preference-domain "com.apple.backboardd"))
+
+;; Allowed to signal other processes
+(allow signal)
+
+;; Accessibility / UIAutomation support
+(allow mach-priv-host-port)
+(allow mach-register (global-name "com.apple.iphone.axserver-systemwide"))
+(allow mach-lookup (local-name "com.apple.iphone.axserver"))
+
+;; Must be able to look up iosmac processes
+(allow mach-task-name)
+;; Allow the services we connect to. Also allow *.gsEvents for iosmac clients.
+(allow mach-lookup
+       (global-name "com.apple.CARenderServer")
+       (global-name "com.apple.CoreServices.coreservicesd")
+       (global-name "com.apple.SecurityServer")
+       (global-name "com.apple.assertiond.processassertionconnection")
+       (global-name "com.apple.assertiond.processinfoservice")
+       (global-name "com.apple.distributed_notifications@Uv3")
+       (global-name "com.apple.frontboard.systemappservices")
+       (global-name "com.apple.frontboard.workspace")
+       (global-name "com.apple.lsd.mapdb")
+       (global-name "com.apple.lsd.modifydb")
+       (global-name "com.apple.lsd.xpc")
+       (global-name "com.apple.ocspd")
+       (global-name-regex #"\.gsEvents$"))
+
+;; Allowed to register our own gsEvents port
+(allow mach-register (global-name "com.apple.UIKitSystemApp.gsEvents"))
+
+;; Allowed ipc
+(allow ipc-posix-shm-read-data
+       (ipc-posix-name-regex #"^/tmp/com.apple.csseed.[0-9]+$"))
+(allow ipc-posix-shm-read-data ipc-posix-shm-write-data
+       (ipc-posix-name "com.apple.AppleDatabaseChanged"))

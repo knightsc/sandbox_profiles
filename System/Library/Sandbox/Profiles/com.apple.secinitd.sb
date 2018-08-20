@@ -48,5 +48,11 @@
 (allow process-fork)
 (allow process-exec (literal "/usr/libexec/AppSandbox/app_sandbox_cache_builder") (with no-sandbox))
 
+;; Privileged File Operations
+(allow authorization-right-obtain
+       (right-name "com.apple.app-sandbox.create-symlink")
+       (right-name "com.apple.app-sandbox.set-attributes")
+       (right-name "com.apple.app-sandbox.replace-file"))
+
 ;; Tracing
 (allow network* (regex #"^/private/tmp/sandbox\."))

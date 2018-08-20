@@ -3,6 +3,7 @@
 (import "system.sb")
 
 (define system (equal? "YES" (param "SYSTEM")))
+(define root (equal? "YES" (param "ROOT")))
 
 (allow generic-issue-extension
        (extension-class-regex #"^com\.apple\.tcc\."))
@@ -35,16 +36,19 @@
        (global-name "com.apple.lsd.modifydb")
        (global-name "com.apple.notificationcenterui.tcc")
        (global-name "com.apple.ocspd")
-       (global-name "com.apple.pluginkit.pkd"))
+       (global-name "com.apple.pluginkit.pkd")
+       (global-name "com.apple.tccd.system")
+       (global-name "com.apple.universalaccessAuthWarn"))
 
 (allow system-fsctl
        (fsctl-command 31255))           ; afpfsByteRangeLock2FSCTL
 
-(when system
+(when root
   (allow file-write-data
          (literal "/private/var/db/mds/system/mds.lock"))
-  (allow ipc-posix-shm-read*
-         (ipc-posix-name "apple.shm.notification_center"))
   (allow mach-lookup
          (global-name "com.apple.tccd"))
   (allow mach-per-user-lookup))
+
+(allow user-preference-read
+    (preference-domain "com.apple.tccd"))

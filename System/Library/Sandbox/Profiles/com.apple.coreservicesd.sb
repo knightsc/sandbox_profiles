@@ -61,3 +61,6 @@
 (allow iokit-get-properties (iokit-property "image-path"))
 (allow iokit-get-properties (iokit-property "filevault-image"))
 (allow iokit-get-properties (iokit-property "Product Identification"))
+(allow iokit-get-properties (iokit-property "image-encrypted"))
+(allow iokit-get-properties (iokit-property "CaseSensitive"))
+(allow iokit-get-properties (iokit-property "Encrypted"))

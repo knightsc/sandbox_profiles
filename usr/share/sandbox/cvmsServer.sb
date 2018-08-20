@@ -3,6 +3,8 @@
 (deny default)
 (debug deny)
 
+(import "system.sb")
+
 (allow mach-per-user-lookup)
 
 ; For syslog
@@ -20,7 +22,10 @@
 
 (allow file-write*
        (literal "/private/var/log/cvms.log")
-       (subpath "/System/Library/Caches/com.apple.CVMS"))
+       (subpath "/System/Library/Caches/com.apple.CVMS")
+       (subpath "/private/var/db/CVMS"))
+
+(allow iokit-open (iokit-user-client-class "AppleMobileFileIntegrityUserClient"))
 
 (allow mach-lookup
        (global-name "com.apple.system.notification_center")

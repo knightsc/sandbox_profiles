@@ -302,7 +302,6 @@
 (allow file-read* (subpath "/Library/QuickTime"))
 (allow file-read* (subpath "/Library/Spotlight"))
 (allow file-read* (literal "/Library/Preferences/com.apple.SpotlightServer.plist"))
-
 (allow file-read* (literal "/usr/bin"))
 (allow file-read* (subpath "/usr/bin/mdimport"))
 (allow file-read* (literal "/var/log/CDIS.custom"))
@@ -310,6 +309,7 @@
 (allow file-read* (literal "/Library/Preferences/com.apple.systemprefs.plist"))
 
 (allow file-read* (literal "/Library/Preferences/com.apple.security.plist"))
+(allow file-read* (literal "/Library/Preferences/com.apple.ViewBridge.plist"))
 
 (allow file-read*
        (subpath "/private/var/db/mds")
@@ -322,8 +322,14 @@
 (allow file-read* (mount-relative-regex #"^/System/Library/Fonts(/|$)"))
 
 (allow file-read* (extension "com.apple.spotlight.importer.readonly"))
-(allow file-read* file-write* (extension "com.apple.spotlight.tempdirectory"))
-(allow file-read* file-write* (extension "com.apple.spotlight.cachedirectory"))
+
+(if (positive? (string-length (param "DARWIN_TEMP_DIR")))
+    (begin
+        (allow file* (subpath (param "DARWIN_TEMP_DIR")))))
+
+(if (positive? (string-length (param "DARWIN_CACHE_DIR")))
+    (begin
+        (allow file* (subpath (param "DARWIN_CACHE_DIR")))))
 
 (allow ipc-posix-shm-read-data (ipc-posix-name-regex #"^/tmp/com\.apple\.csseed\.[0-9]+$"))
 
@@ -336,3 +342,4 @@
 
 (deny file-read* file-write* (subpath "/private/var/folders/zz/zyxvpxvq6csfxvn_n0000000000000/0/com.apple.Spotlight"))
 
+(allow user-preference-read)

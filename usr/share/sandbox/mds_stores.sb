@@ -34,12 +34,22 @@
     (begin
         (allow file-read* (subpath (param "_PARAM_PATH")))))
 
+(if (positive? (string-length (param "DARWIN_TEMP_DIR")))
+    (begin
+        (allow file* (subpath (param "DARWIN_TEMP_DIR")))))
+
+(if (positive? (string-length (param "DARWIN_CACHE_DIR")))
+    (begin
+        (allow file* (subpath (param "DARWIN_CACHE_DIR")))))
+
 (allow file*
-   (regex #"^/private/var/db/Spotlight($|/)"))
+    (regex #"^/private/var/db/Spotlight($|/)")
+    (regex #"^/private/var/db/Spotlight-V100($|/)")
+    (regex #"^/Library/Caches/com\.apple\.Spotlight($|/)")
+    (mount-relative-regex #"/\.Spotlight-V100($|/)"))
 
 (allow file-write*
     (literal "/dev/console"))
-
 
 (allow file-read*
     (literal "/Library/Preferences/com.apple.SpotlightServer.plist")
@@ -50,11 +60,6 @@
     (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
     )
     
-(allow file-read* file-write* (extension "com.apple.spotlight.tempdirectory"))
-(allow file-read* file-write* (extension "com.apple.spotlight.cachedirectory"))
-
-(allow file-read* file-write* (regex #"/\.Spotlight-V100($|/)"))
-
 (allow file-read-metadata (literal "/AppleInternal"))
 
 (allow ipc-posix-shm)

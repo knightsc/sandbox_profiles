@@ -47,8 +47,13 @@
 
 (allow file-read* (literal "/Library/Preferences/com.apple.SpotlightServer.plist"))
 
-(allow file-read* file-write* (extension "com.apple.spotlight.tempdirectory"))
-(allow file-read* file-write* (extension "com.apple.spotlight.cachedirectory"))
+(if (positive? (string-length (param "DARWIN_TEMP_DIR")))
+    (begin
+        (allow file* (subpath (param "DARWIN_TEMP_DIR")))))
+
+(if (positive? (string-length (param "DARWIN_CACHE_DIR")))
+    (begin
+        (allow file* (subpath (param "DARWIN_CACHE_DIR")))))
 
 ;; FIXME: Should be removed once <rdar://problem/16329087> is fixed.
 (deny file-write-xattr (xattr "com.apple.quarantine") (with no-log))
@@ -56,3 +61,5 @@
 (if (defined? 'xattr-regex)
     (deny file-read-xattr file-write-xattr (xattr-regex #"^com\.apple\.security\.private\."))
 (deny file-read-xattr file-write-xattr (xattr #"^com\.apple\.security\.private\.")))
+
+(allow user-preference-read)

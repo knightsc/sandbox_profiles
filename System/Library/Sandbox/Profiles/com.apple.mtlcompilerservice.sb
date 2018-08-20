@@ -11,3 +11,6 @@
 
 (allow file-read*
     (subpath "/Library/GPUBundles"))
+
+(allow file-write*
+    (subpath "/Library/Logs/DiagnosticReports/MTLCompiler"))

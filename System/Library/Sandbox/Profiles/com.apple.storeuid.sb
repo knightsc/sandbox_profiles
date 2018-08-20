@@ -66,6 +66,7 @@
        (regex #"/Library/Caches/com\.apple\.commerce")
        (regex #"/Library/Caches/com\.apple\.storeagent")
        (regex #"/Library/Caches/com\.apple\.WebKit2\.WebProcessService$")
+       (regex #"Data/Library/Caches/receipts")
        (regex #"/Library/Cookies")
        (regex #"/Library/Preferences/com\.apple\.storeagent\.plist$")
        (regex #"/Library/Preferences/com\.apple\.appstore\.plist$")
@@ -86,6 +87,7 @@
        (regex #"/Library/Preferences/com\.apple\.LaunchServices/com\.apple\.launchservices\.secure\.plist$"))
 
 (allow user-preference-read
+    (preference-domain "com.apple.AppleMediaServices")
     (preference-domain "com.apple.AppleMultitouchTrackpad")
     (preference-domain "com.apple.ServicesMenu.Services"))
 
@@ -169,7 +171,8 @@
        (global-name "com.apple.dock.fullscreen")
        (global-name "com.apple.cfnetwork.AuthBrokerAgent")
        (global-name "com.apple.cfnetwork.cfnetworkagent")
-       (global-name "com.apple.iconservices"))
+       (global-name "com.apple.iconservices")
+       (global-name "com.apple.appstoreagent.xpc"))
 
 (allow authorization-right-obtain
        (right-name "system.install.app-store-software")

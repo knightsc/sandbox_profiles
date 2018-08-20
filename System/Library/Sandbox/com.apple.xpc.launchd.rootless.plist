@@ -32,6 +32,8 @@
 		<true/>
 		<key>com.apple.ReportGPURestart</key>
 		<true/>
+		<key>com.apple.ScriptMenuApp</key>
+		<true/>
 		<key>com.apple.Siri.agent</key>
 		<true/>
 		<key>com.apple.atrun</key>

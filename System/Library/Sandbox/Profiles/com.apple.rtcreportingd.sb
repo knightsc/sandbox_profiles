@@ -35,6 +35,7 @@
 
        (literal "/Library/Preferences/.GlobalPreferences.plist")
        (literal "/Library/Preferences/com.apple.security.plist")
+       (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")                           ; for CrashReporter
        (home-literal "/Library/Preferences/.GlobalPreferences.plist")
        (home-literal "/Library/Preferences/com.apple.rtcreporting.plist")
        (home-literal "/Library/Preferences/com.apple.security.revocation.plist")
@@ -47,7 +48,8 @@
        (literal "/usr/libexec")
        (literal "/usr/libexec/rtcreportingd"))
 
-(allow user-preference-read (preference-domain "com.apple.rtcreportingd"))
+(allow user-preference-read user-preference-write (preference-domain "com.apple.rtcreporting"))
+(allow user-preference-read user-preference-write (preference-domain "com.apple.rtcreportingd"))
 
 (allow ipc-posix-shm-read-data
        (ipc-posix-name "FNetwork.defaultStorageSession")

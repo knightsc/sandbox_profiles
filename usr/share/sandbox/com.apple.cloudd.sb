@@ -88,6 +88,10 @@
        (container-cache-regexes #"/Packages($|/)")
 )
 
+;; For LaunchServices coordination
+(allow file-read* file-write*
+       (regex #"^/Library/Caches/com.apple.cloudkit($|/)")
+)
 
 
 ;; cloudd preferences

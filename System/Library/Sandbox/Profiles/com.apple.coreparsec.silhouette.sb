@@ -39,6 +39,8 @@
 (allow mach-lookup
 (global-name "com.apple.mobileassetd")
 (global-name "com.apple.suggestd.PersonalizationPortrait.DeletionTracking")
+(global-name "com.apple.proactive.PersonalizationPortrait.Topic.readOnly")
+(global-name "com.apple.proactive.PersonalizationPortrait.Config")
 (global-name "com.apple.coreduetd.knowledge.user") ;; PersonalizationPortrait
 )
 
@@ -60,8 +62,6 @@
 
 (allow file-map-executable (regex #"/silhouette"))
 
-(allow file-read* (home-subpath "/Library/Caches/com.apple.parsecd"))
-
 (allow user-preference-read user-preference-write (preference-domain "com.apple.parsecd"))
 
 ;; SGAsset
@@ -71,3 +71,6 @@
 
 ;; SGAsset <rdar://problem/26320796>
 (allow user-preference-read (preference-domain "com.apple.SoftwareUpdate"))
+
+;; Read/write access to parsecd’s cache.
+(allow file-read* file-write* (home-subpath "/Library/Caches/com.apple.parsecd"))

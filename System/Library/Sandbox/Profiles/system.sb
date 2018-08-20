@@ -25,6 +25,10 @@
        (subpath "/System/Library/PrivateFrameworks")
        (subpath "/usr/lib"))
 
+;;; Allow processes to get their current working directory.
+;;; Every process inherits their cwd from launchd, which uses "/".
+(allow file-read* (literal "/"))
+
 ;;; Allow read access to standard system paths.
 (allow file-read*
        (require-all (file-mode #o0004)
@@ -108,7 +112,6 @@
        (global-name "com.apple.trustd")
        (global-name "com.apple.trustd.agent")
        (global-name "com.apple.xpc.activity.unmanaged")
-       (global-name "com.apple.xpcd")
        (local-name "com.apple.cfprefsd.agent"))
 
 
@@ -126,9 +129,14 @@
   ;; OpenGL memory debugging
   (allow mach-lookup
          (global-name "com.apple.gpumemd.source"))
+  ;; LaunchServices required for IOSurfaceClient eGPU selection.
+  (allow mach-lookup
+         (global-name "com.apple.lsd.mapdb"))
   ;; CVMS
   (allow mach-lookup
          (global-name "com.apple.cvmsServ"))
+  (allow file-read*
+         (subpath "/private/var/db/CVMS"))
   ;; OpenCL
   (allow iokit-open
          (iokit-connection "IOAccelerator")
@@ -167,7 +175,8 @@
 ;;; (system-network) - Allow access to the network.
 (define (system-network)
   (allow file-read*
-         (literal "/Library/Preferences/com.apple.networkd.plist"))
+         (literal "/Library/Preferences/com.apple.networkd.plist")
+         (literal "/private/var/db/nsurlstoraged/dafsaData.bin"))
   (allow mach-lookup
          (global-name "com.apple.SystemConfiguration.PPPController")
          (global-name "com.apple.SystemConfiguration.SCNetworkReachability")

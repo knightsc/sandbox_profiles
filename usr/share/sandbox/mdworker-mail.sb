@@ -37,3 +37,4 @@
 (if (positive? (string-length (param "_HOME")))
     (begin
         (allow file-write* (home-subpath "/Library/Logs/mdworker"))))
+

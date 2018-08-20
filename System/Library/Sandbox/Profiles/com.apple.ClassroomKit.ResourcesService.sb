@@ -1,0 +1,104 @@
+;; Copyright (c) 2015-2018 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice.
+;;
+
+(version 1)
+(import "system.sb")
+
+;;; Denials
+
+;; Swap these in for debugging
+; (allow (with report) default)
+; (allow (with report) file-map-executable iokit-get-properties process-info* nvram*)
+; (allow (with report) dynamic-code-generation)
+
+(deny default)
+(deny file-map-executable iokit-get-properties process-info* nvram*)
+(deny dynamic-code-generation)
+
+;;; Constants
+
+(define home-directory (param "HOME_DIR"))
+(define temp-directory (param "TEMP_DIR"))
+(define cache-directory (param "CACHE_DIR"))
+(define configuration-path "/Library/Apple Education Configuration")
+(define view-bridge-path "/Library/Preferences/com.apple.ViewBridge.plist")
+(define login-keychain-db-path "/Library/Keychains/login.keychain-db")
+(define login-keychain-path "/Library/Keychains/login.keychain")
+(define system-keychain-path "/Library/Keychains/System.keychain")
+(define keychain-check-path "/private/var/run/systemkeychaincheck.done")
+(define resources-service-path "/System/Library/PrivateFrameworks/"
+    "ClassroomKit.framework/XPCServices/ResourcesService.xpc/"
+    "Contents/MacOS/ResourcesService")
+
+;;; Helper functions
+
+(define (home-subpath home-relative-subpath)
+    (subpath (string-append home-directory home-relative-subpath)))
+
+;;; Permissions
+
+(allow file-read*
+    (literal "/private/var/db/ConfigurationProfiles/Settings/.profilesAreInstalled")
+    (literal "/Library/Preferences/com.apple.security.plist")
+    (literal system-keychain-path)
+    (literal "/private")
+    (literal "/private/var")
+    (literal "/private/var/db")
+    (literal "/private/var/db/mds")
+    (literal "/private/var/db/mds/system")
+    (literal "/private/var/db/mds/system/mdsDirectory.db")
+    (literal "/private/var/db/mds/system/mdsObject.db")
+    (literal "/private/var/db/mds/messages/501/se_SecurityMessages")
+    (home-subpath login-keychain-db-path)
+    (home-subpath configuration-path)
+    (home-subpath "/Library/Preferences/com.apple.security.plist"))
+
+(allow file-write* file-read*
+    (subpath temp-directory)
+    (subpath cache-directory)
+    (home-subpath "/Library/Caches"))
+
+(allow file-read-metadata
+    (regex "/private/var/folders/*")
+    (literal resources-service-path)
+    (literal keychain-check-path)
+    (literal "/Library")
+    (literal "/Library/Keychains")
+    (literal "/Volumes")
+    (literal "/Volumes/Home")
+    (literal "/usr")
+    (literal home-directory)
+    (home-subpath "/Library")
+    (home-subpath login-keychain-path))
+
+(allow file-read-data
+    (literal view-bridge-path)
+    (literal "/Library/Preferences/com.apple.mdmclient.plist"))
+
+(allow mach-lookup
+    (global-name "com.apple.FileCoordination")
+    (global-name "com.apple.CoreServices.coreservicesd")
+    (global-name "com.apple.mdmclient.daemon.unrestricted")
+    (global-name "com.apple.securityd.xpc")
+    (global-name "com.apple.SecurityServer"))
+
+(allow process-info-dirtycontrol
+    (target self))
+
+(allow process-info-pidinfo
+    (target self))
+
+(allow network-outbound)
+
+(allow file-map-executable
+    (literal "/System/Library/CoreServices/ManagedClient.app/Contents/PlugIns/MCXToolsInterface.bundle/Contents/MacOS/MCXToolsInterface"))
+
+(allow ipc-posix-shm-read-data
+    (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+(allow ipc-posix-shm-write-data
+    (ipc-posix-name "com.apple.AppleDatabaseChanged"))

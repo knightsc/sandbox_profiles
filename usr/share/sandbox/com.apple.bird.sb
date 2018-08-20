@@ -208,8 +208,6 @@
        (global-name "com.apple.lsd.mapdb")
 ;; aps
        (global-name "com.apple.apsd")
-;; core duet
-       (global-name "com.apple.coreduetd")
 ;; Quick Look logging
        (global-name "com.apple.decalog4.incoming")
 ;; TCC

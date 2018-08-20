@@ -105,6 +105,9 @@
     (with no-log)
 )
 
+(allow user-preference-read user-preference-write
+(preference-domain "com.apple.SoftwareUpdate"))
+
 ;; Edge cache servers can use arbitrary ports
 (system-network)
 (allow network-outbound

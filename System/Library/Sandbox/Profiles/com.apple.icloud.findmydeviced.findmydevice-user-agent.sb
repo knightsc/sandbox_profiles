@@ -35,7 +35,8 @@
        (global-name "com.apple.icloud.findmydeviced.ua-services")
        (global-name "com.apple.CoreServices.coreservicesd")
        (global-name "com.apple.distributed_notifications")  
-       (global-name "com.apple.UNCUserNotification"))
+       (global-name "com.apple.UNCUserNotification")
+       (global-name "com.apple.identityservicesd.desktop.auth"))
 
 (allow authorization-right-obtain
        (right-name "admin"))

@@ -1,0 +1,149 @@
+;;; Copyright (c) 2017 Apple Inc.  All Rights reserved.
+;;;
+;;; WARNING: The sandbox rules in this file currently constitute
+;;; Apple System Private Interface and are subject to change at any time and
+;;; without notice.
+;;;
+(version 1)
+
+(deny default)
+(deny file-map-executable process-info* nvram*)
+(deny dynamic-code-generation)
+
+(import "system.sb")
+(import "com.apple.corefoundation.sb")
+(corefoundation)
+
+;;; Homedir-relative path filters
+(define (home-regex home-relative-regex)
+  (regex (string-append "^" (regex-quote (param "HOME")) home-relative-regex)))
+
+(define (home-subpath home-relative-subpath)
+  (subpath (string-append (param "HOME") home-relative-subpath)))
+
+(define (home-prefix home-relative-prefix)
+  (prefix (string-append (param "HOME") home-relative-prefix)))
+
+(define (home-literal home-relative-literal)
+  (literal (string-append (param "HOME") home-relative-literal)))
+
+
+(allow process-info* (target self))
+
+;; For resolving symlinks, realpath(3), and equivalents.
+(allow file-read-metadata)
+
+;; homed’s preference domain.
+(allow user-preference-read user-preference-write
+       (preference-domain "com.apple.homed")
+       (preference-domain "com.apple.homed.notbackedup"))
+
+(allow distributed-notification-post)
+
+(allow file-read-data (literal "/Library/Preferences/com.apple.security.plist")
+                      (literal "/Library/Preferences/com.apple.ViewBridge.plist")
+                      (literal "/private/var/db/mds/system/mdsDirectory.db")
+                      (literal "/private/var/db/mds/system/mdsObject.db")
+                      (home-subpath "/Library/Preferences/com.apple.Home.ControlCenter.plist"))
+
+;; See HMDSandbox.m for the definition of these extensions as they differ
+;; based on the uid of the process.
+(allow file-read* file-write* (extension "homed:mds"))
+(allow file-read* (extension "homed:securitymessages"))
+
+(allow file-read* file-write* (subpath (param "TMPDIR"))
+                              (subpath (param "DARWIN_CACHE_DIR")))
+
+(allow ipc-posix-shm-read-data ipc-posix-shm-write-data
+        (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+(allow iokit-get-properties)
+
+(allow iokit-open (iokit-registry-entry-class "AppleKeyStoreUserClient")
+                  (iokit-registry-entry-class "IOSurfaceRootUserClient")
+                  (iokit-registry-entry-class "RootDomainUserClient"))
+
+(allow mach-lookup (global-name "com.apple.accountsd.accountmanager")
+                   (global-name "com.apple.airportd")
+                   (global-name "com.apple.analyticsd")
+                   (global-name "com.apple.apsd")
+                   (global-name "com.apple.assertiond.applicationstateconnection")
+                   (global-name "com.apple.assistant.security")
+                   (global-name "com.apple.awdd")
+                   (global-name "com.apple.CARenderServer")
+                   (global-name "com.apple.bluetoothd")
+                   (global-name "com.apple.callkit.callcontrollerhost")
+                   (global-name "com.apple.cloudd")
+                   (global-name "com.apple.cookied")
+                   (global-name "com.apple.coremedia.endpoint.xpc")
+                   (global-name "com.apple.coremedia.routediscoverer.xpc")
+                   (global-name "com.apple.coremedia.routingcontext.xpc")
+                   (global-name "com.apple.coremedia.volumecontroller.xpc")
+                   (global-name "com.apple.coreservices.quarantine-resolver")
+                   (global-name "com.apple.homed.xpc")
+                   (global-name "com.apple.identityservicesd.desktop.auth")
+                   (global-name "com.apple.locationd.desktop.registration")
+                   (global-name "com.apple.locationd.desktop.synchronous")
+                   (global-name "com.apple.logind")
+                   (global-name "com.apple.lsd.xpc")
+                   (global-name "com.apple.lsd.modifydb")
+                   (global-name "com.apple.lsd.mapdb")
+                   (global-name "com.apple.mediaremoted.xpc")
+                   (global-name "com.apple.mobileassetd")
+                   (global-name "com.apple.nsurlstorage-cache")
+                   (global-name "com.apple.routined.registration")
+                   (global-name "com.apple.securityd.xpc")
+                   (global-name "com.apple.SecurityServer")
+                   (global-name "com.apple.symptom_diagnostics")
+                   (global-name "com.apple.UNCUserNotification")
+                   (global-name "com.apple.usernotifications.usernotificationservice")
+                   (global-name "com.apple.videoconference.camera")
+                   (global-name "com.apple.windowserver.active")
+                   (global-name "com.apple.wirelessproxd"))
+
+(allow user-preference-read (preference-domain "com.apple.airplay")
+                            (preference-domain "com.apple.avfoundation")
+                            (preference-domain "com.apple.GEO")
+                            (preference-domain "com.apple.logging")
+                            (preference-domain "kCFPreferencesAnyApplication"))
+
+(system-network)
+
+(allow network*
+       (local udp)
+       (remote udp)
+       (local tcp)
+       (remote tcp))
+
+(allow network-outbound (literal "/private/var/run/mDNSResponder"))
+
+;; Read/write access to ~/Library/Caches/com.apple.homed
+;; This is used by [HMFCache defaultCache] and must grant access to nsurlsessiond and the zip service.
+(let ((cache-path-filter (home-subpath "/Library/Caches/com.apple.homed")))
+  (allow file-read* file-write* cache-path-filter)
+  (allow file-issue-extension
+    (require-all
+      (extension-class "com.apple.app-sandbox.read" "com.apple.app-sandbox.read-write" "com.apple.StreamingUnzipService")
+      cache-path-filter)))
+
+;; Read/write access to ~/Library/Caches/com.apple.HomeKit
+;; This is used by Camera snapshot storage, and must grant accesss to notificationd
+(let ((cache-path-filter (home-subpath "/Library/Caches/com.apple.HomeKit")))
+  (allow file-read* file-write* cache-path-filter)
+  (allow file-issue-extension
+    (require-all
+      (extension-class "com.apple.app-sandbox.read" "com.apple.app-sandbox.read-write")
+      cache-path-filter)))
+
+;; Read/write access to ~/Library/Caches/com.apple.HomeKit.configurations
+;; This does not need extensions because it is only used by internal framework applications that can
+;; grant themselves access
+(allow file-read* file-write* (home-subpath "/Library/Caches/com.apple.HomeKit.configurations"))
+
+;; Read/write access to ~/Library/HomeKit
+;; This does not need extensions because it is only used by homed for access to the persistant store and BTLE cache
+;; directory.
+(allow file-read* file-write* (home-subpath "/Library/HomeKit"))
+
+;; Read access to ~/Library/GeoServices
+(let ((cache-path-filter (home-subpath "/Library/GeoServices"))) (allow file-read*))

@@ -1,0 +1,36 @@
+;; Copyright (c) 2015-2018 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice.
+;;
+
+(version 1)
+
+(deny default)
+
+(import "system.sb")
+
+;;; Constants
+
+(define home-directory (param "HOME_DIR"))
+(define temp-directory (param "TEMP_DIR"))
+(define cache-directory (param "CACHE_DIR"))
+
+;;; Helper functions
+
+(define (home-subpath home-relative-subpath)
+    (subpath (string-append home-directory home-relative-subpath)))
+
+(allow file-read*
+    (extension "com.apple.app-sandbox.read")
+)
+
+(allow mach-lookup
+    (global-name "com.apple.coreservices.launchservicesd") ;; For fetching book preview images
+)
+
+;;; iCloud Chapter Parsing
+
+(allow file-read*
+    (home-subpath "/Library/Mobile\ Documents/iCloud~com~apple~iBooks/Documents/"))

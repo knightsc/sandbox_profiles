@@ -29,6 +29,8 @@
        (regex #"/.GlobalPreferences[^/]*\.plist")
        (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
        (literal "/Library/Caches/com.apple.DiagnosticReporting.HasBeenAppleInternal")
+       (literal "/Library/Updates/RecoveryInstallResult.plist")
+       (literal "/Library/Updates/ProductMetadata.plist")
 )
 
 (allow file-read-metadata
