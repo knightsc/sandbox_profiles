@@ -5,14 +5,14 @@
 	<key>BuildAliasOf</key>
 	<string>tcc_bincompat</string>
 	<key>BuildVersion</key>
-	<string>9</string>
+	<string>6</string>
 	<key>CFBundleShortVersionString</key>
-	<string>10.0</string>
+	<string>12.0</string>
 	<key>CFBundleVersion</key>
-	<string>10</string>
+	<string>12</string>
 	<key>ProjectName</key>
 	<string>tcc_bincompat</string>
 	<key>SourceVersion</key>
-	<string>11000000000000</string>
+	<string>12000000000000</string>
 </dict>
 </plist>
