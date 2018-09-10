@@ -312,16 +312,6 @@
 				<key>Comment</key>
 				<string>42549560</string>
 			</dict>
-			<dict>
-				<key>CodeRequirement</key>
-				<string>identifier &quot;com.adobe.Photoshop&quot; and info[CFBundleVersion] &lt; &quot;21&quot; and certificate leaf[subject.OU] = &quot;JQ525L2MZD&quot; and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] exists and certificate leaf[field.1.2.840.113635.100.6.1.13] exists</string>
-				<key>IdentifierType</key>
-				<string>bundleID</string>
-				<key>Identifier</key>
-				<string>com.adobe.Photoshop</string>
-				<key>Comment</key>
-				<string>43013806</string>
-			</dict>
 		</array>
 	</dict>
 </dict>

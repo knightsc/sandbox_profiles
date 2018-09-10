@@ -7,12 +7,12 @@
 	<key>BuildVersion</key>
 	<string>6</string>
 	<key>CFBundleShortVersionString</key>
-	<string>12.0</string>
+	<string>14.0</string>
 	<key>CFBundleVersion</key>
-	<string>12</string>
+	<string>14</string>
 	<key>ProjectName</key>
 	<string>tcc_bincompat</string>
 	<key>SourceVersion</key>
-	<string>12000000000000</string>
+	<string>14000000000000</string>
 </dict>
 </plist>

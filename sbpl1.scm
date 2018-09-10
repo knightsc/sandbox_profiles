@@ -118,6 +118,48 @@
        (set! deny orig-deny)
        (set! allow orig-allow))))
 
+;;;
+;;; Return filter matching all of the ancestor directories of the given path(s).
+;;;
+(define (path-ancestors . paths)
+   (letrec ((find-all-pos-of-char
+              (lambda (str char pos)
+                (cond ((>= pos (string-length str)) '())
+                      ((char=? char (string-ref str pos)) (cons pos (find-all-pos-of-char str char (+ pos 1))))
+                      (else (find-all-pos-of-char str char (+ pos 1))))))
+            (start-with-slash?
+              (lambda (s)
+                (eqv? (string-ref s 0) #\/)))
+            (start-with-variable?
+              (lambda (s)
+                (equal? (substring s 0 2) "${")))
+            (end-with-slash?
+              (lambda (s)
+                (eqv? (string-ref s (- (string-length s) 1)) #\/)))
+            (ensure-trailing-slash
+              (lambda (path)
+                (if (end-with-slash? path) path (string-append path "/"))))
+            (dirhierarchy-list
+              (lambda (short long)
+                (map
+                  (lambda (pos)
+                    (cond ((= pos 0) "/")
+                          (else (substring long 0 pos))))
+                  (find-all-pos-of-char (ensure-trailing-slash long) #\/ (- (string-length short) 1)))))
+            (drop-last
+              (lambda (l)
+                (reverse (cdr (reverse l)))))
+            (parentdirs-list
+              (lambda (p) (drop-last (dirhierarchy-list "/" p))))
+            (ancestor-filter
+              (lambda (p)
+                (if (or (start-with-slash? p)
+                        (start-with-variable? p))
+                  (apply require-any (map literal (parentdirs-list p)))
+                ; else
+                  (error "path must start with a /")))))
+     (apply require-any (map ancestor-filter paths))))
+
 ;; The %finalize function is called after a profile has been evaluated.
 (set! %finalize (lambda ()))
 
@@ -136,15 +178,25 @@
           ((= 1 numargs) (require-all (%entitlement-load entitlement-name) (car args)))
           (else (error "too many arguments to require-entitlement")))))
 
+;; Helper to define static storage classes in terms of path filters.
+;; Static storage class mappings are only supported in the platform sandbox profile.
+;; Example usage:
+;;    (define-storage-class "foo" (subpath "/foo/bar" "/foo/baz"))
+;; It is an error to define multiple storage classes with the same name.
+;; The usual SBPL precedence rules apply: if filters for multiple classes overlap,
+;; later class definitions take precedence of earlier definitions.
+(define %storage-class-names ())
+(define (define-storage-class class-name filter)
+  (if (member class-name %storage-class-names)
+    (error (string-append "storage class \"" class-name "\" multiply defined") class-name)
+  ; else
+    (begin
+      (set! %storage-class-names (cons class-name %storage-class-names))
+      (allow (with assign-storage-class class-name) storage-class-map filter))))
+
 ;; Helper function for composing fsctl / ioctl commands.
 (define (_IO g n)
    (+ n (* 256 (char->integer (car (string->list g))))))
-
-(define (process-is-plugin)
-  (process-attribute is-plugin))
-
-(define (process-is-installer)
-  (process-attribute is-installer))
 
 ;;; Deprecated Modifiers
 
@@ -203,6 +255,10 @@
 (define iokit-user-client-class iokit-registry-entry-class)
 (define iokit-user-client-class-regex iokit-registry-entry-class-regex)
 (define managed-preference* managed-preference-read)
+(define (process-is-plugin) (process-attribute is-plugin))
+(define (process-is-installer) (process-attribute is-installer))
+(define (datavault-file-filter) (file-attribute datavault))
+(define (rootless-file-filter) (file-attribute sip-protected))
 
 ;;; Support for old syntax for unix domain sockets
 ;;; e.g. (allow network-outbound
