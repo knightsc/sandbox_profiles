@@ -5,7 +5,7 @@
 	<key>BuildAliasOf</key>
 	<string>tcc_bincompat</string>
 	<key>BuildVersion</key>
-	<string>6</string>
+	<string>3</string>
 	<key>CFBundleShortVersionString</key>
 	<string>14.0</string>
 	<key>CFBundleVersion</key>
