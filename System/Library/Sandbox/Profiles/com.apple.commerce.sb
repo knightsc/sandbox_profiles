@@ -92,6 +92,7 @@
 (allow mach-register (global-name "com.apple.commerce"))
 
 (allow mach-lookup
+(global-name "com.apple.corefollowup.agent")
 (global-name "com.apple.usernotifications.usernotificationservice")
 (global-name "com.apple.apsd")
 (global-name "com.apple.adid")

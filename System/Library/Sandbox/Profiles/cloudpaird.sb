@@ -27,6 +27,7 @@
     (subpath "/System/Library/CoreServices")
     (literal "/private/var/db/mds/system/mdsObject.db")
     (literal "/Library/Managed Preferences/local/.GlobalPreferences.plist")
+    (home-subpath "/Library/Preferences/com.apple.voicetrigger.plist")
 )
 
 (allow file-read*

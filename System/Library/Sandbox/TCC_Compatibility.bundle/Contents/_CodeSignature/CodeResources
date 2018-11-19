@@ -6,27 +6,35 @@
 	<dict>
 		<key>Resources/AllowApplicationsList.plist</key>
 		<data>
-		hYz7RRRuKF15uIfEc75E8/PDnZ0=
+		FuphNlL5Ntrgb0MyWPs+uMG0URU=
 		</data>
 		<key>version.plist</key>
 		<data>
-		b/kMk0Ya3MINttWmq7p0v/5WGbA=
+		e/nXdZKhCS98Tmm8//GEBlw/ALA=
 		</data>
 	</dict>
 	<key>files2</key>
 	<dict>
 		<key>Resources/AllowApplicationsList.plist</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			FuphNlL5Ntrgb0MyWPs+uMG0URU=
+			</data>
 			<key>hash2</key>
 			<data>
-			BMfGK2EeNdpmsMaV6z2cIiiaCjRYbH2lwigekaUUVXA=
+			4oayuUIMiVDdwfug3n7mfaHFwjpNckLvktErPDbZdgY=
 			</data>
 		</dict>
 		<key>version.plist</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			e/nXdZKhCS98Tmm8//GEBlw/ALA=
+			</data>
 			<key>hash2</key>
 			<data>
-			TJnq5BPqf/Z4PEwCNsftOUVreQeOQm/pEfjCeXsWeyU=
+			JSNKnX/2oSU/wAmxUUan274PMiKB3j8fnZ7cD89+phk=
 			</data>
 		</dict>
 	</dict>

@@ -38,7 +38,6 @@
 (allow file-read* file-write* (extension "com.apple.app-sandbox.read-write"))
     
 ;;; Audio
-(allow device-microphone)
 (allow ipc-posix-shm-read*
     ipc-posix-shm-write-data
     (ipc-posix-name-regex "^AudioIO"))
