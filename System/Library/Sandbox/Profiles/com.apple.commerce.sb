@@ -65,10 +65,11 @@
     (regex #"/Library/Cookies"))
 
 (allow user-preference-read
-    (preference-domain "com.apple.AppleMediaServices")
     (preference-domain "kCFPreferencesAnyApplication"))
 
 (allow user-preference*
+    (preference-domain "com.apple.AppleMediaServices")
+    (preference-domain "com.apple.AppleMediaServices.notbackedup")
     (preference-domain "com.apple.bookstoreagent")
     (preference-domain "com.apple.storeagent")
     (preference-domain "com.apple.iTunes")

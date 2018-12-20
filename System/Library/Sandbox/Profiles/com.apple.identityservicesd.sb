@@ -204,3 +204,13 @@
        (preference-domain "com.apple.Messages")
        (preference-domain "com.apple.imessage")
        (preference-domain "kCFPreferencesAnyApplication"))
+
+(allow file-issue-extension
+       (require-all
+                    (extension-class "com.apple.app-sandbox.read-write")
+                    (home-subpath "/Library/IdentityServices"))
+       (require-all
+                    (extension-class "com.apple.app-sandbox.read-write")
+                    (subpath (param "_DARWIN_USER_TEMP"))))
+
+(allow file-read* file-write* (extension "com.apple.app-sandbox.read-write"))

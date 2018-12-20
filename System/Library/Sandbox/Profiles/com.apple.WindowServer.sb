@@ -26,7 +26,8 @@
 ;; Must be able to map the Touchbar bundle, the IOHID kext, and the graphics drivers
 (allow file-map-executable
     (subpath "/System/Library/CoreServices")
-    (subpath "/System/Library/Extensions"))
+    (subpath "/System/Library/Extensions")
+    (subpath "/Library/GPUBundles"))
 
 ;; Must be able to read bundle data from connecting applications, and be able to resolve
 ;; symlinks, etc, as well as debug file info. Not readily restrictable.

@@ -135,6 +135,7 @@
     (home-subpath "/Library/CallServices")
     (extension "com.apple.avconference.moments")
     (extension "com.apple.identityservices.deliver")
+    (extension "com.apple.app-sandbox.read-write")
 )
 
 (allow file-map-executable
@@ -146,7 +147,7 @@
 ; For sending files via -[IDSService sendResourceAtURL:metadata:toDestinations:priority:options:identifier:error:]
 (allow file-issue-extension
     (require-all
-        (extension-class "com.apple.identityservices.send")
+        (extension-class "com.apple.app-sandbox.read-write")
         (subpath (param "TMPDIR"))
     )
 )

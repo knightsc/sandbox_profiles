@@ -17,26 +17,30 @@
 	<key>CFBundlePackageType</key>
 	<string>BNDL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>16.0</string>
+	<string>15.0</string>
 	<key>CFBundleSupportedPlatforms</key>
 	<array>
 		<string>MacOSX</string>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>16</string>
+	<string>15</string>
 	<key>DTCompiler</key>
 	<string>com.apple.compilers.llvm.clang.1_0</string>
 	<key>DTPlatformBuild</key>
-	<string>9C40b</string>
+	<string>10L213p</string>
+	<key>DTPlatformName</key>
+	<string>macosx</string>
 	<key>DTPlatformVersion</key>
-	<string>GM</string>
+	<string>10.14</string>
 	<key>DTSDKBuild</key>
-	<string>17D46</string>
+	<string>18C28</string>
 	<key>DTSDKName</key>
-	<string>macosx10.13internal</string>
+	<string>macosx10.14internal</string>
 	<key>DTXcode</key>
-	<string>0920</string>
+	<string>1000</string>
 	<key>DTXcodeBuild</key>
-	<string>9C40b</string>
+	<string>10L213p</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.14</string>
 </dict>
 </plist>
