@@ -64,6 +64,8 @@
        (global-name "com.apple.BluetoothDOServer")
        (global-name "com.apple.FileCoordination")
        (global-name "com.apple.analyticsd")
+       (global-name "com.apple.sharing.handoff.advertising")
+       (global-name "com.apple.sharing.handoff.scanning")
 )
 
 ;; Things needed for debugging, only if it's a debug server

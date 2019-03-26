@@ -59,23 +59,23 @@
 			</dict>
 			<dict>
 				<key>CodeRequirement</key>
-				<string>identifier com.blizzard.heroesofthestorm and info[CFBundleVersion] &lt; &quot;70000&quot; and certificate leaf[subject.OU] = &quot;G847MC6JZ5&quot; and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] exists and certificate leaf[field.1.2.840.113635.100.6.1.13] exists</string>
+				<string>identifier com.blizzard.heroesofthestorm and info[CFBundleVersion] &lt; &quot;78000&quot; and certificate leaf[subject.OU] = &quot;G847MC6JZ5&quot; and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] exists and certificate leaf[field.1.2.840.113635.100.6.1.13] exists</string>
 				<key>IdentifierType</key>
 				<string>bundleID</string>
 				<key>Identifier</key>
 				<string>com.blizzard.heroesofthestorm</string>
 				<key>Comment</key>
-				<string>39707838</string>
+				<string>39707838&amp;46047026</string>
 			</dict>
 			<dict>
 				<key>CodeRequirement</key>
-				<string>((identifier com.blizzard.diablo3 and info[CFBundleVersion] &lt; &quot;55000&quot;) or (identifier ClampCursorProcess)) and certificate leaf[subject.OU] = &quot;G847MC6JZ5&quot; and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] exists and certificate leaf[field.1.2.840.113635.100.6.1.13] exists</string>
+				<string>((identifier com.blizzard.diablo3 and info[CFBundleVersion] &lt; &quot;56000&quot;) or (identifier ClampCursorProcess)) and certificate leaf[subject.OU] = &quot;G847MC6JZ5&quot; and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] exists and certificate leaf[field.1.2.840.113635.100.6.1.13] exists</string>
 				<key>IdentifierType</key>
 				<string>bundleID</string>
 				<key>Identifier</key>
 				<string>com.blizzard.diablo3</string>
 				<key>Comment</key>
-				<string>40394397</string>
+				<string>40394397&amp;46047026</string>
 			</dict>
 			<dict>
 				<key>CodeRequirement</key>
@@ -89,23 +89,23 @@
 			</dict>
 			<dict>
 				<key>CodeRequirement</key>
-				<string>((identifier com.blizzard.starcraft2 and info[CFBundleVersion] &lt; &quot;70000&quot;) or (identifier ClampCursorProcess)) and certificate leaf[subject.OU] = &quot;G847MC6JZ5&quot; and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] exists and certificate leaf[field.1.2.840.113635.100.6.1.13] exists</string>
+				<string>((identifier com.blizzard.starcraft2 and info[CFBundleVersion] &lt; &quot;79000&quot;) or (identifier ClampCursorProcess)) and certificate leaf[subject.OU] = &quot;G847MC6JZ5&quot; and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] exists and certificate leaf[field.1.2.840.113635.100.6.1.13] exists</string>
 				<key>IdentifierType</key>
 				<string>bundleID</string>
 				<key>Identifier</key>
 				<string>com.blizzard.starcraft2</string>
 				<key>Comment</key>
-				<string>40394397</string>
+				<string>40394397&amp;46047026</string>
 			</dict>
 			<dict>
 				<key>CodeRequirement</key>
-				<string>identifier com.blizzard.starcraft2switcher and info[CFBundleVersion] &lt; &quot;70000&quot; and certificate leaf[subject.OU] = &quot;G847MC6JZ5&quot; and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] exists and certificate leaf[field.1.2.840.113635.100.6.1.13] exists</string>
+				<string>identifier com.blizzard.starcraft2switcher and info[CFBundleVersion] &lt; &quot;79000&quot; and certificate leaf[subject.OU] = &quot;G847MC6JZ5&quot; and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] exists and certificate leaf[field.1.2.840.113635.100.6.1.13] exists</string>
 				<key>IdentifierType</key>
 				<string>bundleID</string>
 				<key>Identifier</key>
 				<string>com.blizzard.starcraft2switcher</string>
 				<key>Comment</key>
-				<string>40394397</string>
+				<string>40394397&amp;46047026</string>
 			</dict>
 			<dict>
 				<key>CodeRequirement</key>

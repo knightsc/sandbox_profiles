@@ -101,6 +101,7 @@
 ;; Must be able to register the following non-launchd.plist registered names
 (allow mach-register
     (global-name "com.apple.CARenderServer")
+    (global-name "com.apple.VirtualDisplay")
     (global-name "com.apple.CoreDisplay.Notification")
     (global-name "com.apple.CoreDisplay.master"))
 

@@ -96,19 +96,24 @@
 	(literal "/private/var/log/Bluetooth")
 	(literal "/private/var/log/bluetooth.pklg")
 	(literal "/private/var/db/.AppleSetupDone")
-	(literal "/Library/Preferences/SystemConfiguration/com.apple.nat.plist"))
+	(literal "/Library/Preferences/SystemConfiguration/com.apple.nat.plist")
+    (literal "/private/var/root/FWfile.bin")
+)
 
-	(allow ipc-posix-shm
+(allow ipc-posix-shm
 	(ipc-posix-name "apple.shm.notification_center")
-	(ipc-posix-name-regex #"^/tmp/com.apple.csseed.[0-9]+$"))
+	(ipc-posix-name-regex #"^/tmp/com.apple.csseed.[0-9]+$")
+)
 
-	(allow iokit-open
+(allow iokit-open
 	(iokit-user-client-class "IOBluetoothDeviceUserClient")
 	(iokit-user-client-class "IOHIDResourceDeviceUserClient")
 	(iokit-user-client-class "IOBluetoothHCIUserClient")
 	(iokit-user-client-class "IOBluetoothL2CAPChannelUserClient")
 	(iokit-user-client-class "IOHIDLibUserClient")
 	(iokit-user-client-class "RootDomainUserClient")
+    (iokit-user-client-class "AppleBluetoothModuleUserClient")
+    (iokit-user-client-class "AppleConvergedIPCUserClient")
 )
 
 (allow iokit-set-properties)

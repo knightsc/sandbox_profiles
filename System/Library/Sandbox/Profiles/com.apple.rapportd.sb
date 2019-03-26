@@ -50,6 +50,7 @@
 	(global-name "com.apple.cloudd")
 	(global-name "com.apple.coreduetd.context")
 	(global-name "com.apple.coreduetd.knowledgebase")
+	(global-name "com.apple.coreduetd.people")
 	(global-name "com.apple.CoreServices.coreservicesd")
 	(global-name "com.apple.coresymbolicationd")
 	(global-name "com.apple.distributed_notifications@1v3")

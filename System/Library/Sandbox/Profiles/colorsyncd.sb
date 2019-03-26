@@ -12,6 +12,8 @@
 (allow process-info-dirtycontrol (target self))
 (allow process-info-rusage (target self))
 
+(allow file-read* (literal "/usr/libexec/colorsyncd"))
+
 (allow file-read-metadata file-read-data (literal "/"))
 (allow file-read-metadata)
 

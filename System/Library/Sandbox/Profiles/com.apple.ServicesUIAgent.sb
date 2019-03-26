@@ -87,7 +87,10 @@
     (global-name "com.apple.pluginkit.pkd")
     (global-name "com.apple.touchbarserver.mig")
     (global-name "com.apple.window_proxies")
-    (global-name "com.apple.windowserver.active"))
+    (global-name "com.apple.windowserver.active")
+    (global-name "com.apple.tccd.system")
+    (global-name "com.apple.SecurityServer")
+    (global-name "com.apple.analyticsd"))
 
 ;; Needed for graphics
 (allow iokit-get-properties)

@@ -49,6 +49,7 @@
     (home-subpath "/Library/Caches/com.apple.assistantd")))
 
 (allow file-issue-extension (home-subpath "/Library/Caches/VoiceTrigger/SATUpdate"))
+(allow file-issue-extension (home-subpath "/Library/Caches/VoiceTrigger/SATUpdateNewerZone"))
 
 (allow user-preference*
        (preference-domain "com.apple.assistant")
@@ -68,6 +69,7 @@
 (allow file-read*
        (subpath "/private/var/db/mds")
        (literal "/private/var/db/DetachedSignatures")
+       (literal "/Library/Managed Preferences/com.apple.assistant.managedconfiguration.plist")
        (subpath "/Library/Keychains")
        (subpath "/System/Library/Audio")
        (subpath "/Library/Audio")

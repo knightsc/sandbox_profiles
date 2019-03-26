@@ -33,4 +33,7 @@
 ;;; iCloud Chapter Parsing
 
 (allow file-read*
+    (home-subpath "/Library/Containers/com.apple.BKAgentService/Data/"))
+
+(allow file-read*
     (home-subpath "/Library/Mobile\ Documents/iCloud~com~apple~iBooks/Documents/"))

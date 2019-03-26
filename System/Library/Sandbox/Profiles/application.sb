@@ -1005,6 +1005,7 @@
 (deny file-map-executable (home-subpath "/Library/ColorPickers"))
 (shared-preferences-read
   ".GlobalPreferences"
+  "com.apple.AdLib"
   "com.apple.AppleMultitouchTrackpad"
   "com.apple.airplay"
   "com.apple.avfoundation"
