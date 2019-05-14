@@ -18,7 +18,6 @@
        (literal "/")
        (literal "/private/etc/hosts")
        (literal "/Library/Preferences/.GlobalPreferences.plist")
-       (literal "/private/var/db/mds/messages/se_SecurityMessages")
        (literal "/private/var/db/.MASManifest")
        (literal "/Library/Preferences/com.apple.SoftwareUpdate.plist")
        (literal "/private/var/db/mds/system/mdsDirectory.db")
@@ -41,7 +40,8 @@
        (regex #"/Library/Preferences/com.apple.security\.plist$")
        (regex #"/Library/Preferences/com\.apple\.mdmclient\.plist$")
 	   (regex #"/\.CFUserTextEncoding$")
-       (regex #"/Library/Caches/com\.apple\.commerce/updates-com\.apple\.appstore\.updateQueue\.plist$"))
+       (regex #"/Library/Caches/com\.apple\.commerce/updates-com\.apple\.appstore\.updateQueue\.plist$")
+       (regex "/private/var/db/mds/messages/([A-Za-z0-9]+/)?se_SecurityMessages"))
 
 (allow file-read* file-write*
        (literal "/Library/Caches/com.apple.DiagnosticReporting.Networks.plist")
@@ -90,7 +90,7 @@
        (ipc-posix-name "apple.shm.notification_center")
        (ipc-posix-name-regex #"^/tmp/com.apple.csseed.[0-9]+$"))
 
-(allow ipc-posix-shm-read* ipc-posix-shm-write-data
+(allow ipc-posix-shm-read* ipc-posix-shm-write*
        (ipc-posix-name "com.apple.AppleDatabaseChanged"))
 
 (allow mach-register

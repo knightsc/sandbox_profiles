@@ -48,12 +48,17 @@
 	(subpath "/Library/Audio/Plug-Ins/HAL")
 	(subpath "/private/var/db/mds/system")
 	(subpath "/usr/libexec/AirPlayXPCHelper")
+	(subpath "/private/var/root/Library/Caches/com.apple.CUBonjourCache")
+	(regex #"^/private/var/folders/[^/]+/[^/]+/[A-Z]/TemporaryItems(/|$)")
 )
 	
 (allow file-write*
 	(literal "/private/var/db/mds/system/mds.lock")
 	(literal "/private/var/root/Library/Logs/awdd/awd-AirPlayXPCHelper.log")
 	(subpath "/private/tmp")
+	(subpath "/private/var/root/Library/Caches")
+	(subpath "/private/var/root/Library/Caches/com.apple.CUBonjourCache")
+	(regex #"^/private/var/folders/[^/]+/[^/]+/[A-Z]/TemporaryItems(/|$)")
 )
 	
 (allow iokit-open
@@ -114,6 +119,8 @@
 	(global-name "com.apple.bluetoothaudiod")
 	(global-name "com.apple.BluetoothDOServer")
 	(global-name "com.apple.airportd")
+	
+	(global-name "com.apple.rtcreportingd")
 	
 	(global-name "com.apple.mediaremoted.xpc")
 	
