@@ -60,6 +60,9 @@
        (preference-domain "com.apple.GEO")
        (preference-domain "com.apple.security"))
 
+(allow user-preference-read
+       (preference-domain "com.apple.universalaccess"))
+
 (allow file-read* file-write* 
        (home-subpath "/Library/Keychains")
        (home-subpath "/Library/Security")
@@ -128,6 +131,7 @@
        (global-name "com.apple.AddressBook.AddressBookApplicationFrameworkIPC")
        (global-name "com.apple.AddressBook.ContactsAccountsService")
        (global-name "com.apple.BluetoothDOServer")
+       (global-name "com.apple.bluetoothd")
        (global-name "com.apple.ContactsAgent.addressbook")
        (global-name "com.apple.accountsd.accountmanager")
        (global-name "com.apple.accountsd.oauthsigner")
@@ -199,7 +203,18 @@
        (global-name "com.apple.siriknowledged")
        (global-name "com.apple.homed.xpc")
        (global-name "com.apple.BTLEAudioController.xpc")
-       (global-name "com.apple.mobileassetd"))
+       (global-name "com.apple.mobileassetd")
+       (global-name "com.apple.corespeech.corespeechd.xpc")
+       (global-name "com.apple.suggestd.PersonalizationPortrait.StringDonation")
+       (global-name "com.apple.proactive.PersonalizationPortrait.Topic.readWrite")
+       (global-name "com.apple.remindd")
+       (global-name "com.apple.symptomsd.helper")
+       (global-name "com.apple.usernotifications.usernotificationservice")
+       (global-name "com.apple.mobileassetd")
+       (global-name "com.apple.mobileassetd.v2")
+       (global-name "com.apple.amp.artworkd")
+       (global-name "com.apple.amp.library.framework")
+       (global-name "com.apple.corerecents.recentsd"))
 
 (allow ipc-posix-shm
        (ipc-posix-name-regex #"^AudioIO")
@@ -213,6 +228,13 @@
        (iokit-user-client-class "AppleSMCClient")
        (iokit-user-client-class "IOAudioEngineUserClient")
        (iokit-user-client-class "IOAudioControlUserClient")
-       (iokit-user-client-class "RootDomainUserClient"))
+       (iokit-user-client-class "RootDomainUserClient")
+       (iokit-user-client-class "IOBluetoothHCIUserClient"))
 
-
+(allow system-fsctl
+       (fsctl-command (_IO "h" 24))       ;; HFS_VOLUME_STATUS
+       (fsctl-command (_IO "h" 32))       ;; HFSIOC_TRANSFER_DOCUMENT_ID
+       (fsctl-command (_IO "h" 47))       ;; HFSIOC_SET_HOTFILE_STATE
+       (fsctl-command (_IO "z" 12))       ;; afpfsGetMountInfoFSCTL
+       (fsctl-command (_IO "z" 19))       ;; smbfsUniqueShareIDFSCTL
+       (fsctl-command (_IO "z" 23)))      ;; afpfsByteRangeLock2FSCTL

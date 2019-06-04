@@ -61,6 +61,32 @@
 ;;; Utilities
 
 ;;;
+;;; Add list of operations to SBPL actions.
+;;; The first argument is a list of operations.  Any actions emitted as a
+;;; result of evaluating the additional arguments are modified to apply to
+;;; all of the listed operations in addition to any operations specified by
+;;; the rules themselves.
+;;;
+(macro (with-operations form)
+  (let* ((ps (cdr form))
+         (extra-operations (car ps))
+         (rules (cdr ps)))
+    `(letrec
+       ((inject-operations
+          (lambda args
+            (append ,extra-operations args)))
+        (orig-allow allow)
+        (orig-deny deny)
+        (wrapper
+          (lambda (action)
+            (lambda args (apply action (apply inject-operations args))))))
+       (set! allow (wrapper orig-allow))
+       (set! deny (wrapper orig-deny))
+       ,@rules
+       (set! deny orig-deny)
+       (set! allow orig-allow))))
+
+;;;
 ;;; Apply a SBPL filter to actions.
 ;;; The first argument is the filter to apply.  Any actions emitted as a result
 ;;; of evaluating the additional arguments are modified to be contingent on
@@ -213,6 +239,14 @@
             (disable-full-symbolication)  ; superseded by sandbox option
             (error "unexpected argument")))))
 
+;;; Alias Modifiers
+(define termination
+  (list 'deprecated
+        (lambda args
+          (if (= 0 (length args))         ; no arguments
+            (send-signal SIGKILL)         ; (with termination) ==> (with send-signal SIGKILL)
+            (error "unexpected argument")))))
+
 ;;; Aliases
 
 (macro (debug args))
@@ -233,8 +267,8 @@
 (define no-profile no-sandbox)
 (define no-log no-report)
 (define granted-extensions extension)
+(define (executable-bundle) (extension *sandbox-executable-bundle*))
 (define (container) (extension *ios-sandbox-container*))
-(define (executable-bundle) (extension *ios-sandbox-executable*))
 (define (application-group) (extension *ios-sandbox-application-group*))
 (define (system-container) (extension *ios-sandbox-system-container*))
 (define (system-group) (extension *ios-sandbox-system-group*))
@@ -259,6 +293,11 @@
 (define (process-is-installer) (process-attribute is-installer))
 (define (datavault-file-filter) (file-attribute datavault))
 (define (rootless-file-filter) (file-attribute sip-protected))
+(define ipc-posix-shm-read* ipc-posix-shm-read-data)
+(define ipc-posix-shm-read-metadata 'no-op)
+(define mach-per-user-lookup 'no-op)
+(define system-chud 'no-op)
+(define qtn-download 'no-op)
 
 ;;; Support for old syntax for unix domain sockets
 ;;; e.g. (allow network-outbound

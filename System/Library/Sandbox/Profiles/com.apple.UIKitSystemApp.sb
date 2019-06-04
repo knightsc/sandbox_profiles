@@ -96,9 +96,12 @@
 (allow mach-lookup
        (global-name "com.apple.CARenderServer")
        (global-name "com.apple.CoreServices.coreservicesd")
+       (global-name "com.apple.windowserver.active")
+       (global-name "com.apple.coreservices.launchservicesd")
        (global-name "com.apple.SecurityServer")
        (global-name "com.apple.assertiond.processassertionconnection")
        (global-name "com.apple.assertiond.processinfoservice")
+       (global-name "com.apple.runningboard")
        (global-name "com.apple.distributed_notifications@Uv3")
        (global-name "com.apple.frontboard.systemappservices")
        (global-name "com.apple.frontboard.workspace")

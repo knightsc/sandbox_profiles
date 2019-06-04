@@ -118,10 +118,11 @@
 	(global-name "com.apple.bluetoothd")
 	(global-name "com.apple.bluetoothaudiod")
 	(global-name "com.apple.BluetoothDOServer")
+	(global-name "com.apple.server.bluetooth")
 	(global-name "com.apple.airportd")
 	
 	(global-name "com.apple.rtcreportingd")
-	
+
 	(global-name "com.apple.mediaremoted.xpc")
 	
 	(global-name "com.apple.distributed_notifications@1v3")

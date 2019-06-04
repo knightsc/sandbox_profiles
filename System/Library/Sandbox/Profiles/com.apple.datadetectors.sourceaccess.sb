@@ -9,5 +9,8 @@
 
 (allow file-read-metadata)
 
+(allow file-read*
+    (literal "/usr/libexec/DataDetectorsSourceAccess"))
+
 (allow file-read* file-write*
        (subpath "/private/var/db/datadetectors"))

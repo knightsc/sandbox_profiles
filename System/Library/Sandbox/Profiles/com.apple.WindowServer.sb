@@ -96,7 +96,9 @@
     (global-name "com.apple.SystemConfiguration.configd")
     (global-name "com.apple.tccd.system")
     (global-name "com.apple.touchbarserver.plugin")
-    (global-name "com.apple.gpumemd.source"))
+    (global-name "com.apple.gpumemd.source")
+    (global-name "com.apple.backlightd")
+    (global-name "com.apple.aquaappearancehelper"))
 
 ;; Must be able to register the following non-launchd.plist registered names
 (allow mach-register
@@ -108,7 +110,7 @@
 ;; Must have access to task name ports for tracking process lifetime
 (allow mach-task-name)
 
-;; Enable seteuid/setegid
+;; Required for host_processor_set_priv to get process set for thread policy
 (allow mach-priv-host-port)
 
 (allow nvram-get (nvram-variable "boot-args"))

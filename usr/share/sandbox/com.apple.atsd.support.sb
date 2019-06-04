@@ -1,6 +1,6 @@
 ;;
 ;; ATS sandbox support
-;; Copyright 2015-2017 Apple, Inc.  All Rights reserved.
+;; Copyright 2015-2019 Apple, Inc.  All Rights reserved.
 ;;
 ;; WARNING: The sandbox rules in this file currently constitute
 ;; Apple System Private Interface and are subject to change at any time and
@@ -100,11 +100,11 @@
 
 (allow-read-access (param "DARWIN_USER_CACHE_DIR"))
 (allow-read-access (param "DARWIN_USER_TEMP_DIR"))
-(allow-read-access (param "__HOME"))
+(allow-read-access (string-append (param "__HOME") "/Library/Fonts"))
 (allow-read-access "/Library/Fonts")
 (allow-read-access "/System/Library/Fonts")
-(allow-read-access "/System/Library/Assets/com_apple_MobileAsset_Font3")
-(allow-read-access "/Library/Application Support/Apple/Fonts")
+(allow-read-access "/System/Library/Assets/com_apple_MobileAsset_Font4")
+(allow-read-access "/System/Library/PrivateFrameworks/FontServices.framework/Resources/Fonts/ApplicationSupport")
 (allow-read-file-access "/Volumes")
 
 ;; ATS ports

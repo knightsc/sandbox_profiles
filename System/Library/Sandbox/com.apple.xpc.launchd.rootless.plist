@@ -74,6 +74,8 @@
 		<true/>
 		<key>com.apple.odproxyd</key>
 		<true/>
+		<key>com.apple.rcd</key>
+		<true/>
 		<key>com.apple.screensharing</key>
 		<true/>
 		<key>com.apple.security.FDERecoveryAgent</key>

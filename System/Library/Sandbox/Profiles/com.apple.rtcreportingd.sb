@@ -37,7 +37,6 @@
        (literal "/Library/Preferences/com.apple.security.plist")
        (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")                           ; for CrashReporter
        (home-literal "/Library/Preferences/.GlobalPreferences.plist")
-       (home-literal "/Library/Preferences/com.apple.rtcreporting.plist")
        (home-literal "/Library/Preferences/com.apple.security.revocation.plist")
        (home-literal "/Library/Preferences/rtcreportingd.plist")
        (home-regex #"/Library/Preferences/ByHost/\.GlobalPreferences\.")
@@ -66,7 +65,8 @@
        (global-name "com.apple.cfnetwork.cfnetworkagent")
        (global-name "com.apple.cookied")
        (global-name "com.apple.distributed_notifications@1v3")
-       (global-name "com.apple.ocspd"))
+       (global-name "com.apple.ocspd")
+       (global-name "com.apple.duetactivityscheduler"))
 
 (allow system-fsctl
        (fsctl-command (_IO "h" 47)))  ; HFSIOC_SET_HOTFILE_STATE

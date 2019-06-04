@@ -40,6 +40,7 @@
 (allow mach-lookup
     (global-name "com.apple.dprivacyd")
     (global-name "com.apple.CrashReporterSupportHelper")
-    (global-name "com.apple.SubmitDiagInfo")
+    (global-name "com.apple.OSASubmission.client")
     (global-name "com.apple.SystemConfiguration.configd")
-    (global-name "com.apple.parsecd"))
+    (global-name "com.apple.parsecd")
+    (global-name "com.apple.DPSubmissionService"))

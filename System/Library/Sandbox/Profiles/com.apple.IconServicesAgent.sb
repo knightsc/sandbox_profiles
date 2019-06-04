@@ -4,10 +4,13 @@
 
 (import "system.sb")
 
+(system-graphics)
+
 (allow file-read*)
 (allow distributed-notification-post)
 
-(define icon-service-cache-path (string-append "^/private" (regex-quote (param "CACHE_PATH"))))
+(define icon-service-cache-path (string-append (string-append "^/private" (regex-quote (param "CACHE_PATH"))) "com.apple.iconservices"))
+(define metal-cache-path (string-append (string-append "^/private" (regex-quote (param "CACHE_PATH"))) "com.apple.metal"))
 
 (define (apply-write-and-issue-extension op path-filter)
 	(op file-write-create path-filter)
@@ -29,6 +32,9 @@
 
 (apply-write-create-mode-data-unlink allow
     (regex temporary-items-path))
+
+(apply-write-create-mode-data-unlink allow
+    (regex metal-cache-path))
 
 (allow mach-lookup
 	(global-name (param "ICONSERVICES_STORE_SERVICE_NAME"))

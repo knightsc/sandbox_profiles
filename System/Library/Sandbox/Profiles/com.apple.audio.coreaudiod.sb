@@ -10,6 +10,8 @@
 )
 
 (allow file-read*
+	(subpath "/System/Library/Audio/Plug-Ins/HAL")
+	(subpath "/Library/Apple/Audio/Plug-Ins/HAL")
 	(subpath "/Library/Audio/Plug-Ins/HAL")
 	(subpath "/Library/Preferences/Audio")
 	(subpath "/System")
@@ -26,9 +28,11 @@
 	(literal "/usr/sbin/coreaudiod/..namedfork/rsrc")
 	(subpath "/usr/share")
 	(literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
+	(literal "/System/Library/Audio/Plug-Ins/Components")
+	(literal "/Library/Apple/Audio/Plug-Ins/Components")
 	(literal "/Library/Audio/Plug-Ins/Components")
 	(literal "/Library/Preferences/SystemConfiguration/preferences.plist")
-	(literal "/Library/Audio/CoreAudioLib/libAudioDiagnostics.dylib")
+	(literal "/usr/local/lib/libAudioDiagnostics.dylib")
 	(literal "/Library/Caches/com.apple.DiagnosticReporting.HasBeenAppleInternal")
 	(literal "/private/var/db/timezone")
 
@@ -42,6 +46,7 @@
 	(subpath "/private/var/tmp/mds")
 	(subpath "/private/var/db/mds")
 	(literal "/Library/Preferences/com.apple.coremedia.plist")
+	(literal "/usr/local/lib/libAudioDiagnostics.dylib")
 )
 
 (allow file-read-metadata
@@ -56,8 +61,13 @@
 	(literal "/var")
 	(literal "/private/var/db/disableAppleInternal")
 	(literal "/Library")
+	(literal "/System/Library/Audio")
+	(literal "/System/Library/Audio/Plug-Ins")
+	(literal "/Library/Apple/Audio")
+	(literal "/Library/Apple/Audio/Plug-Ins")
 	(literal "/Library/Audio")
 	(literal "/Library/Audio/Plug-Ins")
+	(literal "/usr/local/lib/libAudioDiagnostics.dylib")
 )
 
 (allow file-write*

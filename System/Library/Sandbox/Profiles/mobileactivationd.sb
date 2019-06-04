@@ -88,7 +88,8 @@
     (global-name "com.apple.nsurlstorage-cache")
     (global-name "com.apple.remoted")
     (global-name "com.apple.SecurityServer")
-    (global-name "com.apple.usymptomsd"))
+    (global-name "com.apple.usymptomsd")
+    (global-name "com.apple.icloud.findmydeviced"))
 
 (allow process-info-pidinfo)
 (allow mach-priv-host-port)
@@ -103,7 +104,8 @@
     (ipc-posix-name "apple.shm.cfprefsd.daemon")
     (ipc-posix-name "FNetwork.defaultStorageSession")
     (ipc-posix-name-prefix "apple.shm.cfprefsd.")
-    (ipc-posix-name-regex #"/tmp/com\.apple\.csseed\."))
+    (ipc-posix-name-regex #"/tmp/com\.apple\.csseed\.")
+    (ipc-posix-name "/com.apple.AppSSO.version"))
 
 (allow network-outbound)
 (allow system-socket)

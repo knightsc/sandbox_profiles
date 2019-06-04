@@ -47,6 +47,7 @@
 	(global-name "com.apple.SecurityServer")
 	(global-name "com.apple.nehelper")
 	(global-name "com.apple.nesessionmanager")
+	(global-name "com.apple.neagent.lsproxy")
 	(global-name "com.apple.system.logger")
 	(global-name "com.apple.distributed_notifications@1v3")
 	(global-name "com.apple.distributed_notifications@Uv3")
@@ -63,7 +64,6 @@
 	(global-name "com.apple.UNCUserNotification")
 	(global-name "com.apple.DiskArbitration.diskarbitrationd")
 	(global-name "com.apple.lsd.modifydb")
-	(global-name "com.apple.logd.admin")
 	(global-name "com.apple.lsd.mapdb")
 	(global-name "com.apple.mobileassetd")
 	(global-name "com.apple.mobileassetd.v2")
@@ -88,7 +88,7 @@
 	(control-name "com.apple.content-filter")
 	(control-name "com.apple.flow-divert")
 	(control-name "com.apple.network.advisory"))
-	
+
 ;;; Allow TCP probes
 (allow network-outbound
 	(literal "/private/var/run/mDNSResponder")

@@ -29,8 +29,7 @@
 (allow file-read*)
 
 ; Store database to fixed path on any volume
-(allow file-write*
-    (mount-relative-literal "/private/var/install/boot-install.db"))
+(allow file-write*)
 
 ; Allow introspecting our own process info and getting some basic info for other processes
 (allow process-info* (target self))
@@ -78,9 +77,6 @@
     (path "/System/Library/PrivateFrameworks/CoreServicesInternal.framework/Versions/A/CoreServicesInternal"))
 
 ; Stash + Reboot
-(allow file-write-create (literal "/private/var/root/Library/Caches/bootinstalld"))
-(allow file-write-unlink (literal "/private/var/db/.StagedAppleUpgrade"))
-(allow file-write-create (literal "/private/var/db/.AppleUpgrade"))
 (allow mach-lookup (global-name "com.apple.SystemConfiguration.configd"))
 (allow process-fork)
 (allow process-exec (literal "/sbin/reboot"))

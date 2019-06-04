@@ -97,6 +97,7 @@
 (global-name "com.apple.ctkd.token-client")
 (global-name "com.apple.CoreAuthentication.agent.libxpc")
 (global-name "com.apple.CoreAuthentication.agent")
+(global-name "com.apple.CoreAuthentication.daemon")
 (global-name "com.apple.securityd.xpc")
 (global-name "com.apple.UNCUserNotification")
 (global-name "com.apple.coreservices.launcherror-handler")
@@ -146,8 +147,7 @@
 (right-name "system.install.apple-config-data")
 (right-name "system.install.software")
 (right-name "system.install.software.iap")
-(right-name "system.install.software.mdm-provided")
-(right-name "com.apple.SoftwareUpdate.modify-settings"))
+(right-name "system.install.software.mdm-provided"))
 
 (allow iokit-open
 (iokit-user-client-class "IOFramebufferSharedUserClient")

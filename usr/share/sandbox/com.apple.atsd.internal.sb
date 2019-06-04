@@ -1,6 +1,6 @@
 ;;
 ;; atsd - internal sandbox profile
-;; Copyright 2015-2017 Apple, Inc.  All Rights reserved.
+;; Copyright 2015-2019 Apple, Inc.  All Rights reserved.
 ;;
 ;; WARNING: The sandbox rules in this file currently constitute
 ;; Apple System Private Interface and are subject to change at any time and
@@ -53,10 +53,7 @@
 
 (allow process-fork)
 
-(allow process-exec* (with no-sandbox) (literal "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/Support/ATSServer"))
 (allow process-exec* (with no-sandbox) (literal "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/Support/genatsdb"))
-(allow process-exec* (with no-sandbox) (literal "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/Support/fontmover"))
-(allow process-exec* (with no-sandbox) (literal "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/Support/fontworker"))
 (allow process-exec* (literal "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/Support/atsd"))
 
 ; File system access
@@ -128,12 +125,10 @@
     (regex #"/private/var/folders/[^/]+/[^/]+/C/com.apple.FontRegistry/*")
 )
 
-(allow-read-access-and-issue-extensions (param "__HOME"))
+(allow-read-access-and-issue-extensions (string-append (param "__HOME") "/Library/Fonts"))
 (allow-read-access-and-issue-extensions "/Library/Fonts")
 (allow-read-access-and-issue-extensions "/System/Library/Fonts")
-(allow-read-access-and-issue-extensions "/Library/Application Support/Apple/Fonts")
-
-(allow-read-write-access-and-issue-extensions (string-append (param "__HOME") "/Library/Fonts"))
+(allow-read-access-and-issue-extensions "/System/Library/PrivateFrameworks/FontServices.framework/Resources/Fonts/ApplicationSupport")
 
 (deny file-write-xattr)
 

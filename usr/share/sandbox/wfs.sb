@@ -30,6 +30,7 @@
 (literal "/usr/libexec/wfs/webdavsharing_virtual_root")
 (literal "/usr/sbin/httpd")
 (literal "/bin/sh")
+(literal "/bin/bash")
 (subpath "/usr/bin"))
 
 (allow process-fork)

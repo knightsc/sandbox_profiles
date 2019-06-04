@@ -20,4 +20,8 @@
 (allow system-socket)
 
 (allow sysctl-read
-       (sysctl-name "net.link.generic.system.if_attach_nx"))
+       (sysctl-name "net.link.generic.system.if_attach_nx")
+       (sysctl-name "net.link.generic.system.enable_netagent"))
+
+(allow sysctl-write
+       (sysctl-name "net.link.generic.system.enable_netagent"))

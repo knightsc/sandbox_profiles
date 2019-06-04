@@ -9,9 +9,6 @@
 ;; We call LaunchServies to resolve which app can open a given activity type.  LaunchServices reads the filesystem to make sure that app still exists.  Furthermore, apps can exist anywhere on the filesystem on a Mac.  Hence, this is necessary. 
 (allow file-read*)
 
-(allow file-write*
-       (subpath (param "LOG_DIR")))
-
 ;;(allow file-issue-extension
 ;;       (extension "com.apple.app-sandbox.read-write"))
 

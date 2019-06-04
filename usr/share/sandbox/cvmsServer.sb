@@ -31,7 +31,6 @@
        (global-name "com.apple.system.notification_center")
        (global-name "com.apple.system.logger")
        (global-name "com.apple.logd")
-       (global-name "com.apple.xpcd")
        (global-name "com.apple.cvmsCompAgentLegacy_i386")
        (global-name "com.apple.cvmsCompAgentLegacy_x86_64")
        (global-name "com.apple.cvmsCompAgentLegacy_i386_1")

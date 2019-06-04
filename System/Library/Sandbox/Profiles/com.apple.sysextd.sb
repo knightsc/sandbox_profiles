@@ -1,0 +1,86 @@
+;;; Copyright (c) 2019 Apple Inc.  All Rights reserved.
+;;;
+;;; WARNING: The sandbox rules in this file currently constitute
+;;; Apple System Private Interface and are subject to change at any time and
+;;; without notice.
+;;;
+(version 1)
+
+(allow (with report) default)
+(allow (with report) file-map-executable process-info* nvram*)
+(deny dynamic-code-generation)
+
+(import "system.sb")
+(import "com.apple.corefoundation.sb")
+(corefoundation)
+
+;; TODO: as a daemon, we don't actually have a home directory.
+;; Perhaps we should remove these boilerplate rules
+;;; Homedir-relative path filters
+(define (home-regex home-relative-regex)
+    (regex (string-append "^" (regex-quote (param "HOME")) home-relative-regex)))
+
+(define (home-subpath home-relative-subpath)
+    (subpath (string-append (param "HOME") home-relative-subpath)))
+
+(define (home-prefix home-relative-prefix)
+    (prefix (string-append (param "HOME") home-relative-prefix)))
+
+(define (home-literal home-relative-literal)
+    (literal (string-append (param "HOME") home-relative-literal)))
+
+;; For resolving symlinks, realpath(3), and equivalents.
+(allow file-read-metadata)
+
+;; For validating the entitlements and other info of clients.
+(allow process-info-codesignature)
+(allow process-info-pidinfo)
+(allow process-info* (target self))
+
+(allow user-preference-read (preference-domain "kCFPreferencesAnyApplication"))
+
+;; Your preference domain
+(allow user-preference-read user-preference-write
+       (preference-domain "com.apple.sysextd"))
+
+;; Read/write access to a temporary directory.
+(allow file-read* file-write*
+       (subpath (param "TMPDIR"))
+       (subpath (param "DARWIN_CACHE_DIR")))
+
+;; Read/write cache access
+(let ((cache-path-filter (home-subpath "/Library/Caches/com.apple.sysextd")))
+  (allow file-read* file-write* cache-path-filter)
+  (allow file-issue-extension
+    (require-all
+      (extension-class "com.apple.app-sandbox.read" "com.apple.app-sandbox.read-write")
+      cache-path-filter)))
+
+;; for sandbox_init_with_parameters()
+(allow mach-priv-host-port)
+
+;; Read and write our SIP-protected filesystem area
+(allow file-read* file-write* (subpath "/Library/SystemExtensions"))
+
+;; Read the bundles of apps, anywhere
+(allow file-read*)
+
+;; Talking to our friend daemons that start and manage the various kinds of extensions
+(allow mach-lookup
+  (global-name "com.apple.nesessionmanager.system-extensions")
+  (global-name "com.apple.endpointsecurity.system-extensions")
+)
+
+;; Receiving AuthRefs (in order to check them) from clients
+(allow authorization-right-obtain
+ ;;TODO: we should use a different right than this one
+ (right-name "com.apple.ServiceManagement.daemons.modify"))
+
+;; Various daemons needed to do our job
+(allow mach-lookup (global-name
+		    "com.apple.SecurityServer"
+		    "com.apple.ocspd"
+		    "com.apple.coreservices.quarantine-resolver"
+		    "com.apple.lsd.mapdb"
+		    "com.apple.UNCUserNotification"
+		   ))

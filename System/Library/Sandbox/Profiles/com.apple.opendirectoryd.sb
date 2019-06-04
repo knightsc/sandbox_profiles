@@ -36,6 +36,14 @@
 
 ;; restrict where we write
 (allow file-write*
+    (subpath
+        ;; Allow firm-linked paths on the boot volume.
+        "/private/var/db/dslocal/nodes/Default"
+        "/private/var/db/shadow"
+        "/var/db/dslocal/nodes/Default"
+        "/var/db/shadow"
+    )
+
     ;; key OpenDirectory files
     (mount-relative-regex 
         ;; our database and shadowhash files

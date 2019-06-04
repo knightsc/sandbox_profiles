@@ -136,7 +136,9 @@
        (require-any
            (extension-class "com.apple.librarian.ubiquity-container")
            (extension-class "com.apple.app-sandbox.read")
-           (extension-class "com.apple.app-sandbox.read-write"))
+           (extension-class "com.apple.app-sandbox.read-write")
+           ;; <rdar://problem/37040014> macOS: bird should be allowed to issue 'com.apple.quicklook.readonly' extensions
+           (extension-class "com.apple.quicklook.readonly"))
 ))
 
 ;; Preferences access
@@ -154,6 +156,7 @@
 
 (preference-read ".GlobalPreferences")
 (preference-read "com.apple.bird")
+(preference-read "com.apple.fileproviderd")
 (preference-read "com.apple.mmcs")
 (preference-read "com.apple.CloudKit.BehaviorOptions")
 (preference-read "com.apple.DebugSymbols")
@@ -236,6 +239,8 @@
         (global-name "com.apple.symptom_diagnostics")
 ;; Anisette (see rdar://problem/34819241)
         (global-name "com.apple.ak.anisette.xpc")
+;; Dropping spotlight index (see <rdar://problem/47466587>)
+        (global-name "com.apple.spotlight.IndexAgent")
 )
 
 ;; Used by sharing acceptation flow to select file in Finder (25639025)

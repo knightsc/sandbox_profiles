@@ -1,3 +1,6 @@
+;; THIS IS THE MACOS SANDBOX FILE
+;; To make iOS sandbox changes, please file a radar requesting the change in the Sandbox_profiles radar component.
+
 (version 1)
 (import "system.sb")
 
@@ -7,10 +10,13 @@
         (literal (string-append (param "_HOME") home-relative-literal)))
 (define (home-prefix home-relative-subpath)
         (prefix (string-append (param "_HOME") home-relative-subpath)))
+(define (home-regex home-relative-regex)
+        (regex (string-append "^" (regex-quote (param "_HOME")) home-relative-regex)))
 
 (allow file-read* file-write*
     (home-subpath "/Library/Suggestions")
     (home-subpath "/Library/PersonalizationPortrait")
+    (home-subpath "/Library/Logs/PersonalizationPortrait")
     (home-subpath "/Library/Metadata/com.apple.IntelligentSuggestions")
     (home-literal "/Library/SyncedPreferences/com.apple.CoreSuggestions.plist")
     (home-literal "/Library/Keychains/login.keychain") ;; Security.framework
@@ -20,6 +26,7 @@
     (home-subpath "/Library/Calendars") ;; EventKit
     (home-subpath "/Library/Application Support/AddressBook") ;; this needs to be r/w even if we only read: <rdar://problem/20454859>
     (home-subpath "/Library/Caches/com.apple.parsecd/CustomFeedback/") ;; Parsec feedback (Trystero uploads) <rdar://problem/33038387> Sandbox exception for Parsec feedback (macOS)
+    (home-subpath "/Library/Caches/com.apple.proactive.eventtracker") ;; PET 2.0
 
 )
 
@@ -28,6 +35,9 @@
 )
 
 (allow file-read*
+    (literal "/Library/Preferences/.GlobalPreferences.plist") ;; rdar://49540921
+    (home-literal "/Library/Preferences/.GlobalPreferences.plist") ;; rdar://49540921
+    (home-regex #"/Library/Preferences/ByHost/\.GlobalPreferences\..*\.plist$") ;; rdar://49540921
     (literal "/Library/Keychains/System.keychain") ;; Security.framework
     (literal "/private/var/db/mds/messages/se_SecurityMessages") ;; Security.framework
     (literal "/private/var/db/mds/system/mdsObject.db") ;; Security.framework
@@ -77,6 +87,7 @@
     (global-name "com.apple.rtcreportingd")
     (global-name "com.apple.securityd.xpc") ;; SecItemCopyMatching
     (global-name "com.apple.SecurityServer") ;; Security.framework
+    (global-name "com.apple.suggestd.contacts") ;; So that code in PersonalizationPortraitInternals call back into suggestd
     (global-name "com.apple.syncdefaultsd")
     (global-name "com.apple.system.opendirectoryd.api") ;; AddressBook.framework
     (global-name "com.apple.SystemConfiguration.configd") ;; SGDCloudKitSync (APNS)
@@ -158,3 +169,22 @@
     (allow user-preference-read user-preference-write (preference-domain "com.apple.AddressBook")) ; (this line modified from application.sb to remove dependency on a function)
     (allow file-read* file-write*
            (home-subpath "/Library/Application Support/AddressBook")))
+
+;; For reminder model inference
+(allow iokit-open
+    (iokit-user-client-class "AGXSharedUserClient")
+    (iokit-user-client-class "AGXCommandQueue"))
+
+;; For reminder model inference
+(allow sysctl-read
+    (sysctl-name "kern.bootsessionuuid"))
+
+;; <rdar://problem/45164692> PPContactStore: Use PeopleSuggster.fw for scoring
+(allow mach-lookup
+    (global-name "com.apple.coreduetd.people"))
+(allow file-read*
+    (literal "/private/var/db/CoreDuet/People/interactionC.db")
+    (literal "/private/var/db/CoreDuet/People/interactionC.db-shm")
+    (literal "/private/var/db/CoreDuet/People/interactionC.db-wal"))
+(allow file-write*
+    (literal "/private/var/db/CoreDuet/People/interactionC.db-shm"))

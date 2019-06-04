@@ -1,6 +1,6 @@
 ;;
 ;; fontd - internal sandbox profile
-;; Copyright 2015 Apple, Inc.  All Rights reserved.
+;; Copyright 2015-2019 Apple, Inc.  All Rights reserved.
 ;;
 ;; WARNING: The sandbox rules in this file currently constitute
 ;; Apple System Private Interface and are subject to change at any time and
@@ -29,9 +29,8 @@
     (global-name "com.apple.distributed_notifications@1v3")
     (global-name "com.apple.SystemConfiguration.configd")
     (global-name "com.apple.lsd.mapdb")
-    (global-name "com.apple.mobileassetd")
+    (global-name "com.apple.mobileassetd.v2")
     (global-name "com.apple.fonts.atsbridge")
-    (global-name "com.apple.FontObjectsServer")
 )
 
 (allow file-read*
@@ -121,18 +120,13 @@
     (regex #"/private/var/folders/[^/]+/[^/]+/C/com.apple.FontRegistry/*")
 )
 
-(if (positive? (string-length (param "__HOME")))
-	(begin
-		(allow-read-access-and-issue-extensions (param "__HOME"))
-	)
-)
 (allow-read-access-and-issue-extensions "/Library/Fonts")
 (allow-read-access-and-issue-extensions "/System/Library/Fonts")
-(allow-read-access-and-issue-extensions "/Library/Application Support/Apple/Fonts")
+(allow-read-access-and-issue-extensions "/System/Library/PrivateFrameworks/FontServices.framework/Resources/Fonts")
 
 (if (positive? (string-length (param "__HOME")))
 	(begin
-		(allow-read-write-access-and-issue-extensions (string-append (param "__HOME") "/Library/Fonts"))
+		(allow-read-access-and-issue-extensions (string-append (param "__HOME") "/Library/Fonts"))
 	)
 )
 

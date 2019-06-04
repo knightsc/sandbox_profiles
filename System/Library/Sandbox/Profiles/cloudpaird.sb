@@ -152,6 +152,9 @@
 	(global-name "com.apple.telephonyutilities.callservicesdaemon.callcapabilities")
 	(global-name "com.apple.siri.external_request")
 	(global-name "com.apple.siri.activation")
+	(global-name "com.apple.bluetooth.nsxpc")
+	(global-name "com.apple.server.bluetooth.le.pipe.xpc")
+	(global-name "com.apple.server.bluetooth.le.att.xpc")
 )
 
 (allow iokit-open

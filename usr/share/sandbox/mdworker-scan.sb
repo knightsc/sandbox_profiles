@@ -33,6 +33,9 @@
 
 (allow ipc-posix-shm (ipc-posix-name "apple.shm.notification_center"))
 
+
+(allow mach-lookup (global-name "com.apple.distributed_notifications@1v3"))
+(allow mach-lookup (global-name "com.apple.backupd.session.xpc"))
 (allow mach-lookup (global-name "com.apple.DiskArbitration.diskarbitrationd"))
 (allow mach-lookup (global-name "com.apple.PowerManagement.control"))
 (allow mach-lookup (global-name "com.apple.metadata.mds.legacy"))

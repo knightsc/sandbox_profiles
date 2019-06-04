@@ -24,7 +24,8 @@
        (right-name "system.install.apple-software.standard-user")
        (right-name "system.install.app-store-software")
        (right-name "system.install.software.iap")
-       (right-name "system.install.software"))
+       (right-name "system.install.software")
+       (right-name "system.install.software.mdm-provided"))
 
 ;; Distributions can read anything
 (allow file-read*)
@@ -68,8 +69,13 @@
 (allow ipc-posix-shm-write-data
        (ipc-posix-name "com.apple.AppleDatabaseChanged"))
 
+(allow mach-register
+       (global-name "com.apple.softwareupdated.SUOSUScheduler")
+       (global-name "com.apple.softwareupdated"))
+
 ;; Note that SoftwareUpdateConfigData inherits this sandbox (which is why we need com.apple.softwareupdated)
 (allow mach-lookup
+       (global-name "com.apple.SoftwareUpdateNotificationManagerService")
        (global-name "com.apple.duetactivityscheduler")
        (global-name "com.apple.CoreServices.coreservicesd")
        (global-name "com.apple.PowerManagement.control")
@@ -103,7 +109,8 @@
        (global-name "com.apple.rtcreportingd")
        (global-name "com.apple.coreservices.quarantine-resolver")
        (global-name "com.apple.InstallerDiagnostics.installerdiagd")
-       (global-name "com.apple.bosreporter"))
+       (global-name "com.apple.bosreporter")
+       (global-name "com.apple.cache_delete"))
 
 ;; from application.sb
 (allow system-fsctl

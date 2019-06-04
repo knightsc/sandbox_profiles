@@ -1,0 +1,127 @@
+;;; Copyright (c) 2017 Apple Inc.  All Rights reserved.
+;;;
+;;; WARNING: The sandbox rules in this file currently constitute
+;;; Apple System Private Interface and are subject to change at any time and
+;;; without notice.
+;;;
+(version 1)
+
+(deny default)
+(deny file-map-executable iokit-get-properties process-info* nvram*)
+(deny dynamic-code-generation)
+
+(import "system.sb")
+(import "com.apple.corefoundation.sb")
+(corefoundation)
+
+;;; Homedir-relative path filters
+(define (home-regex home-relative-regex)
+    (regex (string-append "^" (regex-quote (param "HOME")) home-relative-regex)))
+
+(define (home-subpath home-relative-subpath)
+    (subpath (string-append (param "HOME") home-relative-subpath)))
+
+(define (home-prefix home-relative-prefix)
+    (prefix (string-append (param "HOME") home-relative-prefix)))
+
+(define (home-literal home-relative-literal)
+    (literal (string-append (param "HOME") home-relative-literal)))
+
+(allow process-info* (target self))
+
+;; For resolving symlinks, realpath(3), and equivalents.
+(allow file-read-metadata)
+
+;; For validating the entitlements of clients.
+(allow process-info-codesignature)
+
+;; Access to preferences
+(allow user-preference-read user-preference-write
+        (preference-domain "com.apple.AdLib")
+        (preference-domain "com.apple.ap.adservicesd"))
+
+(allow user-preference-read
+        (preference-domain "com.apple.AppleMediaServices")
+        (preference-domain "com.apple.security")
+        (preference-domain "com.apple.CFNetwork")
+        (preference-domain "kCFPreferencesAnyApplication"))
+
+(allow file-write-create
+        (subpath "/com.apple.AdLib"))
+
+;; Read/write cache access
+(let ((cache-path-filter (home-subpath "/Library/Caches/com.apple.ap.adservicesd")))
+  (allow file-read* file-write* cache-path-filter)
+  (allow file-issue-extension
+    (require-all
+      (extension-class "com.apple.app-sandbox.read" "com.apple.app-sandbox.read-write")
+      cache-path-filter)))
+(let ((cache-path-filter (home-subpath "/Library/Caches/com.apple.iad/iAdCore")))
+  (allow file-read* file-write* cache-path-filter)
+  (allow file-issue-extension
+    (require-all
+      (extension-class "com.apple.app-sandbox.read" "com.apple.app-sandbox.read-write")
+      cache-path-filter)))
+
+;; Allow to read /usr/libexec and /usr/libexec/adservicesd
+(allow file-read*
+        (literal "/usr/libexec")
+        (subpath "/usr/libexec/adservicesd"))
+
+;; Read/write access to keychain
+(allow file-read*
+        (home-subpath "/Library/Keychains"))
+
+;;; Keychain
+(allow file-read*
+        (prefix  "/Library/Keychains/System.keychain"))
+
+(allow file-write*
+        (home-regex   "/Library/Keychains/\.fl[0-9A-F]+$")          ; lock file ([0-9A-F]{8})
+        (home-literal "/Library/Keychains/lck~login.keychain-db")   ; network users
+        (home-prefix  "/Library/Keychains/login.keychain-db")
+        (home-regex   "/Library/Keychains/~[-A-Za-z0-9_]{16}$"))    ; network users
+
+(allow ipc-posix-shm*
+        (ipc-posix-name-regex #"^/tmp/com\.apple\.csseed\.[0-9]+$")
+        (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+(allow ipc-posix-shm-read-data
+        (ipc-posix-name "FNetwork.defaultStorageSession"))
+
+;; Mach Lookup
+(allow mach-lookup)
+(allow mach-lookup
+    (global-name "com.apple.ap.adservicesd")
+    (global-name "com.apple.lsd.mapdb")
+    (global-name "com.apple.accountsd.accountmanager")
+    (global-name "com.apple.runningboard")
+    (global-name "com.apple.SystemConfiguration.configd")
+    (global-name "com.apple.commcenter.coretelephony.xpc")
+    (global-name "com.apple.securityd.xpc")
+    (global-name "com.apple.SecurityServer")
+    (global-name "com.apple.fpsd")
+    (global-name "com.apple.cookied")
+    (global-name "com.apple.lsd.mapdb"))
+
+;; TODO: Need to figure out if we really need this
+(allow mach-priv-host-port)
+
+;; Read access to mds
+(allow file-read-data (subpath "/private/var/db/mds/"))
+(allow file-read* file-write*
+        (regex #"^/private/var/folders/[^/]+/[^/]+/C/com.apple.ap.adservicesd/mds/mdsDirectory\.db$")
+        (regex #"^/private/var/folders/[^/]+/[^/]+/C/com.apple.ap.adservicesd/mds/mdsDirectory\.db_$")
+        (regex #"^/private/var/folders/[^/]+/[^/]+/C/com.apple.ap.adservicesd/mds/mdsObject\.db$")
+        (regex #"^/private/var/folders/[^/]+/[^/]+/C/com.apple.ap.adservicesd/mds/mdsObject\.db_$")
+        (regex #"^/private/var/folders/[^/]+/[^/]+/C/com.apple.ap.adservicesd/mds/mds\.lock$"))
+
+;; Networking
+(system-network)
+(allow network-outbound)
+
+;; mDNSResponder
+(allow network-outbound
+        (path "/private/var/run/mDNSResponder")
+        (remote ip)
+        (control-name "com.apple.net.netagent"))

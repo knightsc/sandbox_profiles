@@ -61,38 +61,32 @@
 (allow file-read-metadata)
 
 (allow file-read*
+    (literal "/Library/Preferences/com.apple.security-common.plist")
     (literal "/Library/Preferences/com.apple.security.plist")
     (literal "/Library/Preferences/com.apple.security.revocation.plist")
     (home-literal "/Library/Preferences/com.apple.security.plist")
-    (home-literal "/Library/Preferences/com.apple.security.revocation.plist")
-    (literal "/private/var/db/mds/system/mdsDirectory.db")
-    (literal "/private/var/db/mds/system/mdsObject.db")
-    (regex #"^(/private)?/var/folders/[^/]+/[^/]+/C/mds/mds\.lock$")
-    (regex #"^(/private)?/var/folders/[^/]+/[^/]+/C/mds/mdsObject\.db$")
-    (regex #"^(/private)?/var/folders/[^/]+/[^/]+/C/mds/mdsDirectory\.db$")
-    (regex #"^(/private)?/var/folders/[^/]+/[^/]+/C/[^/]+/mds/mdsObject\.db$")
-    (regex #"^(/private)?/var/folders/[^/]+/[^/]+/C/[^/]+/mds/mdsDirectory\.db$")
-    (regex #"^(/private)?/var/folders/[^/]+/[^/]+/C/[^/]+/mds/mds\.lock$"))
+    (home-literal "/Library/Preferences/com.apple.security.revocation.plist"))
 
-(allow file-write*
-    (regex #"^(/private)?/var/folders/[^/]+/[^/]+/C/mds(/|$)")
-    (regex #"^(/private)?/var/folders/[^/]+/[^/]+/C/mds/mds\.lock$")
-    (regex #"^(/private)?/var/folders/[^/]+/[^/]+/C/mds/mdsDirectory\.db$")
-    (regex #"^(/private)?/var/folders/[^/]+/[^/]+/C/mds/mdsDirectory\.db_$")
-    (regex #"^(/private)?/var/folders/[^/]+/[^/]+/C/mds/mdsObject\.db$")
-    (regex #"^(/private)?/var/folders/[^/]+/[^/]+/C/mds/mdsObject\.db_$")
-    (regex #"^(/private)?/var/folders/[^/]+/[^/]+/C/[^/]+/mds(/|$)")
-    (regex #"^(/private)?/var/folders/[^/]+/[^/]+/C/[^/]+/mds/mds\.lock$")
-    (regex #"^(/private)?/var/folders/[^/]+/[^/]+/C/[^/]+/mds/mdsDirectory\.db$")
-    (regex #"^(/private)?/var/folders/[^/]+/[^/]+/C/[^/]+/mds/mdsDirectory\.db_$")
-    (regex #"^(/private)?/var/folders/[^/]+/[^/]+/C/[^/]+/mds/mdsObject\.db$")
-    (regex #"^(/private)?/var/folders/[^/]+/[^/]+/C/[^/]+/mds/mdsObject\.db_$"))
+(allow mach-lookup
+    (global-name "com.apple.analyticsd")
+    (global-name "com.apple.windowserver.active"))
 
-;;; rdar://problem/26620973 & rdar://problem/31560540
-(allow file-read* file-write* (regex #"^(/private)?/var/folders/[^/]+/[^/]+/[^/]+/com\.apple\.speech\.speechsynthesisd.*"))
-
-;;; rdar://problem/26439889 No speech at login window for Polyglot voices
-(allow file-read* file-write* (literal "/private/var/db/mds/system/mds.lock"))
+;;; Security.framework: mds
+; mds.lock, mdsDirectory.db, mdsObject.db
+; 1. extension "speechsynthesisd:mds"
+;    uid == 0: r+w /private/var/db/mds/system
+;    uid  > 0: r+w <_DARWIN_USER_CACHE_DIR>/mds
+; 2. /private/var/db/mds/system/{mdsDirectory.db,mdsObject.db}
+;    uid == 0: r+w (already covered by (extension "speechsynthesisd:mds"))
+;    uid  > 0: r
+(allow file-read* file-write* (extension "speechsynthesisd:mds"))
+(allow file-read*
+       (literal "/private/var/db/mds/system/mdsDirectory.db")
+       (literal "/private/var/db/mds/system/mdsObject.db"))
+; 3. se_SecurityMessages:
+;    uid  < 500: /private/var/db/mds/messages/se_SecurityMessages
+;    uid >= 500: /private/var/db/mds/messages/<uid>/se_SecurityMessages
+(allow file-read* (extension "speechsynthesisd:securitymessages"))
 
 (allow mach-lookup
     (global-name "com.apple.audio.audiohald")
@@ -130,7 +124,7 @@
     (literal "/Library/Preferences/.GlobalPreferences.plist"))
 
 ;;; Temp Directory
-(allow file-read* file-write* file-read-metadata (subpath (param "_TEMPDIR")))
+(allow file-read* file-write* (subpath (param "_TEMPDIR")))
 
 ;;; Third Party Support
 (allow file-read* (subpath "/Library/Frameworks"))

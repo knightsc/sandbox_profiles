@@ -49,7 +49,10 @@
     (regex #"^/private/var/db/Spotlight-V100($|/)")
     (regex #"^/private/var/db/Spotlight($|/)")
     (regex #"^/Library/Caches/com\.apple\.Spotlight($|/)")
-    (regex #"/\.Spotlight-V100($|/)"))
+    (regex #"/\.Spotlight-V100($|/)")
+    (mount-relative-regex #"^/\.Spotlight-V100($|/)")
+    (mount-relative-regex #"^/Device/private/var/db/Spotlight($|/)")
+    (mount-relative-regex #"^/Device/private/var/db/Spotlight-V100($|/)"))
 
 (if (positive? (string-length (param "DARWIN_TEMP_DIR")))
     (begin
@@ -60,6 +63,7 @@
         (allow file* (subpath (param "DARWIN_CACHE_DIR")))))
 
 (allow file*
+    (regex #"^/Library/Application Support/Apple/Spotlight($|/)")
     (literal "/Library/Preferences/com.apple.SpotlightServer.plist")
     (literal "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Resources/com.apple.SpotlightServer.plist"))
     
@@ -88,7 +92,6 @@
     (global-name "com.apple.metadata.mds.scan")
     (global-name "com.apple.metadata.mdwrite")
     (global-name "com.apple.mdworker.bundles")
-    (global-name "com.apple.mdworker.32bit")
     (global-name "com.apple.mdworker.lsb")
     (global-name "com.apple.mdworker.mail")
     (global-name "com.apple.mdworker.single")
@@ -102,6 +105,7 @@
     (global-name "com.apple.lsd.modifydb")
     (global-name "com.apple.launchservices.mapdb")
     (global-name "com.apple.cache_delete")
+    (global-name "com.apple.spotlight.ImportAgent")
     (global-name "com.apple.powerlog.plxpclogger.xpc"))
     
 (allow mach-per-user-lookup)
@@ -121,9 +125,12 @@
 	 	    (regex #"^/private/var/db/Spotlight-V100($|/)")
 	 	    (regex #"^/private/var/db/Spotlight($|/)")
 	 	    (regex #"^/Library/Caches/com\.apple\.Spotlight($|/)")
-	 	    (mount-relative-regex #"^/\.Spotlight-V100($|/)"))
+	 	    (mount-relative-regex #"^/\.Spotlight-V100($|/)")
+            (mount-relative-regex #"/Device/private/var/db/Spotlight($|/)")
+            (mount-relative-regex #"/Device/private/var/db/Spotlight-V100($|/)"))
     (require-all (extension-class "com.apple.spotlight.indexer.read-write"))))
 
+(allow file-issue-extension (require-all (extension-class "com.apple.app-sandbox.read")))
 (allow file-issue-extension (require-all (extension-class "com.apple.spotlight.flagwriter.read-write")))
 (allow file-issue-extension (require-all (extension-class "com.apple.spotlight.importer.readonly")))
 (allow generic-issue-extension (require-all (extension-class "com.apple.mdworker.image_extension")))

@@ -1,0 +1,102 @@
+;;; Copyright (c) 2017 Apple Inc.  All Rights reserved.
+;;;
+;;; WARNING: The sandbox rules in this file currently constitute
+;;; Apple System Private Interface and are subject to change at any time and
+;;; without notice.
+;;;
+(version 1)
+
+(deny default)
+(deny file-map-executable iokit-get-properties process-info* nvram*)
+(deny dynamic-code-generation)
+
+(import "system.sb")
+(import "com.apple.corefoundation.sb")
+(corefoundation)
+
+;; Useful function macros for library-relative paths
+
+;;; Allow all usernoted mach ports
+(allow mach-register
+    (global-name-prefix "com.apple.usernoted.")
+    (global-name-prefix "com.apple.usernotifications."))
+
+(allow mach-lookup
+    (global-name "com.apple.notificationcenterui.main")
+    (global-name "com.apple.windowserver.active")
+    (global-name "com.apple.apsd")
+    (global-name "com.apple.SecurityServer")
+    (global-name "com.apple.ocspd")
+    (global-name "com.apple.lsd.mapdb")
+    (global-name "com.apple.analyticsd")
+    (global-name "com.apple.distributed_notifications@1v3")
+    (global-name "com.apple.coreservices.launchservicesd")
+    (global-name "com.apple.coreservices.quarantine-resolver")
+    (global-name "com.apple.pluginkit.pkd")
+    (global-name "com.apple.uikitsystemapp.daemon-services")
+    (global-name "com.apple.duetactivityscheduler"))
+
+(allow lsopen)
+(allow nvram-get)
+
+;;; Homedir-relative path filters
+(define (home-regex home-relative-regex)
+    (regex (string-append "^" (regex-quote (param "HOME")) home-relative-regex)))
+
+(define (library-regex library-relative-regex)
+    (regex (string-append "^" (regex-quote (param "_LIBRARY")) library-relative-regex)))
+
+
+(define (home-subpath home-relative-subpath)
+    (subpath (string-append (param "HOME") home-relative-subpath)))
+
+(define (home-prefix home-relative-prefix)
+    (prefix (string-append (param "HOME") home-relative-prefix)))
+
+(define (home-literal home-relative-literal)
+    (literal (string-append (param "HOME") home-relative-literal)))
+
+(allow process-info* (target self))
+
+;; Process info lookup
+(allow process-info-pidinfo)
+
+;; For validating the entitlements of clients.
+(allow process-info-codesignature)
+
+;; Your preference domain
+(allow user-preference-read user-preference-write
+        (preference-domain "com.apple.ncprefs")
+        (preference-domain "usernoted"))
+
+;; Global and security preferences
+(allow user-preference-read
+        (preference-domain "com.apple.security")
+        (preference-domain "kCFPreferencesAnyApplication"))
+
+;; allow all reads (could we restrict this to ~/Library/Containers)
+(allow file-read*)
+
+;; For resolving symlinks, realpath(3), and equivalents.
+(allow file-read-metadata)
+
+;; Read/write access to a temporary directory.
+(allow file-write*
+    (subpath (param "TMPDIR"))
+    (subpath (param "DARWIN_CACHE_DIR"))
+    (subpath (param "DARWIN_USER_DIR"))
+    (subpath "/private/var/tmp")
+    (subpath "/private/tmp"))
+
+;; UNNotificationAttachment code has to be able to move a file from an app's directory and if there is a failure
+;; it moves them back, so we need to support unlink and write (read is handled above)
+(allow file-unlink file-write*
+    (home-regex #"/Library/Containers/[^/]+/Data/"))
+
+; this all seems necessary for SecCode calls
+;;(allow file-read-metadata (literal "/"))
+(allow ipc-posix-shm-read* ipc-posix-shm-write-create ipc-posix-shm-write-data
+    (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+(allow iokit-get-properties (iokit-property "Device Characteristics"))
+

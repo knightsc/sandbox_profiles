@@ -1,0 +1,77 @@
+;;; Copyright (c) 2017 Apple Inc.  All Rights reserved.
+;;;
+;;; WARNING: The sandbox rules in this file currently constitute
+;;; Apple System Private Interface and are subject to change at any time and
+;;; without notice.
+;;;
+(version 1)
+
+(allow (with report) default)
+(allow (with report) file-map-executable process-info* nvram*)
+(allow (with report) dynamic-code-generation)
+
+(import "com.apple.iMessage.shared.sb")
+
+;; Read/write cache access
+(let ((cache-path-filter (home-subpath "/Library/Caches/com.apple.imtranscoding.IMTranscoderAgent")))
+  (allow file-read* file-write* cache-path-filter)
+  (allow file-issue-extension
+    (require-all
+      (extension-class "com.apple.app-sandbox.read" "com.apple.app-sandbox.read-write")
+      cache-path-filter)))
+
+;; allow reading files sent to us by imagent which are in imagent's temp folder
+(allow file-read*
+    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.imagent/.*")
+    (regex #"^/Library/Video/Plug-Ins/.*")
+    (regex #"^/Library/Audio/Plug-Ins/.*")
+    )
+
+(allow file-write*
+    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.identityservicesd/.*")
+    )
+
+(allow user-preference-read
+    (preference-domain "com.apple.imtranscoding.IMTranscoderAgent")
+    (preference-domain "com.apple.ImageIO")
+    (preference-domain "com.apple.coremedia")
+    (preference-domain "com.apple.AppleGVA")
+    (preference-domain "com.apple.GVAEncoder")
+    (preference-domain "com.apple.avfoundation")
+    (preference-domain "com.apple.coreaudio")
+    (preference-domain "com.apple.corevideo")
+    (preference-domain "com.apple.gpu")
+    (preference-domain "com.apple.opengl")
+    (preference-domain "com.nvidia.OpenGL")
+    )
+
+(allow user-preference-write
+    (preference-domain "com.apple.imtranscoding.IMTranscoderAgent")
+    )
+
+(allow mach-lookup
+    (global-name "com.apple.lsd.mapdb")
+    (global-name "com.apple.audio.AudioComponentRegistrar")
+    (global-name "com.apple.ocspd")
+    (global-name "com.apple.audio.audiohald")
+    )
+
+(allow file-map-executable
+    (regex #"^/System/Library/Components/.*")
+    (regex #"^/System/Library/Extensions/.*")
+    (regex #"^/System/Library/Video/Plug-Ins/.*")
+    (regex #"^/System/Library/Audio/Plug-Ins/.*")
+    )
+
+(allow iokit-open
+    (iokit-user-client-class "IGAccelDevice")
+    (iokit-user-client-class "IGAccelSharedUserClient")
+    (iokit-user-client-class "IGAccelVideoContextMain")
+    (iokit-user-client-class "IGAccelVideoContextMedia")
+    (iokit-user-client-class "IGAccelVideoContextVEBox")
+    (iokit-user-client-class "IOSurfaceRootUserClient")
+    )
+
+(allow device-microphone)
+
+

@@ -1,0 +1,42 @@
+;;; Copyright (c) 2017 Apple Inc.  All Rights reserved.
+;;;
+
+(version 1)
+
+(deny default)
+
+(allow user-preference-read (preference-domain
+                        "com.apple.LockoutAgent"
+                        "kCFPreferencesAnyApplication"))
+
+(allow mach-lookup (global-name
+                        "com.apple.dmd.policy"
+                        "com.apple.ctcategories.service"
+                        "com.apple.siri.context.service"
+                        "com.apple.coreservices.launchservicesd"
+                        "com.apple.windowserver.active"
+                        "com.apple.lsd.mapdb"
+                        "com.apple.diagnosticd"
+                        "com.apple.CoreServices.coreservicesd"
+                        "com.apple.distributed_notifications@Uv3"
+                        "com.apple.cfprefsd.daemon"
+                        "com.apple.cfprefsd.agent"
+                        "com.apple.ScreenTimeAgent"
+                        "com.apple.bsd.dirhelper"
+                        "com.apple.system.opendirectoryd.membership"))
+
+(allow ipc-posix-shm-read*
+    (ipc-posix-name-regex #"^apple\.cfprefs\."))
+
+(allow iokit-open (iokit-user-client-class "AppleAPFSUserClient"))
+
+(allow file-read*)
+
+(allow file-write*
+    (regex #"^/private/var/folders/[^/]+/[^/]+/T/TemporaryItems(/|$)")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/0/com\.apple\.lockoutagent(/|$)"))
+
+(allow sysctl-read)
+
+;; HFSIOC_SET_HOTFILE_STATE
+(allow system-fsctl (fsctl-command (_IO "h" 47)))

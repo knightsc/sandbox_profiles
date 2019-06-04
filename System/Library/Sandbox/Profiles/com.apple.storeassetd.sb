@@ -19,7 +19,6 @@
        (literal "/private/etc/hosts")
        (literal "/Library/Preferences/.GlobalPreferences.plist")
        (literal "/private/var/db/.MASManifest")
-       (literal "/Library/Preferences/com.apple.SoftwareUpdate.plist")
        (literal "/private/var/db/mds/system/mdsDirectory.db")
        (literal "/private/var/db/mds/system/mdsObject.db")
 	   (literal "/Library/Preferences/com.apple.iWork09.Installer.plist")
@@ -85,6 +84,7 @@
        (preference-domain "com.apple.AppleMediaServices"))
 
 (allow ipc-posix-shm-read-data
+       (ipc-posix-name "/com.apple.AppSSO.version")
        (ipc-posix-name "FNetwork.defaultStorageSession")
        (ipc-posix-name-regex #"ls\.[a-f0-9\.]+")
        (ipc-posix-name "apple.shm.notification_center")
@@ -101,7 +101,6 @@
        (global-name "com.apple.fpsd")
        (global-name "com.apple.UNCUserNotification")
        (global-name "com.apple.coreservices.launcherror-handler")
-       (global-name "com.apple.softwareupdated")
        (global-name "com.apple.SystemConfiguration.configd")
        (global-name "com.apple.storeassetd")
        (global-name "com.apple.storeassetd.daemon")
@@ -115,6 +114,7 @@
        (global-name "com.apple.storeinstalld")
        (global-name "com.apple.storeagent.pushservice-xpc")
        (global-name "com.apple.commerce")
+       (global-name "com.apple.commerced")
        (global-name "com.apple.daemon.vpp.storeagent-xpc")
        (global-name "com.apple.maspushagent-xpc")
        (global-name "com.apple.lateragent-xpc")
@@ -137,6 +137,7 @@
        (global-name "com.apple.windowserver.active")
        (global-name "com.apple.dock.launchpad")
        (global-name "com.apple.lsd.mapdb")
+       (global-name "com.apple.lsd.modifydb")
 	   (global-name "com.apple.coreservices.launchservicesd")
        (global-name "com.apple.coreservices.appleevents")
        (global-name "com.apple.cookied")
@@ -158,6 +159,7 @@
        (global-name "com.apple.cfnetwork.cfnetworkagent")
        (global-name "com.apple.rtcreportingd")
        (global-name "com.apple.mdmclient.daemon.unrestricted")
+       (global-name "com.apple.AppSSO.service-xpc")
        (global-name "com.apple.pasteboard.1"))
 
 (allow authorization-right-obtain
@@ -168,8 +170,7 @@
        (right-name "system.install.apple-config-data")
        (right-name "system.install.software")
        (right-name "system.install.software.iap")
-       (right-name "system.install.software.mdm-provided")
-       (right-name "com.apple.SoftwareUpdate.modify-settings"))
+       (right-name "system.install.software.mdm-provided"))
 
 (allow iokit-open
        (iokit-user-client-class "AppleKeyStoreUserClient")

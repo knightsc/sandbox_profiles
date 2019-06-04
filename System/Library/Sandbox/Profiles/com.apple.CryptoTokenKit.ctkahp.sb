@@ -49,10 +49,8 @@
        (global-name "com.apple.CryptoTokenKit.AuthenticationHintsProvider.agent.libxpc")
        (global-name "com.apple.system.opendirectoryd.api")
        (global-name "com.apple.CoreServices.coreservicesd")
-       (global-name "com.apple.CoreAuthentication.agent.libxpc")
        (global-name "com.apple.CoreAuthentication.agent")
        (global-name "com.apple.CoreAuthentication.daemon")
-       (global-name "com.apple.CoreAuthentication.daemon.libxpc")
        (global-name "com.apple.ocspd"))
 
 (allow user-preference-read

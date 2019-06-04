@@ -22,11 +22,13 @@
         (global-name "com.apple.ctkd.slot-client")
         (global-name "com.apple.ctkd.token-client")
         (global-name "com.apple.ctkd.watcher-client")
+        (global-name "com.apple.ctkbind-notification")
         (global-name "com.apple.distributed_notifications@1v3")
         (global-name "com.apple.distributed_notifications@Uv3")
         (global-name "com.apple.pluginkit.pkd")
         (global-name "com.apple.securityd.xpc")
         (global-name "com.apple.ocspd")
+        (global-name "com.apple.lsd.mapdb")
 )
 
 (allow user-preference-read
@@ -34,4 +36,5 @@
 
 (allow user-preference-read user-preference-write
     (preference-domain "com.apple.security.smartcard")
+    (preference-domain "com.apple.security.ctkd-db")
 )

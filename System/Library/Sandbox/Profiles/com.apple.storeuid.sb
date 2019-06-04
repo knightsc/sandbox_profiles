@@ -19,7 +19,6 @@
        (literal "/Library/Preferences/.GlobalPreferences.plist")
        (literal "/private/var/db/mds/messages/se_SecurityMessages")
        (literal "/private/var/db/.MASManifest")
-       (literal "/Library/Preferences/com.apple.SoftwareUpdate.plist")
        (literal "/private/var/db/mds/system/mdsDirectory.db")
        (literal "/private/var/db/mds/system/mdsObject.db")
 	   (literal "/Library/Preferences/com.apple.iWork09.Installer.plist")
@@ -95,12 +94,13 @@
     (preference-domain "com.apple.storeuid"))
 
 (allow ipc-posix-shm-read-data
+       (ipc-posix-name "/com.apple.AppSSO.version")
        (ipc-posix-name "FNetwork.defaultStorageSession")
        (ipc-posix-name-regex #"ls\.[a-f0-9\.]+")
        (ipc-posix-name "apple.shm.notification_center")
        (ipc-posix-name-regex #"^/tmp/com.apple.csseed.[0-9]+$"))
 
-(allow ipc-posix-shm-read* ipc-posix-shm-write-data
+(allow ipc-posix-shm-read* ipc-posix-shm-write*
        (ipc-posix-name "com.apple.AppleDatabaseChanged"))
 
 (allow mach-register
@@ -116,7 +116,6 @@
        (global-name "com.apple.pbs.fetch_services")
        (global-name "com.apple.UNCUserNotification")
        (global-name "com.apple.coreservices.launcherror-handler")
-       (global-name "com.apple.softwareupdated")
        (global-name "com.apple.SystemConfiguration.configd")
        (global-name "com.apple.commerce")
        (global-name "com.apple.storeassetd")
@@ -172,6 +171,11 @@
        (global-name "com.apple.cfnetwork.AuthBrokerAgent")
        (global-name "com.apple.cfnetwork.cfnetworkagent")
        (global-name "com.apple.iconservices")
+       (global-name "com.apple.AppSSO.service-xpc")
+       (global-name "com.apple.analyticsd")
+       (global-name "com.apple.CARenderServer")
+       (global-name "com.apple.CoreDisplay.master")
+       (global-name "com.apple.securityd.xpc")
        (global-name "com.apple.appstoreagent.xpc"))
 
 (allow authorization-right-obtain
@@ -181,8 +185,7 @@
        (right-name "system.install.apple-software.standard-user")
        (right-name "system.install.apple-config-data")
        (right-name "system.install.software")
-       (right-name "system.install.software.iap")
-       (right-name "com.apple.SoftwareUpdate.modify-settings"))
+       (right-name "system.install.software.iap"))
 
 (allow iokit-open
        (iokit-user-client-class "IOSurfaceSendRight")

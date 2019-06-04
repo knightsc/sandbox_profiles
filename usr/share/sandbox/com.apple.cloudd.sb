@@ -55,10 +55,89 @@
 )
 
 
-;; cloudd maintains device identifiers that shouldn't leak to the filesystem
-(allow file-read-metadata
-       (literal "/Library/Keychains")
+;; UUID pattern matching stolen from AppSandbox/application.sb
+
+;;; <rdar://problem/15673466>
+;;; UUID of the form: XXXXXXXX-XXXX-XXXX--XXXX-XXXXXXXXXXXX
+;;; That's 8X-4X-4X-4X-12X; where X = "[0-9A-F]", length(X) = 8
+;;; Return a regex string which matches capital hex digit patterns
+;;; pattern descriptor is an list of integers where the element specifies the repeat
+;;; count of the hex digit; 0 means insert a dash
+;;; You can paste these functions into: https://repl.it/languages/Scheme
+(define (HEX-pattern-match-generator pattern-descriptor)
+                (letrec ((pattern-string ""))
+                        (for-each  (lambda (repeat-count)
+                                (if (zero? repeat-count)
+                                    (set! pattern-string (string-append  pattern-string "-"))
+                                    (let appender ((count repeat-count))
+                                            (if (> count 0)
+                                                    (begin
+                                                            (set! pattern-string (string-append  pattern-string "[0-9A-F]"))
+                                                            (appender (- count 1)))))))
+                        pattern-descriptor)
+                pattern-string)
 )
+
+;; return a regex pattern matching string for 8-4-4-4-12 UUIDs:
+(define (uuid-HEX-pattern-match-string)
+(HEX-pattern-match-generator '(8 0 4 0 4 0 4 0 12)))
+
+;; global to hold the computed UUID matching pattern.
+(define *uuid-pattern* "")
+
+(define (uuid-regex-string)
+        (if (zero? (string-length *uuid-pattern*))
+                (set! *uuid-pattern* (uuid-HEX-pattern-match-string)))
+        *uuid-pattern*
+)
+
+
+
+;; caches when running in enterprise persona context
+(define (enterprise-context-root)
+        (regex (string-append "^/Volumes/" (uuid-regex-string) "(/|$)"))
+)
+
+(define (enterprise-context-cache-root)
+        (regex (string-append "^/Volumes/" (uuid-regex-string) #"/Library/Caches/CloudKit/[^/]+/[^/]+"))
+)
+
+(define (enterprise-context-root-regex enterprise-context-root-relative-regex)
+        (regex (string-append "^/Volumes/" (uuid-regex-string) enterprise-context-root-relative-regex))
+)
+
+(define (enterprise-context-cache-regexes enterprise-context-cache-relative-regex)
+        (regex (string-append "^/Volumes/" (uuid-regex-string) #"/Library/Caches/CloudKit/[^/]+/[^/]+" enterprise-context-cache-relative-regex))
+)
+
+(allow file-read* file-write*
+        (enterprise-context-root-regex #"/Library$")
+        (enterprise-context-root-regex #"/Library/Caches$")
+        (enterprise-context-root-regex #"/Library/Caches/CloudKit$")
+        (enterprise-context-root-regex #"/Library/Caches/CloudKit/[^/]+($|/)")
+
+        (enterprise-context-cache-root)
+        (enterprise-context-cache-regexes #"/Assets($|/)")
+        (enterprise-context-cache-regexes #"/Packages($|/)")
+        (enterprise-context-cache-regexes #"/StagingAssets($|/)")
+        (enterprise-context-cache-regexes #"/AssetsDb($|/)")
+        (enterprise-context-cache-regexes #"/MMCS/[^/]+($|/)")
+        (enterprise-context-cache-regexes #"/Records($|/)")
+)
+
+(allow file-issue-extension
+        (require-all
+                (enterprise-context-cache-root)
+                (require-any
+                        (extension-class "com.apple.nsurlstorage.extension-cache")
+                        (extension-class "com.apple.app-sandbox.read-write")
+                )
+        )
+)
+
+
+
+;; cloudd maintains device identifiers that shouldn't leak to the filesystem
 (allow file-read* file-write*
        (regex #"^/Library/Keychains/System.keychain")
        (home-subpath "/Library/Keychains")
@@ -67,12 +146,8 @@
 
 
 ;; cloudd caches
-(allow file-read-metadata
-       ;; stat our way down
-       (home-literal "")
-       (home-literal "/Library")
-       (home-literal "/Library/Caches")
-)
+(allow file-read-metadata)
+
 (allow file-read* file-write*
        ;; daemon caches
        (home-subpath "/Library/Caches/CloudKit")
@@ -108,23 +183,8 @@
 )
 
 
-;; temp directories: stat our way down
-(allow file-read-metadata
-       (literal "/private/var/folders")
-       (regex #"^(/private)?/var/folders/[^/]+$")
-       (regex #"^(/private)?/var/folders/[^/]+/[^/]+$")
-       (regex #"^(/private)?/var/folders/[^/]+/[^/]+/C$")
-       (regex #"^(/private)?/var/folders/[^/]+/[^/]+/T$")
-)
-
-
 
 ;; Debug logging
-(allow file-read-metadata
-       (literal "/Library/Logs")
-       (literal "/private/tmp") ; mkstemp likes to stat various /tmp/ dirs
-       (literal "/private/var/tmp") ; mkstemp likes to stat various /tmp/ dirs
-)
 (allow file-read* file-write*
        (literal "/private/var/logs/Ubiquity")
        (home-subpath "/Library/Logs/Ubiquity")
@@ -185,7 +245,11 @@
        (global-name "com.apple.duetactivityscheduler")
        (global-name "com.apple.ak.auth.xpc")
        (global-name "com.apple.protectedcloudstorage.protectedcloudkeysyncing")
+       (global-name "com.apple.security.octagon")
        (global-name "com.apple.coreservices.launchservicesd")
+       (global-name "com.apple.SecureBackupDaemon")
+       (global-name "com.apple.mobile.keybagd.UserManager.xpc")
+       (global-name "com.apple.mobile.keybagd.xpc")
 )
 (allow file-issue-extension
        (require-all
@@ -235,16 +299,6 @@
 
 
 
-;; Cost of doing business on the system (mish-mash of things that don't need their own reason)
-(allow file-read-metadata
-       (subpath "/private/var/db/timezone")
-       (subpath "/private/var/db/icu")
-       (subpath "/private/var/db/mds")
-       (literal "/private")
-       (literal "/private/var")
-       (literal "/private/var/db")
-)
-
 ;; For ABGetSharedAddressBook on OS X (see <rdar://problem/19965241>)
 (allow file-read* file-write*
         (home-subpath "/Library/Application Support/AddressBook")
@@ -273,15 +327,6 @@
        (literal "/private/var/run/diagnosticd/dyld_shared_cache_x86_64")
 )
 
-(allow file-read-metadata
-       (literal "/")
-       (literal "/AppleInternal")
-       (literal "/Library")
-       (literal "/Library/Security/Trust Settings/Admin.plist")
-
-       (literal "/private/var/run/systemkeychaincheck.done")
-)
-
 (allow ipc-posix-shm-read-data
        (ipc-posix-name-regex #"^/tmp/com\.apple\.csseed\.[0-9]+$")
        (ipc-posix-name "FNetwork.defaultStorageSession")
@@ -302,9 +347,6 @@
        (global-name "com.apple.UNCUserNotification") ;; OS X only
        (global-name "com.apple.AssetCacheLocatorService")
 
-       ;; For CKDMescalSession (<rdar://problem/17676594>)
-       (global-name "com.apple.fairplayd")
-       (global-name "com.apple.fairplayd.versioned")
        (global-name "com.apple.DiskArbitration.diskarbitrationd")
 
        ;; AutoBugCapture
@@ -319,7 +361,7 @@
     (global-name "com.apple.cfnetwork.cfnetworkagent")
 )
 
-;; Used to grab logs to support MoiC effort. Can be removed after Emet
+;; Used to grab logs via the Messages auto-sysdiagnose SPI
 (allow mach-lookup
     (global-name "com.apple.imagent.desktop.auth")
 )

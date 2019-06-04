@@ -13,7 +13,7 @@
 (allow file*
         (subpath (param "DARWIN_TEMP_DIR"))
         (subpath (param "DARWIN_CACHE_DIR"))
-        (literal "/private/var/log/CoreDuet/coreduetd.log")
+        (literal "/private/var/root/Library/Preferences/com.apple.coreduetd.plist")
         (subpath "/private/var/db/CoreDuet"))
 
 (allow file-read*

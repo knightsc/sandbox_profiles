@@ -63,7 +63,9 @@
     (global-name "com.apple.DiskArbitration.diskarbitrationd")
     (global-name "com.apple.diskmanagementd")
     (global-name "com.apple.windowserver.active")
-    (global-name "com.apple.cookied"))
+    (global-name "com.apple.cookied")
+    (global-name "com.apple.deleted_helper")
+    (global-name "com.apple.FSEvents"))
 
 (allow iokit-open (iokit-user-client-class "AppleAPFSUserClient"))
 
@@ -82,6 +84,11 @@
     (fsctl-command (_IO "J" 18))    ; APFSIOC_GET_NEAR_LOW_DISK
 
     (fsctl-command (_IO "h" 29))    ; #define	HFSIOC_GET_DESIRED_DISK	_IOR('h', 29, u_int32_t)
+
+    (fsctl-command (_IO "J" 68))    ; #define APFSIOC_MARK_PURGEABLE  _IOWR('J', 68, uint64_t)
+    (fsctl-command (_IO "J" 69))    ; #define APFSIOC_PURGE_FILES     _IOWR('J', 69, apfs_purge_files_req_t)
+    (fsctl-command (_IO "J" 70))    ; #define APFSIOC_GET_PURGEABLE_STATS    _IOR('J', 70, apfs_purgeable_file_stats_t)
+
 
     ;;; Required for fs_snapshot_list
     (fsctl-command #x4a12)

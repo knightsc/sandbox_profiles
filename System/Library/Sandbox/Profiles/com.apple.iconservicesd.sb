@@ -24,7 +24,7 @@
 	(op file-write-create path-filter)
 	(op file-write-data path-filter)
 	(op file-write-unlink path-filter)
-	(op file-write-mode)
+	(op file-write-mode path-filter)
 	(op file-read* path-filter)
 	(op file-issue-extension (require-all (extension-class "com.apple.app-sandbox.read") path-filter)))
 

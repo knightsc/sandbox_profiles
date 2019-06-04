@@ -33,10 +33,10 @@
        (ipc-posix-name-regex #"^/tmp/com.apple.csseed.[0-9]+$"))
 
 (allow file-read* file-write*
-    (regex 
-          #"^(/private)?/var/db/mds/system/mds.lock$"
-    )
+	(regex #"^/Library/Preferences/com\.apple\.networkextension\.[_a-zA-Z0-9-]+\.plist")
 	(regex #"^/Library/Preferences/SystemConfiguration/VPN-[^/]+\.plist")
+	(regex #"^(/private)?/var/db/mds/system/mds.lock$")
+	(subpath "/private/var/folders")
 	(subpath "/private/var/run/racoon"))
 
 (allow file-read*
@@ -51,7 +51,7 @@
 (allow signal)
 
 (allow file-read*
-    (literal "/Library/Preferences/com.apple.networkextension.uuidcache.plist")
+	(literal "/Library/Preferences/com.apple.networkextension.uuidcache.plist")
 	(literal "/private/etc/master.passwd")
 	(literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist")
 	(literal "/private/var/root/Library/Preferences/com.apple.networkextension.plist"))
@@ -60,6 +60,7 @@
 
 (allow mach-lookup
 	(global-name "com.apple.neagent")
+	(global-name "com.apple.neagent.lsproxy")
 	(global-name "com.apple.nehelper")
 	(global-name "com.apple.system.logger")
 	(global-name "com.apple.distributed_notifications@1v3")
@@ -77,12 +78,14 @@
 	(global-name "com.apple.SecurityServer")
 	(global-name "com.apple.securityd.xpc")
 	(global-name "com.apple.lsd.modifydb")
-	(global-name "com.apple.lsd.mapdb"))
+	(global-name "com.apple.lsd.mapdb")
+	(global-name "com.apple.sysextd")
+	(global-name "com.apple.xpc.smd"))
 
 (allow process-fork)
 (allow process-exec
 	(literal "/usr/sbin/pppd")
 	(with no-sandbox))
-	
+
 (allow authorization-right-obtain
 	(right-name "system.keychain.modify"))

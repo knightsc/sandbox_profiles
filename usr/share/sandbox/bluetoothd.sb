@@ -41,15 +41,18 @@
 	(global-name "com.apple.mediaremoted.xpc")
 	(global-name "com.apple.awdd")
 	(global-name "com.apple.analyticsd")
-	(global-name "com.apple.analyticsd.messagetracer")
 	(global-name "com.apple.wifi.sharekitSandbox")
 	(global-name "com.apple.iokit.powerdxpc")
     (global-name "com.apple.usernoted.daemon_client")
+    (global-name "com.apple.tccd.system")
+	(global-name "com.apple.icloud.searchpartyd.beaconmanager")
+	(global-name "com.apple.analyticsd.messagetracer")
+	(global-name "com.apple.icloud.searchpartyuseragent.beaconmanager")
 )
 
 (allow file-write-create
-	(regex   #"^/private/var/log/bluetoothCoreDump-\..*\.log$")
-	(regex   #"^/private/var/log/Accessory.*\..*$")
+	(regex   #"^/private/var/log/bluetoothCoreDump-[^/]+\.log$")
+	(regex   #"^/private/var/log/Accessory[^/]+\.[^/]+$")
 )
 
 (allow file-read* file-write*
@@ -57,10 +60,10 @@
 	(literal "/private/var/root/Library/Preferences/blued.plist")
 	(literal "/private/var/root/Library/Preferences/com.apple.blued.plist")
 
-	(regex   #"^/private/var/root/Library/Preferences/ByHost/com\.apple\.bluetoothd\..*\.plist$")
-	(regex   #"^/private/var/root/Library/Preferences/ByHost/com\.apple\.blued\..*\.plist$")
-	(regex   #"^/private/var/root/Library/Preferences/ByHost/\.GlobalPreferences\..*\.plist$")
-	(regex   #"^/private/var/root/Library/Preferences/ByHost/com\.apple\.Bluetooth\..*\.plist$")
+	(regex   #"^/private/var/root/Library/Preferences/ByHost/com\.apple\.bluetoothd\.[^/]+\.plist$")
+	(regex   #"^/private/var/root/Library/Preferences/ByHost/com\.apple\.blued\.[^/]+\.plist$")
+	(regex   #"^/private/var/root/Library/Preferences/ByHost/\.GlobalPreferences\.[^/]+\.plist$")
+	(regex   #"^/private/var/root/Library/Preferences/ByHost/com\.apple\.Bluetooth\.[^/]+\.plist$")
 
 	(regex   #"^/Library/Preferences/com\.apple\.Bluetooth\.plist")
 	(literal "/private/tmp/com.apple.Bluetooth.plist")
@@ -74,7 +77,7 @@
 	(literal "/private/var/log/bluetoothCoreDump.log")
 	(literal "/private/var/log/cloudpaird.log")
 
-	(regex   #"^/private/var/log/Accessory.*\..*$")
+	(regex   #"^/private/var/log/Accessory[^/]+\.[^/]+$")
 
 
 	(literal "/Library/Preferences/SystemConfiguration/com.apple.Bluetooth")
@@ -117,6 +120,21 @@
     (iokit-user-client-class "AppleConvergedIPCUserClient")
 )
 
+(allow file-read-data
+	(literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist")
+	(literal "/Library/Preferences/.GlobalPreferences.plist")
+)
+
+(allow file-read-metadata
+	(literal "/private/var/root")
+	(literal "/private/var/root/Library/Preferences/.GlobalPreferences.plist")
+)
+
 (allow iokit-set-properties)
 
 (allow system-socket)
+
+(allow user-preference-read
+    (preference-domain "com.apple.icloud.searchpartyd")
+    (preference-domain "com.apple.icloud.searchpartyd.mac-beacon")
+)

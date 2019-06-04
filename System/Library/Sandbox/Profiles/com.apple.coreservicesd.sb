@@ -64,3 +64,4 @@
 (allow iokit-get-properties (iokit-property "image-encrypted"))
 (allow iokit-get-properties (iokit-property "CaseSensitive"))
 (allow iokit-get-properties (iokit-property "Encrypted"))
+(allow iokit-open (iokit-user-client-class "AppleAPFSUserClient"))

@@ -22,6 +22,7 @@
     
 (allow user-preference*
     (preference-domain "com.apple.SpeechRecognitionCore")
+    (preference-domain "com.apple.SpeechRecognitionCore.speechrecognitiond")
     (preference-domain "com.apple.speech.recognition.AppleSpeechRecognition.prefs")
     (preference-domain "com.apple.ironwood.support"))
     
@@ -57,12 +58,14 @@
         (global-name "com.apple.speech.speechsynthesisd")
         (global-name "com.apple.audio.audiohald")
         (global-name "com.apple.audio.coreaudiod")
+        (global-name "com.apple.mobileassetd")
         (global-name "com.apple.PowerManagement.control")
         (global-name "com.apple.CoreServices.coreservicesd")
         (global-name "com.apple.coreservices.launchservicesd")
         (global-name "com.apple.distributed_notifications@1v3")
         (global-name "com.apple.distributed_notifications@Uv3")
-        (global-name "com.apple.audio.AudioComponentRegistrar"))
+        (global-name "com.apple.audio.AudioComponentRegistrar")
+        (global-name "com.apple.tccd"))
 
 (allow iokit-open
         (iokit-user-client-class "IOAudioControlUserClient")
@@ -78,6 +81,10 @@
 (allow file-read* file-write* file-read-metadata
     (home-literal "/Library/Preferences/.GlobalPreferences.plist")
     (home-regex #"/Library/Preferences/ByHost/\.GlobalPreferences\."))
+
+(allow file-read*
+    (home-literal "/Library/Preferences/com.apple.SpeechRecognitionCore.speechrecognitiond.plist")
+    (home-literal "/Library/Preferences/com.apple.SpeechRecognitionCore.Vocabulary.plist"))
     
 (allow file-read*
     (literal "/Library/Preferences/.GlobalPreferences.plist"))

@@ -37,6 +37,9 @@
     (regex #"^/Library/Preferences/SystemConfiguration/com\.apple\.wifi\.message-tracer\.plist")
     (subpath "/private/var/log")
     (literal "/private/var/run/wifi")
+    (literal "/private/var/run/wifi-base-system")
+    (subpath "/private/var/tmp")
+    (subpath "/private/var/run/com.apple.wifivelocity")
     (subpath (param "TMP_DIR"))
 )
 
@@ -66,6 +69,7 @@
     (literal "/Library/Caches/com.apple.DiagnosticReporting.HasBeenAppleInternal")
 	(literal "/Library/MessageTracer/SubmitDiagInfo.default.domains.searchtree")
 	(literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
+    (literal "/private/var/root/Library/Preferences/com.apple.airport.airportd.plist")
 )
 
 (allow file-write*
@@ -73,7 +77,6 @@
     (literal "/private/var/log/wifi.log")
     (regex #"^/private/var/log/wifi")
     (regex #"^/private/var/log/AWDL")
-    (literal "/private/var/log/corewifi.log")
     (subpath "/Library/Keychains")
     (subpath "/private/var/db/mds")
     (subpath "/private/var/tmp/mds")
@@ -102,6 +105,8 @@
 )
 
 (allow mach-lookup
+	(global-name "com.apple.WiFiVelocityAgent")
+	(global-name "com.apple.wifivelocityd")
     (global-name "com.apple.airport.wps")
     (global-name "com.apple.airportd")
     (global-name "com.apple.CoreServices.coreservicesd")
@@ -122,6 +127,15 @@
     (global-name "com.apple.locationd.desktop.synchronous")
     (global-name "com.apple.securityd.xpc")
     (global-name "com.apple.analyticsd")
+	(global-name "com.apple.wifi.WiFiAgent")
+    (global-name "com.apple.windowserver.active")
+    (global-name "com.apple.coreservices.launchservicesd")
+    (global-name "com.apple.coreservices.appleevents")
+    (global-name "com.apple.symptom_diagnostics")
+)
+
+(allow appleevent-send
+    (appleevent-destination "com.apple.finder")
 )
 
 (allow mach-per-user-lookup)
@@ -129,8 +143,9 @@
 (allow network-bind)
 
 (allow network-outbound)
-
+(allow network-inbound)
 (allow system-sched)
 
 (allow system-socket)
 
+(allow system-fsctl)

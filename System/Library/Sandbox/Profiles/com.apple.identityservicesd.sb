@@ -133,6 +133,7 @@
        (global-name "com.apple.backupd.xpc")
        (global-name "com.apple.cmfsyncagent.auth")
        (global-name "com.apple.commcenter.coretelephony.xpc")
+       (global-name "com.apple.CoreAuthentication.agent.libxpc")
        (global-name "com.apple.coreservices.quarantine-resolver")
        (global-name "com.apple.ctkd.token-client")
        (global-name "com.apple.distributed_notifications@Uv3")
@@ -148,7 +149,10 @@
        (global-name "com.apple.videoconference.camera")
        (global-name "com.apple.windowserver.active")
        (global-name "com.apple.wirelessproxd")
-       (global-name-regex #"-idswake$")) 
+       (global-name "com.apple.ctkd.token-client")
+       (global-name "com.apple.commcenter.coretelephony.xpc")
+       (global-name "com.apple.passd.in-app-payment")
+       (global-name-regex #"-idswake$"))
 
 ;;; Audio
 ;;; [internal feature: play audio when registration occurs]
@@ -192,6 +196,7 @@
 (allow user-preference-read user-preference-write
        (preference-domain "com.apple.facetime.bag")
        (preference-domain "com.apple.identityservices.idstatuscache")
+       (preference-domain "com.apple.identityservices.serviceDisablement")
        (preference-domain "com.apple.identityservicesd")
        (preference-domain "com.apple.ids")
        (preference-domain "com.apple.ids.debug")

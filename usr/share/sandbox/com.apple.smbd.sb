@@ -24,10 +24,18 @@
     (global-name "com.apple.PowerManagement.control")
     (global-name "com.apple.system.logger")
     (global-name "com.apple.FSEvents")
-    (global-name "com.apple.DiskArbitration.diskarbitrationd"))
+    (global-name "com.apple.DiskArbitration.diskarbitrationd")
+    (global-name "com.apple.distributed_notifications@1v3")
+    (global-name "com.apple.metadata.mds")
+    (global-name "com.apple.metadata.mds.legacy")
+)
 
 (allow network-bind (local tcp "*:445"))
 (allow network-inbound (local tcp "*:445"))
+
+; Allow WSP
+(allow network-bind (local tcp "/tmp/fd-*"))
+(allow network-outbound (local tcp "/tmp/fd-*"))
 
 ; Allow launchd and SMB named pipes.
 (allow network-outbound

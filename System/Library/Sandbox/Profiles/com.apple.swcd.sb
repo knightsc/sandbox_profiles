@@ -16,22 +16,12 @@
 (allow file-read*
 	(subpath "/"))
 
-(allow file-write-create
-	(regex (string-append "^" (param "_HOME") #"/Library/Keychains/login\.keychain\.sb-\..*\$"))
-)
-
 (allow file-write*
-	(regex #"^/Library/Keychains/System.keychain")
-	(home-subpath "/Library/Keychains")
 	(literal "/private/var/db/mds/system/mds.lock")
 	(regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mds\.lock$")
 	(regex #"^(/private)?/var/folders/[^/]+/[^/]+/C($|/)")
 	(regex #"^(/private)?/var/folders/[^/]+/[^/]+/T($|/)")
-)
-
-(allow file-write-create file-write-data file-write-flags
-	(literal "/private/tmp/SWC.log")
-	(literal "/private/tmp/SWC.log.2")
+	(regex #"^(/private)?/var/folders/[^/]+/[^/]+/0($|/)")
 )
 
 (allow ipc-posix-shm-read-data ipc-posix-shm-write-data
@@ -52,6 +42,7 @@
 	(global-name "com.apple.securityd.xpc")
 	(global-name "com.apple.SecurityServer")
 	(global-name-regex #"^com\.apple\.distributed_notifications")
+	(global-name "com.apple.mdmclient.agent.unrestricted")
 )
 
 (allow network-outbound)
@@ -61,3 +52,5 @@
 (allow user-preference-read user-preference-write
 	(preference-domain "com.apple.SharedWebCredentials")
 )
+
+(allow distributed-notification-post)

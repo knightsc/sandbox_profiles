@@ -46,7 +46,8 @@
     (regex #"^/private/var/db/Spotlight($|/)")
     (regex #"^/private/var/db/Spotlight-V100($|/)")
     (regex #"^/Library/Caches/com\.apple\.Spotlight($|/)")
-    (mount-relative-regex #"/\.Spotlight-V100($|/)"))
+    (mount-relative-regex #"^/\.Spotlight-V100($|/)")
+    (mount-relative-regex #"^/Device/private/var/db/Spotlight-V100($|/)"))
 
 (allow file-write*
     (literal "/dev/console"))
@@ -73,8 +74,7 @@
     (global-name "com.apple.coreduetd")
     (global-name "com.apple.lsd.mapdb")
     (global-name "com.apple.lsd.modifydb")
-    (global-name "com.apple.spotlight.IndexAgent")
-    )
+    (global-name "com.apple.spotlight.IndexAgent"))
 
 (allow network-outbound
     (remote unix-socket (path-literal "/private/var/run/asl_input"))

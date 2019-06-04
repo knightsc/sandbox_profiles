@@ -192,6 +192,12 @@
           (cons (car l) (filter pred (cdr l)))
           (filter pred (cdr l)))))
 
+(define (flatten lst)
+  (foldr (lambda (x e)
+           (if (list? e)
+               (append (flatten e) x)
+               (cons e x))) () lst))
+
 (define (partition pred lst)
   (letrec
     ((collect

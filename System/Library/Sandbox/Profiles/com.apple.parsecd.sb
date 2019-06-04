@@ -20,7 +20,11 @@
 (corefoundation)
 
 ;; Necessary-to-parsecd bits
-(allow iokit-get-properties (iokit-property "Protocol Characteristics"))
+(allow iokit-get-properties
+    (iokit-property "Protocol Characteristics")
+    (iokit-property "IOPlatformUUID")
+    (iokit-property "model"))
+
 (allow file-map-executable (subpath "/System/Library"))
 (allow nvram-get (nvram-variable "BSD Name"))
 
@@ -39,7 +43,9 @@
     (global-name "com.apple.coreservices.launchservicesd")
     (global-name "com.apple.pasteboard.1")
     (global-name "com.apple.parsec-fbf")
-    (global-name "com.apple.DiskArbitration.diskarbitrationd"))
+    (global-name "com.apple.DiskArbitration.diskarbitrationd")
+    (global-name "com.apple.proactive.PersonalizationPortrait.Topic.readWrite")
+    (global-name "com.apple.lsd.mapdb"))
 
 (system-network)
 (allow network-outbound

@@ -31,6 +31,7 @@
 		; Give read and write access to /tmp and /var/tmp in DEBUG configurations, mostly for logging
 		(allow file-read* file-write* (subpath "/private/tmp"))
 		(allow file-read* file-write* (subpath "/private/var/tmp"))
+		(allow file-read* file-write* (subpath "/private/var/tmp/appleevents"))
 
 		; If MallocStackLogging is true, then we need to allow writes to the place it's going to put them.
 		(if (param "MallocStackLoggingDirectory")

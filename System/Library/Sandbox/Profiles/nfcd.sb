@@ -1,0 +1,97 @@
+;;; Copyright (c) 2017 Apple Inc.  All Rights reserved.
+;;;
+;;; WARNING: The sandbox rules in this file currently constitute
+;;; Apple System Private Interface and are subject to change at any time and
+;;; without notice.
+;;;
+(version 1)
+
+(deny default)
+(deny file-map-executable iokit-get-properties process-info* nvram*)
+(deny dynamic-code-generation)
+
+(import "system.sb")
+(import "com.apple.corefoundation.sb")
+(corefoundation)
+
+;;; Homedir-relative path filters
+(define (home-regex home-relative-regex)
+    (regex (string-append "^" (regex-quote (param "HOME")) home-relative-regex)))
+
+(define (home-subpath home-relative-subpath)
+    (subpath (string-append (param "HOME") home-relative-subpath)))
+
+(define (home-prefix home-relative-prefix)
+    (prefix (string-append (param "HOME") home-relative-prefix)))
+
+(define (home-literal home-relative-literal)
+    (literal (string-append (param "HOME") home-relative-literal)))
+
+
+(allow process-info* (target self))
+
+;; For resolving symlinks, realpath(3), and equivalents.
+(allow file-read-metadata)
+
+;; For validating the entitlements of clients.
+(allow process-info-codesignature)
+
+;; Your preference domain
+(allow user-preference-read user-preference-write
+    (preference-domain "nfcd")
+    (preference-domain "com.apple.stockholm")
+    (preference-domain "com.apple.stockholm.awd")
+    (preference-domain "com.apple.stockholm.atl"))
+
+;; Read only prefs - not ours
+(allow user-preference-read
+    (preference-domain "kCFPreferencesAnyApplication"))
+
+;; Need read / write / create
+(allow file-read* file-write*
+    (home-prefix "/Library/Preferences/com.apple.stockholm.plist")
+    (home-prefix "/Library/Preferences/com.apple.stockholm.atl.plist")
+    (home-prefix "/Library/Preferences/com.apple.stockholm.awd.plist")
+    (home-subpath "/Library/NFStorage/"))
+
+;; Read/write access to a temporary directory.
+(allow file-read* file-write*
+       (subpath (param "TMPDIR"))
+       (subpath (param "DARWIN_CACHE_DIR")))
+
+;; XPC connections
+;; TODO : CHECK com.apple.PowerManagement.control
+(allow mach-lookup
+    (global-name "com.apple.nfrestore")
+    (global-name "com.apple.awdd")
+    (global-name "com.apple.remoted")
+    (global-name "com.apple.PowerManagement.control")
+    (global-name "com.apple.CoreAuthentication.daemon.libxpc") ;; <rdar://problem/47733233>
+    (global-name "com.apple.mobileactivationd")) ;; <rdar://problem/47733233>
+
+;; Self lookup
+(allow file-read*
+    (literal "/usr/libexec")
+    (literal "/usr/libexec/nfcd"))
+
+;; Logs
+(allow file-read* file-write*
+    (literal "/Library/Logs/AppleSSE.log"))
+
+;; Process info lookup
+(allow process-info-pidinfo)
+
+;; Not sure about this one. Is this our XPC server ?
+;; TODO : CHECK WHY
+(allow mach-priv-host-port)
+
+;; IOKIT ??
+(allow iokit-open
+    (iokit-user-client-class "RootDomainUserClient")
+    (iokit-user-client-class "AppleCredentialManagerUserClient")
+    (iokit-user-client-class "AppleSSEUserClient")
+    (iokit-user-client-class "AppleKeyStoreUserClient")) ;; <rdar://problem/47733233> [Yukon] macOSJazz: Extend nfcd sandbox profile to allow use of DeviceIdentity framework by AppleSSE
+
+(allow authorization-right-obtain
+    (right-name "default")
+    (right-name "com.apple.applepay.reset"))

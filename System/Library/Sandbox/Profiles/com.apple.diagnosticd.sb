@@ -1,4 +1,4 @@
-;; Copyright (c) 2013 Apple Inc.  All Rights reserved.
+;; Copyright (c) 2019 Apple Inc.  All Rights reserved.
 ;;
 ;; WARNING: The sandbox rules in this file currently constitute
 ;; Apple System Private Interface and are subject to change at any time and
@@ -7,24 +7,40 @@
 
 (version 1)
 
-;; this is not active yet due to debugging issues
-(deny default (no-callout))
+;; Cargo-culted from "How To Sandbox a Daemon on macOS"
+(deny default)
+(deny file-map-executable iokit-get-properties process-info* nvram*)
+(deny dynamic-code-generation)
+
 (import "system.sb")
 
-(deny mach-lookup
-    (global-name "com.apple.CoreServices.coreservicesd")
-    (with no-log)
-)
+;; We need to be able to take transactions, which requires proc_set_dirty()
+(allow process-info-dirtycontrol (target self))
 
-;; restrict where we write
+;; host_set_atm_diagnostic_flag(), which we use to set the libtrace commpage
+;; mode word, requires the host port
+(allow mach-priv-host-port)
+
+;; EOS logging is wired up using RSD, so we must talk to remoted
+(allow mach-lookup (global-name "com.apple.remoted"))
+
+;; We must be able to write the stream filter file, and to temporary stream
+;; filter files we rename over top of the old one
 (allow file-write*
-    ;; current trace files
-    (regex
-        #"^(/private)?/var/db/diagnostics(/|$)"
-    )
+    (regex #"/Library/Preferences/Logging/com\.apple\.diagnosticd\.filter\..*"))
 
-    ;; additional required
-    (literal "/dev/dtracehelper")
-    (literal "/dev/null")
-    (literal "/dev/random")
-)
+;; We call proc_name(), a wrapper for proc_pidinfo(), to get the human-readable
+;; name of streaming clients for logging purposes
+(allow process-info-pidinfo)
+
+;; We need read-access to the UUID DB for kexts
+(allow file-read-data (subpath "/private/var/db/uuidtext"))
+
+;; We need read-access to the kernel streaming device file
+(allow file-read-data (literal "/dev/oslog_stream"))
+
+;; We need to query information about loaded kexts
+(allow system-kext-query)
+
+;; We need to be able to poke logd to harvest kexts
+(allow mach-lookup (global-name "com.apple.logd.admin"))

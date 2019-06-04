@@ -26,6 +26,7 @@
 (allow mach-lookup
         (global-name "com.apple.SpeechRecognitionCore.speechrecognitiond")
         (global-name "com.apple.coreservices.launchservicesd")
+        (global-name "com.apple.mobileassetd")
         (global-name "com.apple.windowserver.active")
         (global-name "com.apple.distributed_notifications@1v3")
         (global-name "com.apple.distributed_notifications@Uv3")

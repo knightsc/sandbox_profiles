@@ -13,8 +13,7 @@
 (debug deny)
 
 (allow job-creation
-       (regex #"^/System/Library/Frameworks/QuickLook.framework/Versions/A/Resources/quicklookd(32)?.app/Contents/MacOS/(qlmanage|quicklookd(32)?)$")
-       (regex #"^/System/Library/Frameworks/QTKit.framework/"))
+       (regex #"^/System/Library/Frameworks/QuickLook.framework/Versions/A/Resources/quicklookd(32)?.app/Contents/MacOS/(qlmanage|quicklookd(32)?)$"))
 (allow process-fork)
 
 ;; Avoid some Carbon noise

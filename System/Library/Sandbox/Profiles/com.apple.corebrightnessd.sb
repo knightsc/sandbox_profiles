@@ -39,6 +39,9 @@
 (allow file-read*
         (literal "/Library/MessageTracer/SubmitDiagInfo.default.domains.searchtree"))
 
+(allow file-read*
+        (literal "/System/Library/MessageTracer/SubmitDiagInfo.default.domains.searchtree"))
+
 (allow iokit-open
        (iokit-user-client-class "RootDomainUserClient")
        (iokit-user-client-class "IOHIDLibUserClient"))
@@ -59,4 +62,5 @@
        (global-name "com.apple.lsd.mapdb")
        (global-name "com.apple.windowserver.active")
        (global-name "com.apple.windowserver")
-       (global-name "com.apple.CoreServices.coreservicesd"))
+       (global-name "com.apple.CoreServices.coreservicesd")
+       (global-name "com.apple.tccd.system"))

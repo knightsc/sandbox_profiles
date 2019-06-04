@@ -1,0 +1,68 @@
+;;; Copyright (c) 2017 Apple Inc.  All Rights reserved.
+;;;
+;;; WARNING: The sandbox rules in this file currently constitute
+;;; Apple System Private Interface and are subject to change at any time and
+;;; without notice.
+;;;
+
+;;;
+;;; Address book
+;;;
+
+(allow mach-lookup
+    (global-name "com.apple.AddressBook.abd")
+    (global-name "com.apple.AddressBook.AddressBookApplicationFrameworkIPC")
+    (global-name "com.apple.AddressBook.ContactsAccountsService")
+    (global-name "com.apple.AddressBook.SourceSync")
+    (global-name "com.apple.corerecents.recentsd")
+    (global-name "com.apple.metadata.mds")
+    (global-name "com.apple.logind")
+    (global-name "com.apple.backupd.xpc")
+    (global-name "com.apple.lsd.mapdb")
+    (global-name "com.apple.system.opendirectoryd.api")
+    (global-name "com.apple.spotlight.IndexAgent")
+    )
+
+(allow user-preference-read
+    (preference-domain "com.apple.AddressBook")
+    (preference-domain "com.apple.AddressBook.CardDAVPlugin")
+    )
+
+(allow user-preference-write
+    (preference-domain "com.apple.AddressBook")
+    )
+
+(allow file-map-executable
+    (subpath "/System/Library/Address Book Plug-Ins/CardDAVPlugin.sourcebundle")
+    (subpath "/System/Library/Address Book Plug-Ins/DirectoryServices.sourcebundle")
+    (subpath "/System/Library/Address Book Plug-Ins/Exchange.sourcebundle")
+    (subpath "/System/Library/Address Book Plug-Ins/LDAP.sourcebundle")
+    (subpath "/System/Library/Address Book Plug-Ins/LocalSource.sourcebundle")
+    (subpath "/System/Library/Address Book Plug-Ins/POIPlugin.sourcebundle")
+    (home-regex #"/Library/Application Support/AddressBook/Sources/.*")
+    )
+
+(allow load-unsigned-code
+    (home-regex #"/Library/Application Support/AddressBook/Sources/.*")
+    )
+
+(allow file*
+    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\.AddressBookLocks.*")
+    (home-regex #"/Library/Application Support/AddressBook/.*")
+    (home-subpath "/Library/Preferences/com.apple.AddressBook.plist")
+    )
+
+(allow mach-priv-task-port
+    (home-regex #"/Library/Application Support/AddressBook/.*")
+    )
+
+(allow network*
+    (home-regex #"/Library/Application Support/AddressBook/.*")
+    )
+
+(allow process-exec*
+    (home-regex #"/Library/Application Support/AddressBook/.*")
+    )
+
+
+

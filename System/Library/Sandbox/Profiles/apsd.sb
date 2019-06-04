@@ -103,9 +103,8 @@
        (global-name "com.apple.suggestd.aps")
        (global-name "com.apple.syncdefaultsd.push")
        (global-name "com.apple.windowserver.active")
-       (global-name "com.apple.coreduetd")
-       (global-name "com.apple.coreduetd.context")
        (global-name "com.apple.timed.xpc")
+       (global-name "com.apple.ManagedClient.enroll")
        (global-name "com.apple.AOSPushRelay.push.dev")
        (global-name "com.apple.AdSheetPhone.push")
        (global-name "com.apple.AddressBook.PushNotification.dev")
@@ -122,8 +121,15 @@
        (global-name "com.apple.mobile.itesterdAPS")
        (global-name "com.apple.nanopassd.payment.aps")
        (global-name "com.apple.progressd.aps")
-       (global-name "com.apple.remotemanagementd.http.apns-prod")
-       (global-name "com.apple.ManagedClient.enroll"))
+       (global-name "com.apple.coreduetd.context")
+       (global-name "com.apple.coreduetd")
+       (global-name "com.apple.mediastream.mstreamd.sharing.push-prod")
+       (global-name "com.apple.mediastream.mstreamd.sharing.push-dev")
+       (global-name "com.apple.mediastream.mstreamd.push-dev")
+       (global-name "com.apple.mediastream.mstreamd.push-prod")
+       (global-name "com.apple.photos.cloud.pushnotification")
+       (global-name "com.apple.powerlog.plxpclogger.xpc"))
+
 
 ; <rdar://problem/35011620> Restore sandbox-check for mach-per-user-lookup?
 (allow mach-per-user-lookup)

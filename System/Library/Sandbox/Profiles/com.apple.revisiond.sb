@@ -39,17 +39,32 @@
     (subpath (param "GENSTORE_USER_CACHEDIR"))
 ))
 
+;; Preferences access
+(define (preference-read domain)
+    (allow file-read*
+        (literal (string-append "/Library/Preferences/" domain ".plist"))
+        (literal (string-append "/private/var/root/Library/Preferences/" domain ".plist"))))
+
+(preference-read ".GlobalPreferences")
+(preference-read "com.apple.revisiond")
+
 ;; allow doc id allocation. Necessary for Cab To Syrah migration.
 (allow file-write-flags)
 
-(allow file-read*)
-(allow file-write*
+(allow file-read-metadata)
+
+(allow file-read-xattr)
+
+(allow file-read* (mount-relative-literal "/"))
+
+(allow file-write* file-read*
     (revisiond-store-paths)
     (subpath (param "DARWIN_USER_TEMP_DIR"))
     (mount-relative-literal "/.TemporaryItems")
     (mount-relative-regex #"^/\.TemporaryItems/folders.0(/|$)")
     (mount-relative-regex #"^/\.MobileBackups/Computer/")
     (subpath "/private/var/log/com.apple.revisiond")
+    (mount-relative-literal "/Library/Preferences/FeatureFlags/Settings.plist")
 )
 (allow file-issue-extension (require-all
     (require-any
@@ -57,7 +72,7 @@
         (extension-class "com.apple.app-sandbox.read-write"))
     (revisiond-store-paths)
 ))
-(allow file-write-data
+(allow file-write-data file-read-data
     (literal "/dev/afsc_type5")
 )
 

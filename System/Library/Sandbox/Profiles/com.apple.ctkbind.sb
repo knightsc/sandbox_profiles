@@ -1,5 +1,5 @@
 ;;;
-;;; Sandbox profile for /System/Library/Frameworks/CryptoTokenKit.framework/ctkbind.bundle/Contents/MacOS/ctkbind
+;;; Sandbox profile for /System/Library/Frameworks/CryptoTokenKit.framework/ctkbind.app/Contents/MacOS/ctkbind
 ;;;
 ;;; Copyright (c) 2016 Apple Inc.  All Rights reserved.
 ;;;
@@ -71,7 +71,8 @@
         (global-name "com.apple.window_proxies")
         (global-name "com.apple.tccd.system")
         (global-name "com.apple.ocspd")
-        (global-name "com.apple.windowserver.active"))
+        (global-name "com.apple.windowserver.active")
+        (global-name "com.apple.usernoted.client"))
 
 (allow ipc-posix-shm-read-data ipc-posix-shm-write-data
         (ipc-posix-name "com.apple.AppleDatabaseChanged"))

@@ -1,0 +1,70 @@
+(version 1)
+(deny default)
+
+(import "system.sb")
+(import "com.apple.corefoundation.sb")
+(corefoundation)
+
+(allow mach-register
+    (global-name "com.apple.appstored.xpc"))
+
+(allow mach-lookup
+    (global-name "com.apple.appstoreagent.xpc")
+    (global-name "com.apple.coreservices.quarantine-resolver")
+    (global-name "com.apple.installd")
+    (global-name "com.apple.lsd.mapdb"))
+
+(allow file-read-metadata)
+
+(allow user-preference-read
+    (preference-domain "com.apple.AppleMediaServices")
+    (preference-domain "com.apple.appstored"))
+
+(allow user-preference-write
+    (preference-domain "com.apple.AppleMediaServices")
+    (preference-domain "com.apple.appstored"))
+
+(allow file-read*
+    (literal "/Applications")
+    (regex #"/Library/Preferences/.GlobalPreferences.plist$")
+    (subpath "/Users/Shared"))
+
+(allow file-read* file-write*
+    (subpath "/private/var/folders")
+    (regex #"/Library/Caches/com\.apple\.appstored"))
+
+(allow file-read* file-write*
+    (require-all
+        (vnode-type DIRECTORY)
+        (require-any
+            (literal "/Library/Application Support/App Store")
+            (regex #"\.app(download)?(/Contents)?")
+            (regex #"\.app(download)?/Contents/_MASReceipt(\.sb-[a-zA-Z0-9-]+)?")))
+
+(require-all
+    (vnode-type REGULAR-FILE)
+    (require-any
+        (literal "/Library/Application Support/App Store/adoption.plist")
+        (literal "/Library/Preferences/com.apple.commerce.plist")
+        (regex #"\.appdownload/Contents/placeholderinfo")
+        (regex #"\.appdownload/Icon")
+        (regex #"\.app(download)?/Contents/_MASReceipt((\.sb-[a-zA-Z0-9-]+)?/receipt(\.saved)?)"))) ;covers temporary files the receipt may be named
+    )
+
+; In-app purchase content removal
+(allow file-read* file-write-unlink
+    (subpath "/Library/Application Support/AppStore/GroupContent")
+    (subpath "/Library/Application Support/AppStoreContent"))
+
+(allow file-issue-extension
+    (regex #"/Library/Caches/com\.apple\.appstored"))
+
+(allow ipc-posix-shm-read-data
+    (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+(allow ipc-posix-shm-write-data
+    (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+(allow lsopen)
+(allow network-outbound)
+(allow system-socket)

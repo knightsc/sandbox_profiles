@@ -82,6 +82,7 @@
     (preference-domain "com.apple.configurator.ui.commerce"))
 
 (allow ipc-posix-shm-read-data
+(ipc-posix-name "/com.apple.AppSSO.version")
 (ipc-posix-name "FNetwork.defaultStorageSession")
 (ipc-posix-name-regex #"ls\.[a-f0-9\.]+")
 (ipc-posix-name "apple.shm.notification_center")
@@ -147,6 +148,8 @@
 (global-name "com.apple.ManagedClient.agent")
 (global-name "com.apple.cfnetwork.AuthBrokerAgent")
 (global-name "com.apple.cfnetwork.cfnetworkagent")
+(global-name "com.apple.AppSSO.service-xpc")
+(global-name "com.apple.usymptomsd")
 (global-name "com.apple.pasteboard.1"))
 
 (allow authorization-right-obtain
@@ -157,8 +160,7 @@
 (right-name "system.install.apple-config-data")
 (right-name "system.install.software")
 (right-name "system.install.software.iap")
-(right-name "system.install.software.mdm-provided")
-(right-name "com.apple.SoftwareUpdate.modify-settings"))
+(right-name "system.install.software.mdm-provided"))
 
 (allow iokit-open
 (iokit-user-client-class "IOFramebufferSharedUserClient")

@@ -1,0 +1,48 @@
+(version 1)
+(deny default)
+
+(import "system.sb")
+(import "com.apple.corefoundation.sb")
+(import "bsd.sb")
+
+(system-network)
+(corefoundation)
+
+(allow user-preference*
+       (preference-domain "com.apple.contextstored")
+       (preference-domain "com.apple.CoreDuet"))
+
+(allow mach-lookup
+    (global-name "com.apple.coreservices.launchservicesd")
+    (global-name "com.apple.lsd.mapdb")
+    (global-name "com.apple.iokit.powerdxpc")
+    (global-name "com.apple.PowerManagement.control")
+    (global-name "com.apple.coreduetd.context"))
+       
+(allow file*
+       (subpath (param "_USER_TEMP_DIR"))
+       (subpath (string-append (param "_HOME") "/Library/Caches/com.apple.ContextStoreAgent"))
+       (literal (string-append (param "_HOME") "/Library/Preferences/com.apple.ContextStoreAgent.plist"))
+       (literal (string-append (param "_HOME") "/Library/Preferences/com.apple.CoreDuet.plist"))
+       (subpath (string-append (param "_HOME") "/Library/Application Support/Knowledge")))
+
+(allow file-read-metadata
+    (subpath (string-append (param "_HOME") "/Library")))
+
+(allow file-read-data
+    (subpath "/System/Library/PrivateFrameworks/CoreDuetContext.framework/Resources/ContextStoreAgent")
+    (literal "/Library/Preferences/.GlobalPreferences.plist")
+    (literal (string-append (param "_HOME") "/Library/Preferences/.GlobalPreferences.plist"))
+    (literal (string-append (param "_HOME") "/Library/Preferences/com.apple.ContextStoreAgent.plist"))
+    (literal (string-append (param "_HOME") "/Library/Preferences/com.apple.CoreDuet.plist"))
+    (regex (string-append "^" (regex-quote (param "_HOME")) #"/Library/Preferences/ByHost/\.GlobalPreferences\.[^/]*\.plist$"))
+    (regex (string-append "^" (regex-quote (param "_HOME")) #"/Library/Preferences/ByHost/com.apple.ContextStoreAgent\.[^/]*\.plist$"))
+    (regex (string-append "^" (regex-quote (param "_HOME")) #"/Library/Preferences/ByHost/com.apple.CoreDuet\.[^/]*\.plist$")))
+
+(allow file-read-metadata
+    (literal "/AppleInternal")
+    (literal (param "_HOME")))
+
+(allow file-read*
+    (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")              ; for CrashReporter
+    (literal "/Library/MessageTracer/SubmitDiagInfo.default.domains.searchtree"))              ; for MessageTracer

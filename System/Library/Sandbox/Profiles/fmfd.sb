@@ -232,7 +232,8 @@ container-relative-literal)))
 (global-name "com.apple.accountsd.accountmanager")
 (global-name "com.apple.lsd.mapdb")
 (global-name "com.apple.securityd.xpc")
-(global-name "com.apple.cfnetwork.cfnetworkagent"))
+(global-name "com.apple.cfnetwork.cfnetworkagent")
+(global-name "com.apple.cloudd"))
 
 (allow iokit-open
 (iokit-user-client-class "RootDomainUserClient"))

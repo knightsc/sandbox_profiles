@@ -37,3 +37,10 @@
 
 (allow mach-register (global-name-prefix "com.apple.ist.ds.appleconnect2.service.neagent"))
 
+(allow file-write*
+	(regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsDirectory\.db$")
+	(regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsDirectory\.db_$")
+	(regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsObject\.db$")
+	(regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mdsObject\.db_$")
+	(regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mds\.lock$"))
+

@@ -23,13 +23,27 @@
 
 (deny file-write-setugid)
 
+(allow file-write-unlink
+    (subpath "/System/Library/Assets")
+    (subpath "/System/Library/AssetsV2")
+    (subpath "/private/var/folders")
+)
+
+(allow file-issue-extension
+    (require-all
+        (extension-class "com.apple.assets.read") (subpath "/System/Library/AssetsV2")
+    )
+)
+
 (allow file-read* file-write*
     (subpath "/System/Library/Assets")
     (subpath "/System/Library/AssetsV2")
+    (subpath "/private/var/folders")
     (subpath "/Library/Caches/com.apple.nsurlsessiond")
     (subpath "/private/var/root/Library/Caches/com.apple.nsurlsessiond")
     (subpath "/System/Library/PreinstalledAssets")
     (subpath "/System/Library/PreinstalledAssetsV2")
+    (subpath "/private/var/MobileAsset/PreinstalledAssetsV2")
     (literal "/private/var/root/Library/Preferences/com.apple.MobileAsset.plist")
     (literal "/private/var/root/Library/Preferences/com.apple.cache_delete.plist")
     (literal "/dev/ptmx")
