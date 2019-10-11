@@ -25,6 +25,10 @@
     (preference-domain "com.apple.imessage.bag"))
 (allow user-preference-read
     (preference-domain "com.apple.facetime.bag"))
+(allow user-preference-read user-preference-write
+    (preference-domain "com.apple.security.sosaccount"))
+
+(allow distributed-notification-post)
 
 (allow iokit-open
    (iokit-user-client-class "AppleKeyStoreUserClient")
@@ -52,6 +56,7 @@
         (global-name "com.apple.apsd")
         (global-name "com.apple.analyticsd")
         (global-name "com.apple.ak.anisette.xpc")
+        (global-name "com.apple.corefollowup.agent")
         (global-name "com.apple.windowserver.active")
         (global-name "com.apple.powerlog.plxpclogger.xpc")
         (global-name "com.apple.SecureBackupDaemon")

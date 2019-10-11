@@ -36,6 +36,9 @@
 ;; Allow FrontBoard writes
 (allow file-write* (home-subpath "/Library/FrontBoard"))
 
+;; Allow writing/reading persisted scene identifiers
+(allow file-read* file-write* (home-subpath "/Library/UIKitSystem"))
+
 ;; Security.framework
 ; mds: mds.lock, mdsDirectory.db, mdsObject.db
 ; 1. extension "mds"
@@ -103,6 +106,7 @@
        (global-name "com.apple.assertiond.processinfoservice")
        (global-name "com.apple.runningboard")
        (global-name "com.apple.distributed_notifications@Uv3")
+       (global-name "com.apple.fonts")
        (global-name "com.apple.frontboard.systemappservices")
        (global-name "com.apple.frontboard.workspace")
        (global-name "com.apple.lsd.mapdb")

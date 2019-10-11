@@ -147,13 +147,16 @@
     (global-name "com.apple.touchbarserver.mig")
     (global-name "com.apple.usernoted.multi_client")
     (global-name "com.apple.usymptomsd")
-    (global-name "com.apple.windowserver.active"))
+    (global-name "com.apple.windowserver.active")
+    (global-name "com.apple.mobileactivationd")
+    (global-name "com.apple.usernotifications.usernotificationservice"))
 (allow mach-register
     (global-name "com.apple.passd.usage")
     (global-name "com.apple.passd.peer-payment")
     (global-name "com.apple.passd.cloud-store")
     (global-name "com.apple.passd.device-registration")
-    (global-name "com.apple.passd.account"))
+    (global-name "com.apple.passd.account")
+    (global-name-prefix "com.apple.usernotifications."))
 
 (allow network-outbound
     (remote tcp "*:443")

@@ -48,6 +48,8 @@
 	(global-name "com.apple.icloud.searchpartyd.beaconmanager")
 	(global-name "com.apple.analyticsd.messagetracer")
 	(global-name "com.apple.icloud.searchpartyuseragent.beaconmanager")
+	(global-name "com.apple.icloud.searchpartyd.finderstatemanager")
+	(global-name "com.apple.icloud.searchpartyd.advertisementcache")
 )
 
 (allow file-write-create

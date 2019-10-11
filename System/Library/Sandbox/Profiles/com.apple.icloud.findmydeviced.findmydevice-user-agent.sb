@@ -36,6 +36,8 @@
        (global-name "com.apple.CoreServices.coreservicesd")
        (global-name "com.apple.distributed_notifications")  
        (global-name "com.apple.UNCUserNotification")
+       (global-name "com.apple.securityd.ckks")
+       (global-name "com.apple.security.octagon")
        (global-name "com.apple.identityservicesd.desktop.auth"))
 
 (allow authorization-right-obtain

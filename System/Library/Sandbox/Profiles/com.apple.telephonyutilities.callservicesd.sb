@@ -68,11 +68,11 @@
 (allow lsopen)
 
 (allow user-preference-read
-    (preference-domain "com.apple.security" ".GlobalPreferences" "com.apple.AddressBook" "com.apple.Messages" "com.apple.facetime.bag" "com.apple.imessage.bag")
+    (preference-domain "com.apple.security" ".GlobalPreferences" "com.apple.AddressBook" "com.apple.Messages" "com.apple.facetime.bag" "com.apple.imessage.bag" "kCFPreferencesAnyApplication")
 )
 
 (allow user-preference-read user-preference-write
-    (preference-domain "com.apple.TelephonyUtilities")
+    (preference-domain "com.apple.TelephonyUtilities" "com.apple.messages.facetime")
 )
 
 (allow iokit-open
@@ -121,6 +121,9 @@
     (global-name "com.apple.usernoted.daemon_client")
     (global-name "com.apple.videoconference.camera")
     (global-name "com.apple.photos.service")
+    (global-name "com.apple.ScreenTimeAgent")
+    (global-name "com.apple.dmd.policy")
+    (global-name "com.apple.dmd.emergency-mode")
 )
 
 (allow file-read*
@@ -166,15 +169,9 @@
     (ipc-posix-name-regex #"^/tmp/com\.apple\.csseed\.[0-9]+$")
 )
 
-; Keychain db and lock files. Paths are different depending on whether the user has a local or network home directory
-(allow file-read*
+; Keychain db and lock files.
+(allow file-read* file-write*
     (home-subpath "/Library/Keychains")
-)
-(allow file-write*
-    (home-literal "/Library/Keychains/lck~login.keychain-db") ; network users
-    (home-prefix  "/Library/Keychains/login.keychain-db")
-    (home-regex   "/Library/Keychains/.fl[0-9A-F]{8}$") ; lock file
-    (home-regex   "/Library/Keychains/~[-A-Za-z0-9_]{16}$") ; network users
 )
 
 ;;; Security.framework files that are dependent on uid. Some paths are covered by extensions that callservicesd issues to itself before entering the sandbox

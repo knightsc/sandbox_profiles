@@ -29,7 +29,8 @@
 (allow file-read*)
 
 ; Store database to fixed path on any volume
-(allow file-write*)
+(allow file-write*
+    (mount-relative-literal "/private/var/install/boot-install.db"))
 
 ; Allow introspecting our own process info and getting some basic info for other processes
 (allow process-info* (target self))

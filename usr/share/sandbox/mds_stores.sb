@@ -47,7 +47,8 @@
     (regex #"^/private/var/db/Spotlight-V100($|/)")
     (regex #"^/Library/Caches/com\.apple\.Spotlight($|/)")
     (mount-relative-regex #"^/\.Spotlight-V100($|/)")
-    (mount-relative-regex #"^/Device/private/var/db/Spotlight-V100($|/)"))
+
+    (mount-relative-regex #"^/private/var/db/Spotlight-V100($|/)"))
 
 (allow file-write*
     (literal "/dev/console"))

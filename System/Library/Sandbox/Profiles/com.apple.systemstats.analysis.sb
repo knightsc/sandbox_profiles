@@ -50,6 +50,9 @@
 (allow file-read* file-write*
        (subpath (param "SYSTEMSTATS_DIR")))
 
+;; Read access to Bluetooth prefs (see 49564561)
+(allow user-preference-read (preference-domain "com.apple.Bluetooth"))
+
 ;; IOKit and IOReporter access for the logger
 (allow iokit-get-properties)
 
@@ -94,7 +97,9 @@
        (global-name "com.apple.audio.audiohald")
        (global-name "com.apple.PowerManagement.control")
        (global-name "com.apple.coreservices.launchservicesd")
-       (global-name "com.apple.lsd.mapdb"))
+       (global-name "com.apple.lsd.mapdb")
+       (global-name "com.apple.windowserver.active")
+       (global-name "com.apple.CoreDisplay.master"))
 
 (allow ipc-posix-shm-read-data
        (ipc-posix-name-regex #"^/tmp/com.apple.csseed.[0-9]+$"))

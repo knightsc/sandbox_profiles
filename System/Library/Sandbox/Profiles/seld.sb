@@ -64,7 +64,6 @@
        (subpath (param "DARWIN_CACHE_DIR")))
 
 ;; XPC connections
-;; TODO : CHECK com.apple.PowerManagement.control
 (allow mach-lookup
     (global-name "com.apple.awdd")
     (global-name "com.apple.nfcd.hwmanager")
@@ -82,11 +81,8 @@
 ;; Process info lookup
 (allow process-info-pidinfo)
 
-;; Not sure about this one. Is this our XPC server ?
-;; TODO : CHECK WHY
 (allow mach-priv-host-port)
 
-;; IOKIT ??
 (allow iokit-open
     (iokit-user-client-class "RootDomainUserClient"))
 

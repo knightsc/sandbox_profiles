@@ -1,0 +1,69 @@
+;; Copyright (c) 2019 Apple Inc.  All Rights reserved.
+;;
+;; WARNING: The sandbox rules in this file currently constitute
+;; Apple System Private Interface and are subject to change at any time and
+;; without notice.
+;;
+
+(version 1)
+
+(import "system.sb")
+
+(system-network)
+
+;; For EndpointSecurity kext
+(allow iokit-open
+    (iokit-user-client-class "EndpointSecurityDriverClient"))
+
+;; Allow sysctl read for SafeBoot
+(allow sysctl-read
+	(sysctl-name "kern.safeboot")
+)
+
+;; Allow access to mach services required
+(allow mach-lookup
+	(global-name "com.apple.analyticsd")
+	(global-name "com.apple.CoreServices.coreservicesd")
+	(global-name "com.apple.ocspd")
+	(global-name "com.apple.SecurityServer")
+	(global-name "com.apple.securityd.xpc")
+	(global-name "com.apple.sysextd")
+	(global-name "com.apple.system.logger")
+	(global-name "com.apple.tccd")
+	(global-name "com.apple.tccd.system")
+	(global-name "com.apple.xpc.smd")
+)
+
+;; Allow fsctl for operations like writeToFile:atomically:
+;; Note: These are the default fsctl sandbox policies for "application.sb"
+(allow system-fsctl
+       (fsctl-command (_IO "h" 24)) ;; HFS_VOLUME_STATUS (<rdar://problem/11860273>)
+       (fsctl-command (_IO "h" 32)) ;; HFSIOC_TRANSFER_DOCUMENT_ID (<rdar://problem/15089220>)
+       (fsctl-command (_IO "h" 47)) ;; HFSIOC_SET_HOTFILE_STATE (<rdar://problem/20284816>)
+       (fsctl-command (_IO "z" 12)) ;; afpfsGetMountInfoFSCTL (<rdar://problem/10236388>)
+       (fsctl-command (_IO "z" 19)) ;; smbfsUniqueShareIDFSCTL (<rdar://problem/10236388>)
+       (fsctl-command (_IO "z" 23)) ;; afpfsByteRangeLock2FSCTL (<rdar://problem/10427906>)
+)
+
+;; Allow arbitrary reads to enable file analysis
+(allow file-read* file-read-metadata file-read-data)
+
+(allow file-write-data
+	(path "/private/var/db/mds/system/mds.lock")
+)
+
+(allow file-read* file-write*
+	(subpath "/private/var/folders")
+)
+
+(allow ipc-posix-shm-read-data  ipc-posix-shm-write-data ipc-posix-shm-write-create
+	(ipc-posix-name "com.apple.AppleDatabaseChanged")
+)
+
+;; Read and write SIP-protected filesystem area
+(allow file-read* file-write* (subpath "/Library/SystemExtensions"))
+
+;; For validating the entitlements and other info of clients.
+(allow process-info-codesignature)
+(allow process-info-pidinfo)
+(allow process-info* (target self))

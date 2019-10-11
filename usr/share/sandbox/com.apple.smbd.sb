@@ -34,8 +34,8 @@
 (allow network-inbound (local tcp "*:445"))
 
 ; Allow WSP
-(allow network-bind (local tcp "/tmp/fd-*"))
-(allow network-outbound (local tcp "/tmp/fd-*"))
+(allow network-bind (prefix "/private/tmp/com.apple.smbd/fd."))
+(allow network-outbound (prefix "/private/tmp/com.apple.smbd/fd."))
 
 ; Allow launchd and SMB named pipes.
 (allow network-outbound

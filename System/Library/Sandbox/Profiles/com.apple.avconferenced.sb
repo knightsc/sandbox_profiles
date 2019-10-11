@@ -32,6 +32,11 @@
 (with-filter (system-attribute apple-internal)
     (allow file-read-data file-map-executable (subpath "/usr/local/lib")))
 
+(allow file-read-data
+    (literal "/Library/Preferences/.GlobalPreferences.plist")
+    (home-regex #"/Library/Preferences/ByHost/\.GlobalPreferences")
+    (home-subpath "/Library/Preferences/.GlobalPreferences.plist"))
+
 (allow file-read*
     (literal "/")
     (literal "/Library/Keychains/apsd.keychain")

@@ -17,14 +17,16 @@
     (global-name "com.apple.lsd.mapdb")
     (global-name "com.apple.iokit.powerdxpc")
     (global-name "com.apple.PowerManagement.control")
-    (global-name "com.apple.coreduetd.context"))
+    (global-name "com.apple.coreduetd.context")
+    (global-name "com.apple.ScreenTimeAgent"))
        
 (allow file*
        (subpath (param "_USER_TEMP_DIR"))
-       (subpath (string-append (param "_HOME") "/Library/Caches/com.apple.ContextStoreAgent"))
-       (literal (string-append (param "_HOME") "/Library/Preferences/com.apple.ContextStoreAgent.plist"))
+       (subpath (string-append (param "_HOME") "/Library/Caches/ContextStoreAgent"))
+       (literal (string-append (param "_HOME") "/Library/Preferences/ContextStoreAgent.plist"))
        (literal (string-append (param "_HOME") "/Library/Preferences/com.apple.CoreDuet.plist"))
-       (subpath (string-append (param "_HOME") "/Library/Application Support/Knowledge")))
+       (subpath (string-append (param "_HOME") "/Library/Application Support/Knowledge"))
+       (subpath (string-append (param "_HOME") "/Library/Application Support/com.apple.ContextStoreAgent")))
 
 (allow file-read-metadata
     (subpath (string-append (param "_HOME") "/Library")))
@@ -33,10 +35,10 @@
     (subpath "/System/Library/PrivateFrameworks/CoreDuetContext.framework/Resources/ContextStoreAgent")
     (literal "/Library/Preferences/.GlobalPreferences.plist")
     (literal (string-append (param "_HOME") "/Library/Preferences/.GlobalPreferences.plist"))
-    (literal (string-append (param "_HOME") "/Library/Preferences/com.apple.ContextStoreAgent.plist"))
+    (literal (string-append (param "_HOME") "/Library/Preferences/ContextStoreAgent.plist"))
     (literal (string-append (param "_HOME") "/Library/Preferences/com.apple.CoreDuet.plist"))
     (regex (string-append "^" (regex-quote (param "_HOME")) #"/Library/Preferences/ByHost/\.GlobalPreferences\.[^/]*\.plist$"))
-    (regex (string-append "^" (regex-quote (param "_HOME")) #"/Library/Preferences/ByHost/com.apple.ContextStoreAgent\.[^/]*\.plist$"))
+    (regex (string-append "^" (regex-quote (param "_HOME")) #"/Library/Preferences/ByHost/ContextStoreAgent\.[^/]*\.plist$"))
     (regex (string-append "^" (regex-quote (param "_HOME")) #"/Library/Preferences/ByHost/com.apple.CoreDuet\.[^/]*\.plist$")))
 
 (allow file-read-metadata
@@ -46,3 +48,8 @@
 (allow file-read*
     (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")              ; for CrashReporter
     (literal "/Library/MessageTracer/SubmitDiagInfo.default.domains.searchtree"))              ; for MessageTracer
+
+(when (param "EXEC_DIR")
+    (allow file-read*
+        (subpath (param "EXEC_DIR"))))
+

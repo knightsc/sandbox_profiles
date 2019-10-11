@@ -1,6 +1,18 @@
 (version 1)
 (import "system.sb")
 
+(import "com.apple.corefoundation.sb")
+(corefoundation)
+
+(define (home-subpath home-relative-subpath)
+        (subpath (string-append (param "_HOME") home-relative-subpath)))
+(define (home-literal home-relative-literal)
+        (literal (string-append (param "_HOME") home-relative-literal)))
+(define (home-prefix home-relative-subpath)
+        (prefix (string-append (param "_HOME") home-relative-subpath)))
+(define (home-regex home-relative-regex)
+        (regex (string-append "^" (regex-quote (param "_HOME")) home-relative-regex)))
+
 (allow file-read-metadata
     (mount-relative-literal "/") ;; -[NSURL getResourceValue:forKey:error:]
     (literal "/Library/Caches/com.apple.DiagnosticReporting.HasBeenAppleInternal")
@@ -10,12 +22,32 @@
     (global-name "com.apple.tccd") ;; DataDetectorsCore
     (global-name "com.apple.CoreServices.coreservicesd") ;; -[NSURL getResourceValue:forKey:error:]
     (global-name "com.apple.mobileassetd") ;; to get access to the reverse templates
+    (global-name "com.apple.mobileassetd.v2") ;; to get access to the reverse templates
     (global-name "com.apple.parsecd") ;; to get flight information from Parsec (for flight template-less)
 )
 
 (allow user-preference-read (preference-domain "com.apple.suggestions"))
 
+(allow file-read*
+    (literal "/Library/Preferences/.GlobalPreferences.plist")
+    (home-literal "/Library/Preferences/.GlobalPreferences.plist") ;; rdar://49540921
+    (home-regex #"/Library/Preferences/ByHost/\.GlobalPreferences\..*\.plist$") ;; rdar://49540921
+    (home-literal "/Library/Preferences/com.apple.parsecd.plist") ;; rdar://problem/54230838 parsec flight lookup
+    (home-literal "/Library/Preferences/com.apple.GEO.plist") ;; rdar://problem/54230838 parsec flight lookup
+    (home-literal "/Library/Caches/GeoServices/Experiments.pbd") ;; rdar://problem/54230838 parsec flight lookup
+    (home-literal "/Library/Caches/GeoServices/networkDefaults.plist") ;; rdar://problem/54230838 parsec flight lookup
+)
+
 ;; SGAsset
 (allow file-read* (require-all
     (subpath "/Library/Assets")
     (extension "com.apple.assets.read")))
+
+(allow file-read-metadata) ;; <rdar://problem/18320786>
+
+(allow sysctl-write
+    (sysctl-name "kern.tcsm_enable") ;; javascript core
+)
+
+(allow file-read* (subpath "/Library/Managed Preferences")) ;; <rdar://problem/53906543>
+(allow managed-preference-read (preference-domain "kCFPreferencesAnyApplication")) ;; <rdar://problem/53906543>

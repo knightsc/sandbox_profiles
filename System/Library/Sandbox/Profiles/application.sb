@@ -491,6 +491,8 @@
 (allow process-info-rusage (target self))
 (allow process-codesigning-status* (target self))
 (deny nvram*)
+(allow sysctl-read (sysctl-name "kern.tcsm_available"))
+(allow sysctl-read sysctl-write (sysctl-name "kern.tcsm_enable"))
 (deny file-link (home-subpath "/Library"))
 (with-filter
   (extension "com.apple.app-sandbox.read-write")
@@ -633,8 +635,14 @@
       (allow file-read*
              (literal "/Library/Preferences/com.apple.Bluetooth.plist"))
       (allow mach-lookup
-             (global-name "com.apple.BluetoothDOServer")
-             (global-name "com.apple.bluetoothd"))
+             (global-name
+               "com.apple.BluetoothDOServer"
+               "com.apple.bluetoothd"
+               "com.apple.server.bluetooth.le.att.xpc"))
+      (with-filter
+        (system-attribute apple-internal)
+        (allow mach-lookup
+               (global-name "com.apple.server.bluetooth.le.pipe.xpc")))
       (allow iokit-open
              (iokit-user-client-class "IOBluetoothRFCOMMConnectionUserClient")
              (iokit-user-client-class "IOBluetoothRFCOMMChannelUserClient")
@@ -713,7 +721,7 @@
       (allow-read-write-directory-contents
         (param "application_calendars_lock_dir"))
       (allow mach-lookup
-             (global-name-regex "^com\\.apple\\.CalendarStore\\.lock\\.")
+             (global-name-prefix "com.apple.CalendarStore.lock.")
              (global-name "com.apple.accountsd.accountmanager")
              (global-name "com.apple.CalendarAgent")
              (global-name "com.apple.CalendarAgent.database")
@@ -842,6 +850,15 @@
   (lambda (id)
     (allow file-link (ubiquity-filter id))
     (read-write-and-issue-extensions (ubiquity-filter id))))
+(allow file-read-data
+       (require-all
+         (home-subpath "/Library/Mobile Documents")
+         (extension-path-ancestor)))
+(allow file-read-xattr
+       (require-all
+         (xattr "com.apple.file-provider-domain-id#PN")
+         (home-subpath "/Library/Mobile Documents")
+         (extension-path-ancestor)))
 (with-filter
   (extension "com.apple.librarian.ubiquity-container")
   (allow file-link (home-subpath "/Library/Mobile Documents"))
@@ -966,10 +983,6 @@
            (home-subpath "/Library/Spelling"))))
 (when (entitlement "com.apple.security.assets.music.read-write")
       (allow file-read* file-write* (home-subpath "/Library/Audio/Presets")))
-(allow mach-lookup
-       (global-name "com.apple.cfprefsd.daemon")
-       (global-name "com.apple.cfprefsd.agent")
-       (local-name "com.apple.cfprefsd.agent"))
 (read-only-and-issue-extensions
   (require-all (file-mode 4) (require-any (subpath "/System"))))
 (allow process-exec
@@ -1014,6 +1027,7 @@
   "com.apple.security_common"
   "com.apple.security"
   "com.apple.ServicesMenu.Services"
+  "com.apple.speech.recognition.AppleSpeechRecognition.prefs"
   "com.apple.speech.synthesis.general.prefs"
   "com.apple.speech.voice.prefs"
   "com.apple.systemsound"
@@ -1141,6 +1155,8 @@
        (local-name "com.apple.CFPasteboardClient")
        (local-name "com.apple.coredrag")
        (global-name "com.apple.apsd")
+       (global-name "com.apple.assistant.analytics")
+       (global-name "com.apple.assistant.dictation")
        (global-name "com.apple.audio.AudioComponentPrefs")
        (global-name "com.apple.audio.AudioComponentRegistrar")
        (global-name "com.apple.audio.audiohald")
@@ -1253,17 +1269,14 @@
        (global-name "com.apple.xpc.smd")
        (global-name-regex "_OpenStep$"))
 (allow mach-lookup
-       (global-name "com.apple.analyticsd")
        (global-name "com.apple.assertiond.processassertionconnection")
-       (global-name "com.apple.cookied")
-       (global-name "com.apple.nsurlstorage-cache")
-       (global-name "com.apple.usymptomsd"))
+       (global-name "com.apple.cookied"))
+(with-filter (system-attribute apple-internal))
+(allow mach-lookup (global-name "PurplePPTServer"))
 (allow mach-lookup
-       (global-name "PurplePPTServer")
        (global-name "PurpleSystemEventPort")
        (global-name "com.apple.awdd")
        (global-name "com.apple.corerecents.recentsd")
-       (global-name "com.apple.frontboard.systemappservices")
        (global-name "com.apple.homed.xpc")
        (global-name "com.apple.itunesstored.xpc")
        (global-name "com.apple.lskdd"))
@@ -1323,10 +1336,12 @@
       (entitlement "com.apple.security.network.server"))
   (deny network-outbound (literal "/private/var/run/mDNSResponder")))
 (deny network-outbound (remote ip "localhost:631"))
-(deny file-write-xattr (xattr "com.apple.quarantine") (with no-log))
+(unless
+  (entitlement "com.apple.private.app-sandbox.unquarantine")
+  (deny file-write-xattr (xattr "com.apple.quarantine") (with no-log)))
 (deny file-read-xattr
       file-write-xattr
-      (xattr-regex "^com\\.apple\\.security\\.private\\."))
+      (xattr-prefix "com.apple.security.private."))
 (allow mach-lookup
        (global-name "com.apple.notificationcenterui.widgetcontent")
        (global-name "com.apple.usernoted.client")
@@ -1378,6 +1393,10 @@
 (allow iokit-open
        (iokit-user-client-class "AppleUpstreamUserClient")
        (iokit-user-client-class "AudioAUUC"))
+(allow iokit-open
+       (iokit-user-client-class
+         "AppleAfterburnerUserClient"
+         "com_apple_AthenaUserClient"))
 (read-write-and-issue-extensions
   (mount-relative-regex "^/\\.TemporaryItems(/|$)"))
 (allow authorization-right-obtain (right-name "com.apple.trust-settings.user"))
@@ -1386,18 +1405,20 @@
 (allow file-read-data file-write-data (literal "/dev/tty"))
 (allow file-read-data (literal "/dev"))
 (allow system-fsctl
-       (fsctl-command (_IO "h" 24))
-       (fsctl-command (_IO "h" 32))
-       (fsctl-command (_IO "h" 47))
-       (fsctl-command (_IO "z" 12))
-       (fsctl-command (_IO "z" 19))
-       (fsctl-command (_IO "z" 23)))
+       (fsctl-command APFSIOC_GET_CLONE_INFO)
+       (fsctl-command HFSIOC_SET_HOTFILE_STATE)
+       (fsctl-command HFSIOC_TRANSFER_DOCUMENT_ID)
+       (fsctl-command HFSIOC_VOLUME_STATUS)
+       (fsctl-command afpfsByteRangeLock2FSCTL)
+       (fsctl-command afpfsGetMountInfoFSCTL)
+       (fsctl-command afpfsSubMountFSCTL)
+       (fsctl-command smbfsUniqueShareIDFSCTL))
 (allow ipc-posix-shm-read*
        ipc-posix-shm-write-data
-       (ipc-posix-name-regex "^CFPBS:"))
+       (ipc-posix-name-prefix "CFPBS:"))
 (allow ipc-posix-shm-read*
        ipc-posix-shm-write-data
-       (ipc-posix-name-regex "^AudioIO"))
+       (ipc-posix-name-prefix "AudioIO"))
 (allow ipc-posix-shm*
        (ipc-posix-name "com.apple.ColorSync.Gen.lock")
        (ipc-posix-name "com.apple.ColorSync.Disp.lock")
@@ -1405,7 +1426,7 @@
        (ipc-posix-name "com.apple.ColorSync.sRGB")
        (ipc-posix-name "com.apple.ColorSync.GenGray")
        (ipc-posix-name "com.apple.ColorSync.GenRGB")
-       (ipc-posix-name-regex "^com\\.apple\\.cs\\."))
+       (ipc-posix-name-prefix "com.apple.cs."))
 (allow file-read*
        (subpath "/Library/ColorSync/Profiles")
        (home-subpath "/Library/ColorSync"))
@@ -1413,8 +1434,8 @@
        (right-name "system.colorsync.install.profile"))
 (allow ipc-posix-shm-read*
        (ipc-posix-name "apple.shm.notification_center")
-       (ipc-posix-name-regex "^/tmp/com\\.apple\\.csseed\\.")
-       (ipc-posix-name-regex "^ls\\."))
+       (ipc-posix-name-prefix "/tmp/com.apple.csseed.")
+       (ipc-posix-name-prefix "ls."))
 (allow ipc-posix-shm-read*
        ipc-posix-shm-write-data
        ipc-posix-shm-write-unlink
@@ -1456,6 +1477,10 @@
              (right-name "com.apple.app-sandbox.set-attributes")
              (right-name "com.apple.app-sandbox.replace-file")))
 (sandbox-array-entitlement
+  "com.apple.private.MobileContainerManager.wipeContainer"
+  (lambda (signingid)
+    (allow mach-lookup (global-name "com.apple.secinitd.container"))))
+(sandbox-array-entitlement
   "com.apple.security.temporary-exception.apple-events"
   (lambda (name) (allow appleevent-send (appleevent-destination name))))
 (sandbox-array-entitlement
@@ -1475,6 +1500,11 @@
 (sandbox-array-entitlement
   "com.apple.security.temporary-exception.mach-lookup.global-name"
   (lambda (name) (allow mach-lookup (global-name name))))
+(sandbox-array-entitlement
+  "com.apple.security.temporary-exception.mach-lookup.global-name"
+  (lambda (name)
+    (if (equal? name "com.apple.photolibraryd")
+      (allow mach-lookup (global-name "com.apple.photos.service")))))
 (sandbox-array-entitlement
   "com.apple.security.temporary-exception.mach-lookup.local-name"
   (lambda (name) (allow mach-lookup (local-name name))))

@@ -15,15 +15,21 @@
     (global-name "com.apple.accountsd.accountmanager")
     (global-name "com.apple.adid")
     (global-name "com.apple.ak.anisette.xpc")
+    (global-name "com.apple.ak.auth.xpc")
     (global-name "com.apple.analyticsd")
     (global-name "com.apple.AppSSO.service-xpc")
     (global-name "com.apple.appstored.xpc")
     (global-name "com.apple.apsd")
     (global-name "com.apple.askpermissiond")
     (global-name "com.apple.assertiond.processassertionconnection")
+    (global-name "com.apple.AssetCacheLocatorService")
     (global-name "com.apple.bird")
+    (global-name "com.apple.cache_delete")
     (global-name "com.apple.commerce")
     (global-name "com.apple.cookied")
+    (global-name "com.apple.CoreAuthentication.agent")
+    (global-name "com.apple.CoreAuthentication.agent.libxpc")
+    (global-name "com.apple.ctkd.token-client")
     (global-name "com.apple.cvmsServ")
     (global-name "com.apple.duetknowledged")
     (global-name "com.apple.commcenter.coretelephony.xpc")
@@ -48,6 +54,7 @@
     (global-name "com.apple.runningboard")
     (global-name "com.apple.securityd.xpc")
     (global-name "com.apple.SecurityServer")
+    (global-name "com.apple.storagekitd")
     (global-name "com.apple.storeassetd")
     (global-name "com.apple.storedownloadd")
     (global-name "com.apple.storeuid")
@@ -58,7 +65,8 @@
     (global-name "com.apple.uninstalld")
     (global-name "com.apple.usernoted.daemon_client")
     (global-name "com.apple.usymptomsd")
-    (global-name "com.apple.windowserver.active"))
+    (global-name "com.apple.windowserver.active")
+    (global-name "com.apple.xpc.amsaccountsd"))
 
 (allow file-read-metadata)
 
@@ -77,6 +85,7 @@
     (literal "/private/etc/services")
     (literal "/private/var/db/mds/system/mdsDirectory.db")
     (literal "/private/var/db/mds/system/mdsObject.db")
+    (literal "/private/var/db/nsurlstoraged/dafsaData.bin")
     (literal "/Library/Application Support/CrashReporter/DiagnosticMessagesHistory.plist")
     (subpath "/Applications/App Store.app")
     (subpath "/Applications/Xcode.app")
@@ -95,12 +104,14 @@
     (subpath "/Users/Shared/SC Info")
     (regex #"/Library/Caches/com\.apple\.AppleMediaServices")
     (regex #"/Library/Caches/com\.apple\.appstoreagent")
+    (regex #"/Library/Logs/com\.apple\.StoreServices")
     (regex #"/Library/Keychains/"))
 
 (allow file-read-xattr
     (regex #"\.app(/|$)"))
  
 (allow file-issue-extension
+    (regex #"/Library/Caches/com\.apple\.AppleMediaServices")
     (regex #"/Library/Caches/com\.apple\.appstoreagent"))
 
 (allow ipc-posix-shm-read-data
@@ -134,3 +145,22 @@
 (allow lsopen)
 (allow network-outbound)
 (allow system-socket)
+
+;;
+;; FairPlay DLL Support. See rdar://problem/54211948
+;; Please do not append to this section unless it is specifically for FairPlay
+(allow file-read*
+    (subpath "/bin")
+    (subpath "/etc")
+    (subpath "/private/etc")
+    (subpath "/private/tmp")
+    (subpath "/private/var/log")
+    (subpath "/private/var/run")
+    (subpath "/Library/Updates")
+    (subpath "/sbin")
+    (subpath "/System/Library/Caches")
+    (subpath "/tmp")
+    (subpath "/usr/lib")
+    (subpath "/var/log")
+    (subpath "/var/run")
+    (subpath "/Users"))

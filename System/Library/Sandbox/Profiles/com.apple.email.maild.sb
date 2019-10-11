@@ -1,0 +1,150 @@
+;;; /System/Library/PrivateFrameworks/EmailDaemon.framework/Versions/A/maild
+
+(version 1)
+
+;; Strict enforcement
+(deny default)
+(deny dynamic-code-generation file-map-executable nvram* process-info* process-info-codesignature)
+; FIXME: maild shouldn't need file-link, but we didn't log for it. Too risky for macOSJazz GM.
+; (deny file-link)
+
+;; Development
+; (allow (with report) default)
+; (allow (with report) dynamic-code-generation file-map-executable nvram* process-info* process-info-codesignature)
+; (allow (with report) file-link)
+; (deny mach-priv-host-port)  ; sandbox_init(): suppress "(allow (with report))" reporting artifact
+
+;; Imports
+(import "system.sb")
+(import "opendirectory.sb")
+
+
+;; Home directory functions
+(define (home-literal relative)
+    (literal (string-append (param "_HOME") relative)))
+(define (home-prefix relative)
+    (prefix (string-append (param "_HOME") relative)))
+(define (home-subpath relative)
+    (subpath (string-append (param "_HOME") relative)))
+(define (home-regex relative-regex)
+    (regex (string-append "^" (regex-quote (param "_HOME")) relative-regex)))
+
+;; For resolving symlinks, realpath(3), and equivalents.
+(allow file-read-metadata)
+
+;; AddressBook
+(allow mach-lookup
+       (global-name "com.apple.AddressBook.abd")
+       (global-name "com.apple.AddressBook.AddressBookApplicationFrameworkIPC")
+       (global-name "com.apple.AddressBook.ContactsAccountsService")
+       (global-name "com.apple.AddressBook.SourceSync"))
+(allow user-preference-read (preference-domain "com.apple.AddressBook.CardDAVPlugin"))
+(allow file-read* file-write*
+       (home-subpath "/Library/Application Support/AddressBook")
+       (subpath (param "_ABLOCKDIR")))
+(allow file-map-executable (subpath "/System/Library/Address Book Plug-Ins/"))
+
+;; Mail database
+(allow file-read* file-write* (subpath (param "_MAILDIR")))
+
+;; File access
+(allow file-read*
+       ; Group container(s)
+       (home-subpath "/Library/Group Containers/group.com.apple.mail")
+       ; -[MFPersistence_macOS _configureSearchableIndexManagerIfNecessary]
+       (literal "/Library/Application Support/Apple/Spotlight/MailUsesCoreSpotlight")
+       ; CrashReporter
+       (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains"))
+
+;; Darwin temp dir
+(allow file-read* file-write*
+       (subpath (param "_TMPDIR")))
+(allow file-issue-extension
+       (require-all
+           (extension-class "com.apple.app-sandbox.read")
+           (subpath (param "_TMPDIR"))))
+
+;; Security.framework
+; mds: mds.lock, mdsDirectory.db, mdsObject.db
+; 1. extension "security:mds"
+;    uid == 0: r+w /private/var/db/mds/system
+;    uid  > 0: r+w <_DARWIN_USER_CACHE_DIR>/mds
+; 2. /private/var/db/mds/system/{mdsDirectory.db,mdsObject.db}
+;    uid == 0: r+w (already covered by (extension "security:mds"))
+;    uid  > 0: r
+(allow file-read* file-write* (extension "security:mds"))
+(allow file-read*
+       (literal "/private/var/db/mds/system/mdsDirectory.db")
+       (literal "/private/var/db/mds/system/mdsObject.db"))
+; 3. se_SecurityMessages:
+;    uid  < 500: /private/var/db/mds/messages/se_SecurityMessages
+;    uid >= 500: /private/var/db/mds/messages/<uid>/se_SecurityMessages
+(allow file-read* (extension "security:messages"))
+
+(allow ipc-posix-shm-read* ipc-posix-shm-write-create ipc-posix-shm-write-data
+       (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+;; LaunchServices (SQLite3 db)
+(allow file-read*
+       (home-literal "/Library/Preferences"))
+(allow file-read* file-write*
+       (home-subpath "/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV2")
+       (home-subpath "/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV2-journal")
+       (home-subpath "/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV2-shm")
+       (home-subpath "/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV2-wal"))
+
+;; fsctl
+;; FIXME: allow other fsctl-commands from application.sb?
+(allow system-fsctl
+       (fsctl-command HFSIOC_SET_HOTFILE_STATE))
+
+;; Preferences (cfprefsd)
+(allow user-preference-read
+       (preference-domain "com.apple.AddressBook"
+                          "com.apple.CFNetwork"
+                          "com.apple.SystemConfiguration.PPPController-priv"
+                          "com.apple.SystemConfiguration"
+                          "com.apple.email.maild"
+                          "com.apple.mail-shared"
+                          "com.apple.security"
+                          "group.com.apple.mail"
+                          "kCFPreferencesAnyApplication"))
+
+;; Preferences (file read in-process)
+(allow file-read*
+       (home-subpath "/Library/Preferences/com.apple.security.plist")
+       (literal      "/Library/Preferences/com.apple.security.plist"))
+
+;; MACH services
+(allow mach-lookup
+       (global-name "com.apple.CoreServices.coreservicesd"
+                    "com.apple.SecurityServer"
+                    "com.apple.accountsd.accountmanager"
+                    "com.apple.ak.anisette.xpc"
+                    "com.apple.cmfsyncagent.auth"
+                    "com.apple.coreservices.quarantine-resolver"
+                    "com.apple.distributed_notifications@Uv3"
+                    "com.apple.iconservices.store"
+                    "com.apple.iconservices"
+                    "com.apple.lsd.mapdb"
+                    "com.apple.metadata.mds"
+                    "com.apple.powerlog.plxpclogger.xpc"
+                    "com.apple.syncdefaultsd"
+                    "com.apple.tccd"))
+
+;; NVRAM: +[AKDevice currentDevice]
+(allow nvram-get
+       (nvram-variable "4D1EDE05-38C7-4A6A-9CC6-4BCCA8B38C14:MLB"
+                       "4D1EDE05-38C7-4A6A-9CC6-4BCCA8B38C14:ROM"))
+
+;; Networking
+(system-network)
+(allow network-outbound
+       (literal "/private/var/run/mDNSResponder")
+       (remote ip))
+
+;; Process info
+(allow process-info* process-info-codesignature)
+
+;; Distributed notifications
+(allow distributed-notification-post)

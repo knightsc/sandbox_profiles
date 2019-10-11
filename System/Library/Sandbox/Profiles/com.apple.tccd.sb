@@ -50,7 +50,8 @@
          (literal "/private/var/db/mds/system/mds.lock"))
   (allow mach-lookup
          (global-name "com.apple.tccd"))
-  (allow mach-per-user-lookup))
+  (allow system-audit)
+  (allow mach-per-user-lookup mach-task-name))
 
 (allow user-preference-read
     (preference-domain "com.apple.tccd"))

@@ -62,7 +62,8 @@
     (global-name "com.apple.securityd.xpc")
     (global-name "com.apple.cfnetwork.cfnetworkagent")
     (global-name "com.apple.nsurlsessiond")
-    (xpc-service-name "com.apple.powerlog.plxpclogger.xpc"))
+    (xpc-service-name "com.apple.powerlog.plxpclogger.xpc")
+    (global-name "com.apple.nesessionmanager.content-filter"))
 
 (allow ipc-posix-shm
 	(ipc-posix-name "com.apple.AppleDatabaseChanged"))

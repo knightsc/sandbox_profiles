@@ -95,7 +95,7 @@
 )
 
 (allow file-read*
-    (regex #"/private/var/folders/[^/]+/[^/]+/C/com.apple.FontRegistry/*")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/C/com.apple.FontRegistry/")
 )
 
 (allow-read-access (param "DARWIN_USER_CACHE_DIR"))
@@ -103,7 +103,7 @@
 (allow-read-access (string-append (param "__HOME") "/Library/Fonts"))
 (allow-read-access "/Library/Fonts")
 (allow-read-access "/System/Library/Fonts")
-(allow-read-access "/System/Library/Assets/com_apple_MobileAsset_Font4")
+(allow-read-access "/System/Library/AssetsV2/com_apple_MobileAsset_Font6")
 (allow-read-access "/System/Library/PrivateFrameworks/FontServices.framework/Resources/Fonts/ApplicationSupport")
 (allow-read-file-access "/Volumes")
 

@@ -1,0 +1,132 @@
+;;; Copyright (c) 2017 Apple Inc.  All Rights reserved.
+;;;
+;;; WARNING: The sandbox rules in this file currently constitute
+;;; Apple System Private Interface and are subject to change at any time and
+;;; without notice.
+;;;
+
+(version 1)
+
+(deny dynamic-code-generation file-map-executable iokit-get-properties process-info* nvram* mach-priv-host-port )
+
+(import "system.sb")
+(import "com.apple.corefoundation.sb")
+(corefoundation)
+
+;; Extensions
+(define (read-only-and-issue-extensions path-filter)
+  (allow file-read* path-filter)
+  (allow file-issue-extension (require-all path-filter (extension-class "com.apple.app-sandbox.read"))))
+(define (read-write-and-issue-extensions path-filter)
+  (allow file-read* file-write* path-filter)
+  (allow file-issue-extension
+         (require-all path-filter
+                      (require-any (extension-class "com.apple.app-sandbox.read")
+                                   (extension-class "com.apple.app-sandbox.read-write")))))
+(read-only-and-issue-extensions (extension "com.apple.app-sandbox.read"))
+(read-write-and-issue-extensions (extension "com.apple.app-sandbox.read-write"))
+
+;;; Homedir-relative path filters
+(define (home-regex home-relative-regex)
+    (regex (string-append "^" (regex-quote (param "HOME")) home-relative-regex)))
+
+(define (home-subpath home-relative-subpath)
+    (subpath (string-append (param "HOME") home-relative-subpath)))
+
+(define (home-prefix home-relative-prefix)
+    (prefix (string-append (param "HOME") home-relative-prefix)))
+
+(define (home-literal home-relative-literal)
+    (literal (string-append (param "HOME") home-relative-literal)))
+
+(allow process-info* (target self))
+
+;; For resolving symlinks, realpath(3), and equivalents.
+(allow file-read-metadata)
+
+(allow file-map-executable
+    (subpath "/System/Library/Address Book Plug-Ins") )
+
+;; For validating the entitlements of clients.
+(allow process-info-codesignature)
+(allow process-info-dirtycontrol)
+(allow distributed-notification-post)
+(allow process-info-pidinfo)
+
+;; Your preference domain
+(allow user-preference-read
+       (preference-domain "com.apple.TTY")
+       (preference-domain "com.apple.HearingAids")
+       (preference-domain "com.apple.AddressBook")
+       (preference-domain "com.apple.accessibility.heard")
+       (preference-domain "com.apple.Accessibility") )
+
+(allow user-preference-write
+    (preference-domain "com.apple.TTY")
+    (preference-domain "com.apple.HearingAids")
+    (preference-domain "com.apple.AddressBook")
+    (preference-domain "com.apple.Accessibility")
+    (preference-domain "com.apple.accessibility.heard")
+     )
+
+;; Read/write access to a temporary directory.
+(allow file-read* file-write*
+       (subpath (param "TMPDIR"))
+       (subpath (param "DARWIN_CACHE_DIR"))
+       (home-subpath "/Library/Application Support/AddressBook")
+       (home-subpath "/Library/CallHistoryDB")
+       (home-literal "/Library/Preferences/com.apple.TTY.plist")
+       (home-subpath "/Library/Accessibility")
+       (regex #"^/private/var/folders/[^/]+/[^/]+/T/\.AddressBookLocks($|/)") )
+
+(allow file-read*
+    (home-subpath "/Library/Application Support/AddressBook")
+    (home-literal "/Library/Preferences/.GlobalPreferences.plist")
+    (home-subpath "/Library/Preferences/ByHost/")
+    (subpath "/Library/Preferences/.GlobalPreferences.plist")
+    (subpath "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
+    (home-literal "/Library/SyncedPreferences/com.apple.accessibility.heard.plist")
+    (home-literal "/Library/Preferences/com.apple.TTY.plist")
+    )
+    
+;; Read/write cache access
+(let ((cache-path-filter (home-subpath "/Library/Caches/heard")))
+  (allow file-read* file-write* cache-path-filter)
+  (allow file-issue-extension
+    (require-all
+      (extension-class "com.apple.app-sandbox.read" "com.apple.app-sandbox.read-write")
+      cache-path-filter)))
+
+(if (param "TMPDIR")
+    (read-write-and-issue-extensions (subpath (string-append (param "TMPDIR") "/.AddressBookLocks"))))
+
+(allow mach-lookup
+    (global-name "com.apple.telephonyutilities.callservicesdaemon.callcapabilities")
+    (global-name "com.apple.telephonyutilities.callservicesdaemon.callstatecontroller")
+    (global-name "com.apple.telephonyutilities.callservicesdaemon.accountscontroller")
+    (global-name "com.apple.telephonyutilities.callservicesdaemon.callprovidermanager")
+    (global-name "com.apple.telephonyutilities.callservicesdaemon.momentscontroller")
+    (global-name "com.apple.commcenter.coretelephony.xpc")
+    (global-name "com.apple.telephonyutilities.callservicesd")
+    (global-name "com.apple.accountsd.accountmanager")
+    (global-name "com.apple.commcenter.xpc")
+    (global-name "com.apple.securityd.xpc")
+    (global-name "com.apple.identityservicesd.desktop.auth")
+    (global-name "com.apple.bird.token")
+    (global-name "com.apple.cloudd")
+    (global-name "com.apple.xpchelper")
+    (global-name "com.apple.apsd")
+    (global-name "com.apple.CallHistorySyncHelper")
+    (global-name "com.apple.videoconference.camera")
+    (global-name "com.apple.system.opendirectoryd.api")
+    (global-name "com.apple.syncdefaultsd")
+    (global-name "com.apple.AddressBook.abd")
+    (global-name "com.apple.AddressBook.ContactsAccountsService")
+    (global-name "com.apple.tccd")
+    (global-name "com.apple.tccd.system")
+    (global-name "com.apple.SystemConfiguration.configd")
+    (global-name "com.apple.lsd.modifydb")
+    (global-name "com.apple.CompanionLink")
+    (global-name "com.apple.coredatad.cloudkit")
+    (global-name "com.apple.accessibility.heard")
+    (global-name-regex #"^com\.apple\.distributed_notifications") )

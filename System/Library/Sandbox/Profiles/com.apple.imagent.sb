@@ -8,9 +8,8 @@
 
 ;;; (trace "/tmp/com.apple.imagentTrace.sb")
 
-(allow (with report) default)
-(allow (with report) file-map-executable process-info* nvram*)
-(allow (with report) dynamic-code-generation)
+(deny default)
+(deny file-map-executable process-info* nvram*)
 
 (import "com.apple.iMessage.shared.sb")
 
@@ -28,7 +27,11 @@
     (preference-domain "com.apple.conference")
     (preference-domain "com.apple.imservice")
     (preference-domain "com.apple.imservice.ids")
+    (preference-domain "com.apple.imservice.SMS")
     (preference-domain "com.apple.imservice.ids.Madrid")
+    (preference-domain "com.apple.imservice.ids.FaceTime")
+    (preference-domain "com.apple.imservice.ids.Madrid")
+    (preference-domain "com.apple.imservice.ids.iMessage")
     (preference-domain "com.apple.messages")
     (preference-domain "com.apple.registration")
     (preference-domain "com.apple.AddressBook")
@@ -36,10 +39,13 @@
     (preference-domain "com.apple.statistics")
     (preference-domain "com.apple.messageshelper.AlertsController")
     (preference-domain "com.apple.imservice")
-
+    (preference-domain "com.apple.messages.nicknames")
+    (preference-domain "com.apple.messages.downtime")
+    
     (preference-domain "com.apple.facetime.bag")
     (preference-domain "com.apple.MobileSMSPreview")
     (preference-domain "com.apple.coreaudio")
+    (preference-domain "com.apple.Messages")
 )
 
 (allow user-preference-write
@@ -52,6 +58,7 @@
 
     (preference-domain "com.apple.imservice.ids.iMessage")
     (preference-domain "com.apple.imservice.ids.FaceTime")
+    (preference-domain "com.apple.imservice.SMS")
     (preference-domain "com.apple.messages.IMCoreAutomation")
     (preference-domain "com.apple.madrid")
     (preference-domain "com.apple.imservice.SMS")
@@ -60,7 +67,8 @@
 
     (preference-domain "com.apple.Messages")
     (preference-domain "com.apple.imessage")
-
+    (preference-domain "com.apple.messages.nicknames")
+    
     (preference-domain "com.apple.facetime.bag")
     )
 
@@ -82,23 +90,23 @@
     (subpath "/System/Library/Address Book Plug-Ins/LDAP.sourcebundle/Contents/MacOS/LDAP")
 
     (subpath temp-directory)
-    (regex #"^/private/var/tmp/com.apple.messages/.*")
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.imtranscoding.IMTranscoderAgent/.*")
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.imagent/.*")
+    (regex #"^/private/var/tmp/com\.apple\.messages/.*")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.imtranscoding\.IMTranscoderAgent/.*")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.imagent/.*")
     (home-regex #"/Library/Messages/.*")
     )
 
 ;; these are ALL the file permissions, including write
 (allow file*
     (subpath temp-directory)
-    (regex #"^/private/var/tmp/com.apple.messages/.*")
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.iChat/.*")
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.imagent/.*")
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.imtranscoding.IMTranscoderAgent/.*")
+    (regex #"^/private/var/tmp/com\.apple\.messages/.*")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.iChat/.*")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.imagent/.*")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.imtranscoding\.IMTranscoderAgent/.*")
     (regex #"^/private/var/folders/[^/]+/[^/]+/T/\.AddressBookLocks/.*")
 
     (home-regex #"/Library/Messages/.*")
-    (home-regex #"/Library/Caches/CloudKit/com.apple.imagent/.*")
+    (home-regex #"/Library/Caches/CloudKit/com\.apple\.imagent/.*")
     (home-regex #"/Library/Application Support/AddressBook/.*")
 
     (home-subpath "/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV2")
@@ -120,7 +128,7 @@
     (regex #"^/private/var/folders/.*")
 
     (home-regex #"/.*")
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.Photos/.*")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.Photos/.*")
 
     (subpath "/Applications/Messages.app")
     (subpath "/System/Volumes/Data/.TemporaryItems/")
@@ -129,8 +137,8 @@
 (allow load-unsigned-code
     (subpath temp-directory)
     (home-regex #"/Library/Messages/.*")
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.imagent/.*")
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.imtranscoding.IMTranscoderAgent/.*")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.imagent/.*")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.imtranscoding\.IMTranscoderAgent/.*")
     )
 
 (allow mach-lookup
@@ -175,22 +183,22 @@
 
 (allow network*
     (home-regex #"/Library/Messages/.*")
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.imagent/.*")
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.imtranscoding.IMTranscoderAgent/.*")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.imagent/.*")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.imtranscoding\.IMTranscoderAgent/.*")
     (subpath temp-directory)
     )
 
 (allow process-exec*
     (home-regex #"/Library/Messages/.*")
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.imagent/.*")
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.imtranscoding.IMTranscoderAgent/.*")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.imagent/.*")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.imtranscoding\.IMTranscoderAgent/.*")
     (subpath temp-directory)
     )
 
 (allow mach-priv-task-port
     (home-regex #"/Library/Messages/.*")
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.imagent/.*")
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.imtranscoding.IMTranscoderAgent/.*")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.imagent/.*")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.imtranscoding\.IMTranscoderAgent/.*")
     (subpath temp-directory)
     )
 

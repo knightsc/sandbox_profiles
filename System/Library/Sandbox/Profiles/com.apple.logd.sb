@@ -1,4 +1,4 @@
-;; Copyright (c) 2015-2017 Apple Inc.  All Rights reserved.
+;; Copyright (c) 2015-2019 Apple Inc.  All Rights reserved.
 ;;
 ;; WARNING: The sandbox rules in this file currently constitute
 ;; Apple System Private Interface and are subject to change at any time and
@@ -7,30 +7,50 @@
 
 (version 1)
 
-;; prevent symbolication with 'no-callout' when a sandbox error occurs
-(deny default (with no-callout))
+(disable-callouts)
+
+(deny default)
+(deny file-map-executable iokit-get-properties nvram*)
+(deny dynamic-code-generation)
 
 (import "system.sb")
 
-;; Allow files to be written/deleted, and attributes to be read
-(allow file-write*
-    (regex #"^/private/var/db/diagnostics(/|$)")
-    (regex #"^/private/var/db/timesync(/|$)")
-    (regex #"^/private/var/db/uuidtext(/|$)"))
+(allow process-info* system-kext-query mach-priv-host-port)
 
-(allow file-read*
-    (regex #"^/private/var/db/diagnostics(/|$)")
-    (regex #"^/private/var/db/timesync(/|$)")
-    (regex #"^/private/var/db/timezone(/|$)"))
+(allow iokit-get-properties (iokit-property "Role"))
+(allow iokit-open (iokit-user-client-class "RootDomainUserClient"))
 
+;; logd watches for power button and EOS timesync events
+(allow mach-lookup
+    (global-name "com.apple.iohideventsystem")
+    (global-name "com.apple.remoted"))
+
+;; logd reads uuidtext information from executable binaries, libraries,
+;; and frameworks which can be anywhere on disk
+(allow file-read*)
+
+;; logd needs read/write access to the logging preferences
+(allow file-read* file-write*
+    (subpath "/Library/Preferences/Logging"))
+
+;; logd needs read/write access to the system logs
+(allow file-read* file-write*
+    (require-any
+        (subpath "/private/var/db/diagnostics")
+        (subpath "/private/var/db/uuidtext")))
+
+;; logd needs read/write/ioctl access to the kernel firehose
+(allow file-read* file-write-data file-ioctl
+    (literal "/dev/oslog"))
+
+;; allow logd to write the com.apple.logd.metadata xattr
+(allow file-write-xattr
+    (xattr "com.apple.logd.metadata"))
+
+;; logd can grant read-only access to the system logs
 (allow file-issue-extension
     (require-all
         (extension-class "com.apple.logd.read-only")
         (require-any
             (subpath "/private/var/db/diagnostics")
-            (subpath "/private/var/db/timesync")
             (subpath "/private/var/db/uuidtext"))))
-
-;; Allow writes to syslogd
-(allow network-outbound
-    (remote unix-socket (path-literal "/private/var/run/syslog")))

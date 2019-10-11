@@ -6,9 +6,8 @@
 ;;;
 (version 1)
 
-(allow (with report) default)
-(allow (with report) file-map-executable process-info* nvram*)
-(allow (with report) dynamic-code-generation)
+(deny default)
+(deny file-map-executable process-info* nvram*)
 
 (import "com.apple.iMessage.shared.sb")
 (import "com.apple.iMessage.addressbook.sb")
@@ -40,6 +39,9 @@
     (global-name "com.apple.dock.server")
     (global-name "com.apple.metadata.mdwrite")
     (global-name "com.apple.AddressBook.abd")
+    (global-name "com.apple.SharingServices")
+    (global-name "com.apple.accountsd.accountmanager")
+    (global-name "com.apple.usernotifications.usernotificationservice")
     )
 
 (allow file*
@@ -65,15 +67,23 @@
     (preference-domain "com.apple.imdpersistence.IMDPersistenceAgent")
     (preference-domain "com.apple.imdsmsrecordstore")
     (preference-domain "com.apple.imagent")
+    (preference-domain "com.apple.iChat")
+    (preference-domain "com.apple.Sharing")
+    (preference-domain "com.apple.messages")
+    (preference-domain "com.apple.messages.statistics")
     )
 
 (allow user-preference-write
     (preference-domain "com.apple.imdpersistence.IMDPersistenceAgent")
     (preference-domain "com.apple.imdsmsrecordstore")
+    (preference-domain "com.apple.iChat")
     )
 
 (allow file-map-executable
     (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.imdpersistence.IMDPersistenceAgent/.*")
+    (regex #"^/System/Library/Messages/.*")
+    
+    (home-regex #"/Library/Application Support/AddressBook/.*")
     )
 
 (allow load-unsigned-code

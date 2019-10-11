@@ -87,7 +87,7 @@
 )
 
 (allow file-read*
-    (regex #"/private/var/folders/[^/]+/[^/]+/C/com.apple.FontRegistry/*")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/C/com.apple.FontRegistry/")
 )
 
 (allow-read-access (param "DARWIN_USER_CACHE_DIR"))

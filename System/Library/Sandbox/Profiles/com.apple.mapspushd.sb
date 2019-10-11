@@ -6,7 +6,10 @@
 
 ;; Strictly enforce the sandbox
 (deny default)
-(deny dynamic-code-generation file-map-executable nvram* process-info* socket-ioctl)
+(deny dynamic-code-generation file-map-executable nvram* process-info*)
+(allow socket-ioctl)
+(allow network-outbound)
+(allow system-socket)
 
 (import "system.sb")
 
@@ -28,42 +31,48 @@
 (allow process-info-dirtycontrol (target self))
 (allow process-info-rusage (target self))
 
-(allow network-outbound (literal "/private/var/run/mDNSResponder"))
-
 (allow iokit-open (iokit-user-client-class "RootDomainUserClient"))
 
 (allow file-read-metadata)
 
-(allow system-fsctl (fsctl-command (_IO "h" 47))) ;; HFSIOC_SET_HOTFILE_STATE
-
-(allow file-read* (literal "/usr/local/lib/log"))
+(allow system-fsctl (fsctl-command HFSIOC_SET_HOTFILE_STATE))
 
 (allow file-map-executable (subpath "/System/Library"))
 
-(allow file-read*
-    (library-subpath "/Caches/GeoServices")
-    (library-subpath "/Caches/Maps")
-    (library-subpath "/Maps/ReportAProblem"))
-
-(allow file-read* file-write*
-    (subpath "/Library/Caches/com.apple.MapsSupport")
-    (library-subpath "/Containers/com.apple.Maps/Data/Library/Maps")
-    (library-subpath "/Caches/com.apple.MapsSupport")
-    (library-subpath "/Logs/Maps"))
-
-(allow user-preference-read
-    (preference-domain "com.apple.GEO.plist"))
+(allow user-preference-read user-preference-write
+    (preference-domain "com.apple.GEO")
+    (preference-domain "com.apple.Maps")
+    (preference-domain "MobileMeAccounts")
+    (preference-domain "kCFPreferencesAnyApplication")
+    (preference-domain "com.apple.security")
+    (preference-domain "com.apple.Maps.pushdaemon"))
 
 (allow file-read*
+    (literal "/usr/local/lib/log")
+    (literal "/private/var/db/mds/system/mdsObject.db")
+    (literal "/private/var/db/mds/system/mdsDirectory.db")
+    (literal "/private/var/db/mds/messages/se_SecurityMessages")
+    (regex #"/private/var/db/mds/messages/.*/se_SecurityMessages")
     (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
+    (literal "/Library/Preferences/com.apple.networkextension.uuidcache.plist")
     (literal "/Library/Preferences/.GlobalPreferences.plist")
     (library-literal "/Preferences/.GlobalPreferences.plist")
     (library-regex #"/Preferences/ByHost/\.GlobalPreferences\..*\.plist$")
-    (library-literal "/Preferences/com.apple.GEO.plist"))
+    (library-literal "/Preferences/com.apple.GEO.plist")
+    (library-subpath "/Caches/GeoServices"))
 
 (allow file-read* file-write*
+    (subpath "/Library/Caches/com.apple.MapsSupport")
+    (library-subpath "/Containers/com.apple.Maps")
+    (library-subpath "/Caches/com.apple.MapsSupport")
+    (library-subpath "/Caches/Maps")
+    (library-subpath "/Logs/Maps")
+    (library-subpath "/Maps")
     (subpath (param "_DARWIN_USER_TEMP_DIR"))
     (subpath (param "_DARWIN_USER_CACHE_DIR")))
+
+(allow ipc-posix-shm*
+    (ipc-posix-name "com.apple.AppleDatabaseChanged"))
 
 (allow mach-lookup
     (global-name "com.apple.apsd")

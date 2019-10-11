@@ -98,7 +98,8 @@
     (global-name "com.apple.touchbarserver.plugin")
     (global-name "com.apple.gpumemd.source")
     (global-name "com.apple.backlightd")
-    (global-name "com.apple.aquaappearancehelper"))
+    (global-name "com.apple.aquaappearancehelper")
+    (global-name "com.apple.powerlog.plxpclogger.xpc"))
 
 ;; Must be able to register the following non-launchd.plist registered names
 (allow mach-register
@@ -168,3 +169,6 @@
       (extension-class "com.apple.app-sandbox.read" "com.apple.app-sandbox.read-write")
       cache-path-filter)))
 
+;; Access to shared memory to leave watchdog initialization breadcrumb
+(allow ipc-posix-shm-read* ipc-posix-shm-write-create ipc-posix-shm-write-data
+    (ipc-posix-name "com.apple.windowserver.watchdog"))

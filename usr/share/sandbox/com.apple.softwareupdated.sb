@@ -69,6 +69,9 @@
 (allow ipc-posix-shm-write-data
        (ipc-posix-name "com.apple.AppleDatabaseChanged"))
 
+(allow ipc-posix-shm-write-create
+        (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
 (allow mach-register
        (global-name "com.apple.softwareupdated.SUOSUScheduler")
        (global-name "com.apple.softwareupdated"))
@@ -110,7 +113,7 @@
        (global-name "com.apple.coreservices.quarantine-resolver")
        (global-name "com.apple.InstallerDiagnostics.installerdiagd")
        (global-name "com.apple.bosreporter")
-       (global-name "com.apple.cache_delete"))
+       (global-name "com.apple.analyticsd"))
 
 ;; from application.sb
 (allow system-fsctl
@@ -121,6 +124,10 @@
        (fsctl-command (_IO "z" 12))
        (fsctl-command (_IO "z" 19))
        (fsctl-command (_IO "z" 23)))
+
+;; system.sb (currently) has (allow sysctl-read)
+;; <rdar://problem/49402748> [group4] per-thread SMT isolation + VERW state flushing
+(allow sysctl-write (sysctl-name "kern.tcsm_enable"))
 
 (allow mach-per-user-lookup)
 

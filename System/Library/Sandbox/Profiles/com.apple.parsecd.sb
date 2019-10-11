@@ -36,7 +36,6 @@
     (global-name "com.apple.cookied")
     (global-name "com.apple.SecurityServer")
     (global-name "com.apple.windowserver.active")
-    (global-name "com.apple.VideoSubscriberAccount.videosubscriptionsd")
     (global-name "com.apple.mobileassetd")
     (global-name "com.apple.locationd.desktop.registration")
     (global-name "com.apple.DataDetectorsSourceAccess")

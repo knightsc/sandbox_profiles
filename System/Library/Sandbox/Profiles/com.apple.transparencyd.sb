@@ -42,11 +42,12 @@
     (preference-domain "kCFPreferencesAnyApplication")
     (literal "transaprencyd"))
 
-;; read/write for Analytics DB, Transparency DB, and URL cache
+;; read/write for Analytics DB, Transparency DB, URL cache, and background download task temporary storage
 (allow file-read* file-write*
     (home-regex #"/Library/Keychains/.*/Analytics(/|$)")
     (home-subpath #"/Library/Application Support/com.apple.transparencyd")
-    (home-subpath #"/Library/Application Support/transparencyd"))
+    (home-subpath #"/Library/Application Support/transparencyd")
+    (home-subpath #"/Library/Caches/com.apple.nsurlsessiond/Downloads/com.apple.transparencyd/"))
 
 (allow file-read*
     (literal "/usr/libexec")

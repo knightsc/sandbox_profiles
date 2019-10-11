@@ -4,6 +4,7 @@
 (import "system.sb")
 (import "com.apple.corefoundation.sb")
 (corefoundation)
+(system-graphics)
 
 (allow file-read-metadata)
 

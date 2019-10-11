@@ -93,6 +93,7 @@
        (home-subpath "/Library/Caches/CloudKit/com.apple.clouddocs")
        (home-subpath "/Library/Caches/CloudKit/com.apple.bird")
        (home-subpath "/Library/Caches/com.apple.ubd")
+       (home-subpath "/Library/Containers/com.apple.bird")
        (home-subpath "/Library/Logs/Ubiquity")
        ;; Workaround for <rdar://problem/16333924>
        (home-subpath "/Library/Caches/CloudKit/com.apple.cloudd")
@@ -136,9 +137,7 @@
        (require-any
            (extension-class "com.apple.librarian.ubiquity-container")
            (extension-class "com.apple.app-sandbox.read")
-           (extension-class "com.apple.app-sandbox.read-write")
-           ;; <rdar://problem/37040014> macOS: bird should be allowed to issue 'com.apple.quicklook.readonly' extensions
-           (extension-class "com.apple.quicklook.readonly"))
+           (extension-class "com.apple.app-sandbox.read-write"))
 ))
 
 ;; Preferences access
@@ -156,7 +155,6 @@
 
 (preference-read ".GlobalPreferences")
 (preference-read "com.apple.bird")
-(preference-read "com.apple.fileproviderd")
 (preference-read "com.apple.mmcs")
 (preference-read "com.apple.CloudKit.BehaviorOptions")
 (preference-read "com.apple.DebugSymbols")
@@ -239,8 +237,6 @@
         (global-name "com.apple.symptom_diagnostics")
 ;; Anisette (see rdar://problem/34819241)
         (global-name "com.apple.ak.anisette.xpc")
-;; Dropping spotlight index (see <rdar://problem/47466587>)
-        (global-name "com.apple.spotlight.IndexAgent")
 )
 
 ;; Used by sharing acceptation flow to select file in Finder (25639025)
@@ -260,3 +256,9 @@
 (if (defined? 'system-package-check)
 (allow system-package-check))
 
+;; remove sync root bits when necessary
+(allow system-fsctl
+    (fsctl-command
+        APFSIOC_SYNC_ROOT_SET_FLAG
+    )
+)

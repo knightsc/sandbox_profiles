@@ -52,7 +52,8 @@
 (allow file-read* (extension "homed:securitymessages"))
 
 (allow file-read* file-write* (subpath (param "TMPDIR"))
-                              (subpath (param "DARWIN_CACHE_DIR")))
+                              (subpath (param "DARWIN_CACHE_DIR"))
+                              (home-subpath "/Library/Preferences/com.apple.itunesstored.plist"))
 
 (allow ipc-posix-shm-read-data ipc-posix-shm-write-data
         (ipc-posix-name "com.apple.AppleDatabaseChanged"))
@@ -67,7 +68,6 @@
                    (global-name "com.apple.airportd")
                    (global-name "com.apple.analyticsd")
                    (global-name "com.apple.apsd")
-                   (global-name "com.apple.assertiond.applicationstateconnection")
                    (global-name "com.apple.assistant.security")
                    (global-name "com.apple.awdd")
                    (global-name "com.apple.CARenderServer")
@@ -83,6 +83,7 @@
                    (global-name "com.apple.coreservices.quarantine-resolver")
                    (global-name "com.apple.homed.xpc")
                    (global-name "com.apple.identityservicesd.desktop.auth")
+                   (global-name "com.apple.installcoordinationd")
                    (global-name "com.apple.locationd.desktop.registration")
                    (global-name "com.apple.locationd.desktop.synchronous")
                    (global-name "com.apple.logind")
@@ -122,7 +123,7 @@
 
 ;; Read/write access to ~/Library/Caches/com.apple.homed
 ;; This is used by [HMFCache defaultCache] and must grant access to nsurlsessiond and the zip service.
-(let ((cache-path-filter (home-subpath "/Library/Caches/com.apple.homed")))
+(let ((cache-path-filter (home-subpath "/Library/Caches/com.apple.homed") (home-subpath "/Library/Caches/com.apple.homed/SoftwareUpdateDocumentation")))
   (allow file-read* file-write* cache-path-filter)
   (allow file-issue-extension
     (require-all

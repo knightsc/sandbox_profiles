@@ -17,7 +17,6 @@
        (literal "/")
        (literal "/private/etc/hosts")
        (literal "/Library/Preferences/.GlobalPreferences.plist")
-       (literal "/private/var/db/mds/messages/se_SecurityMessages")
        (literal "/private/var/db/.MASManifest")
        (literal "/private/var/db/mds/system/mdsDirectory.db")
        (literal "/private/var/db/mds/system/mdsObject.db")
@@ -30,6 +29,7 @@
 	   (literal "/private/var/db/PreviousSystemVersion.plist")
 	   (literal "/Library/Preferences/com.apple.AssetCacheLocator.plist")
 	   (subpath "/Library/Documentation/Help/MacHelp.help")
+       (subpath "/Library/InstallerSandboxes")
 	   (subpath "/Users/Shared")
        (regex #"/Library/Preferences/com\.apple\.appstore\.plist$")
 	   (regex #"/Library/Preferences/com.apple.LaunchServices.plist$")
@@ -37,6 +37,7 @@
        (regex #"/Library/Preferences/ByHost/\.GlobalPreferences\.")
        (regex #"/Library/Preferences/com.apple.security\.plist$")
        (regex #"/Library/Preferences/com\.apple\.seeding\.plist$")
+       (regex "/private/var/db/mds/messages/([A-Za-z0-9]+/)?se_SecurityMessages")
 	   (regex #"/\.CFUserTextEncoding$")
        (regex #"/Library/Caches/com\.apple\.commerce/updates-com\.apple\.appstore\.updateQueue\.plist$"))
 
@@ -94,7 +95,7 @@
        (ipc-posix-name "apple.shm.notification_center")
        (ipc-posix-name-regex #"^/tmp/com.apple.csseed.[0-9]+$"))
 
-(allow ipc-posix-shm-read* ipc-posix-shm-write-data
+(allow ipc-posix-shm-read* ipc-posix-shm-write*
        (ipc-posix-name "com.apple.AppleDatabaseChanged"))
 
 (allow mach-register
@@ -157,6 +158,7 @@
        (global-name "com.apple.duetactivityscheduler")
        (global-name "com.apple.rtcreportingd")
        (global-name "com.apple.mdmclient.daemon.unrestricted")
+       (global-name "com.apple.usymptomsd")
        (global-name "com.apple.system_installd"))
 
 (allow authorization-right-obtain
@@ -175,6 +177,9 @@
        (iokit-user-client-class-regex #"AccelDevice$")
        (iokit-user-client-class-regex #"SharedUserClient$")
        (iokit-user-client-class-regex #"GLContext$"))
+
+ (allow sysctl-read sysctl-write
+        (sysctl-name "kern.tcsm_enable"))
 
 (allow network-outbound)
 (allow system-socket)

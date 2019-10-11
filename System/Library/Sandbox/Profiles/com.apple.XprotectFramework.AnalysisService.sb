@@ -29,7 +29,8 @@
     (regex #"^/private/var/db/mds/[0-9]+(/|$)")
     (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds(/|$)")
     (regex #"^/private/var/folders/[^/]+/[^/]+/-Caches-/mds(/|$)")
-    (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mds\.lock$"))
+    (regex #"^/private/var/folders/[^/]+/[^/]+/C/mds/mds\.lock$")
+    (regex #"^/private/var/db/mds/system/mds\.lock$"))
 
 (allow file-write-create file-write-mode file-write-owner
     (home-subpath "/Library/Caches/com.apple.XprotectFramework.AnalysisService"))
@@ -50,3 +51,7 @@
 (allow ipc-posix-shm-read* ipc-posix-shm-write-data
 (ipc-posix-name "com.apple.AppleDatabaseChanged"))
 
+
+(allow file-read*
+    (literal "/private/var/db/mds/system/mdsDirectory.db")
+    (literal "/private/var/db/mds/system/mdsObject.db"))

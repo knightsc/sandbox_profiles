@@ -162,7 +162,8 @@
        (global-name "com.apple.ctkd.token-client")
        (global-name "com.apple.CoreAuthentication.agent.libxpc")
        (global-name "com.apple.CoreAuthentication.agent")
-       (global-name "com.apple.securityd.xpc"))
+       (global-name "com.apple.securityd.xpc")
+       (global-name "com.apple.xpc.amsaccountsd"))
 
 (allow authorization-right-obtain
        (right-name "system.install.app-store-software")

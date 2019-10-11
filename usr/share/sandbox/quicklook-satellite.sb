@@ -152,7 +152,12 @@
 	   (global-name "com.apple.distributed_notifications@Uv3")
        (global-name "com.apple.lsd.mapdb")
        (global-name "com.apple.lsd.modifydb")
-       (global-name "com.apple.dock.fullscreen"))
+       (global-name "com.apple.dock.fullscreen")
+       (global-name "com.apple.ocspd"))
+
+;;See rdar://52392776
+(allow iokit-open
+       (iokit-user-client-class "AppleAfterburnerUserClient"))
 
 ;; See rdar://problem/22730278
 (allow network-outbound (regex #"^/private/tmp/\.webdavUDS\.[^/]+$"))

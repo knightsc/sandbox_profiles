@@ -99,6 +99,7 @@
 
 (allow mach-lookup
     (global-name "com.apple.bird.token")
+    (global-name "com.apple.SecurityServer")
     )
 
 (allow mach-priv-host-port
@@ -112,13 +113,16 @@
     (iokit-user-client-class "RootDomainUserClient")
     )
 
+(allow iokit-get-properties)
+
 (allow lsopen)
 
 (allow process-info-pidinfo)
 
-(allow ipc-posix-shm-read-data ipc-posix-shm-write-data
-    (ipc-posix-name "com.apple.AppleDatabaseChanged")
-    (ipc-posix-name "com.apple.featureflags.shm")
-    )
+(allow ipc-posix-shm-read* ipc-posix-shm-write-create ipc-posix-shm-write-data
+       (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+(allow ipc-posix-shm-read* ipc-posix-shm-write-data
+       (ipc-posix-name "com.apple.featureflags.shm"))
 
 (allow distributed-notification-post)

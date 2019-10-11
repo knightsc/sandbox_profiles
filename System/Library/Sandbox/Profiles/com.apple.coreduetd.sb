@@ -22,6 +22,10 @@
         (literal "/private/var/db/.AppleSetupDone")
         (subpath "/usr/libexec/coreduetd"))
 
+(when (param "EXEC_DIR")
+        (allow file-read*
+                (subpath (param "EXEC_DIR"))))
+
 (allow file-read-data
         (subpath "/System/Library/Preferences/Logging")
         (subpath "/AppleInternal/Library/Preferences/Logging")

@@ -71,18 +71,21 @@
 
 (allow lsopen)
 
-; Files received from teachers need to be moved to a hidden folder inside the Downloads
-; folder so the AirDrop UI can see them. Once the user accepts the transfer, the files
-; need to be moved from the hidden folder to the top level of the Downloads folder.
 (allow file-read* file-write*
-  (home-directory-subpath "/Downloads/"))
+  ; Files received from teachers need to be moved to a hidden folder inside the Downloads
+  ; folder so the AirDrop UI can see them. Once the user accepts the transfer, the files
+  ; need to be moved from the hidden folder to the top level of the Downloads folder.
+  (home-directory-subpath "/Downloads/")
+  
+  ; The Contacts framework requires readwrite access to the AddressBook, even though
+  ; studentd only needs to read it (for the "me card"). See rdar://problem/54057889.
+  (home-directory-subpath address-book-directory-path))
 
 ;; Sandbox Extensions
 (allow file-read*
   (extension "com.apple.app-sandbox.read")) ; sharingd gives studentd sandbox extensions for files sent over Classroom AirDrop
 
 (allow file-read*
-  (home-directory-subpath address-book-directory-path)
   (home-directory-subpath education-configuration-path)
   (home-directory-subpath keychains-directory-path)
   (home-directory-subpath library-caches-directory-path)
@@ -181,6 +184,7 @@
   (global-name "com.apple.wirelessproxd"))
 
 (allow iokit-open
+  (iokit-user-client-class "AppleKeyStoreUserClient")
   (iokit-user-client-class "IOAudioControlUserClient")
   (iokit-user-client-class "IOAudioEngineUserClient"))
 
@@ -263,7 +267,8 @@
   (iokit-property "WWAN"))
 
 (allow user-preference*
-  (preference-domain "com.apple.classroom"))
+  (preference-domain "com.apple.classroom")
+  (preference-domain "com.apple.studentd"))
 
 (allow user-preference-read
   (preference-domain "com.apple.AddressBook")
@@ -275,7 +280,6 @@
   (preference-domain "com.apple.HIToolbox")
   (preference-domain "com.apple.ImageIO")
   (preference-domain "com.apple.LaunchServices")
-  (preference-domain "com.apple.studentd")
   (preference-domain "com.apple.universalaccess")
   (preference-domain "kCFPreferencesAnyApplication"))
 

@@ -75,23 +75,14 @@
     (preference-domain "com.apple.cache_delete"))
 
 (allow system-fsctl
-    (fsctl-command (_IO "h" 24))    ; HFS_VOLUME_STATUS / HFSIOC_VOLUME_STATUS
-                                    ; /* Get the low disk space values */
-    (fsctl-command (_IO "h" 27))    ; #define	HFSIOC_GET_VERY_LOW_DISK	_IOR('h', 27, u_int32_t)
-
-    (fsctl-command (_IO "h" 28))    ; #define	HFSIOC_GET_LOW_DISK	_IOR('h', 28, u_int32_t)
-
-    (fsctl-command (_IO "J" 18))    ; APFSIOC_GET_NEAR_LOW_DISK
-
-    (fsctl-command (_IO "h" 29))    ; #define	HFSIOC_GET_DESIRED_DISK	_IOR('h', 29, u_int32_t)
-
-    (fsctl-command (_IO "J" 68))    ; #define APFSIOC_MARK_PURGEABLE  _IOWR('J', 68, uint64_t)
-    (fsctl-command (_IO "J" 69))    ; #define APFSIOC_PURGE_FILES     _IOWR('J', 69, apfs_purge_files_req_t)
-    (fsctl-command (_IO "J" 70))    ; #define APFSIOC_GET_PURGEABLE_STATS    _IOR('J', 70, apfs_purgeable_file_stats_t)
-
-
-    ;;; Required for fs_snapshot_list
-    (fsctl-command #x4a12)
+       (fsctl-command APFSIOC_GET_NEAR_LOW_DISK)    ; required for fs_snapshot_list
+       (fsctl-command APFSIOC_GET_PURGEABLE_STATS)
+       (fsctl-command APFSIOC_MARK_PURGEABLE)
+       (fsctl-command APFSIOC_PURGE_FILES)
+       (fsctl-command HFSIOC_GET_DESIRED_DISK)
+       (fsctl-command HFSIOC_GET_LOW_DISK)          ; low disk space fsctls
+       (fsctl-command HFSIOC_GET_VERY_LOW_DISK)
+       (fsctl-command HFSIOC_VOLUME_STATUS)
 )
 
 (allow ipc-posix-sem)
@@ -112,8 +103,8 @@
 ;;; Required to list the snapshots on all of the
 ;;;  user-visible volumes
 (allow file-read*
-    (path "/")
-    (regex #"^/Volumes/[^/]$"))
+       (path "/")
+       (regex #"^/Volumes/[^/]+$"))
 
 (if (positive? (string-length (param "_HOME")))
     (begin

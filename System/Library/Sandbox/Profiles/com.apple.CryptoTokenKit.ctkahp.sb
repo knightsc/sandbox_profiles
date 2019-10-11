@@ -25,6 +25,7 @@
 (allow file-read-data
        (literal "/")
        (literal "/Library/Preferences/com.apple.security.plist")
+       (literal "/Library/Managed Preferences/.GlobalPreferences.plist")
        (literal "/Library/Keychains/System.keychain"))
 
 (allow file-write*

@@ -40,14 +40,8 @@
        (prefix  "/Library/Keychains/apsd.keychain")
        (literal "/System/Library/Keychains/SystemTrustSettings.plist"))
 
-(allow file-read*
+(allow file-read* file-write*
        (home-subpath "/Library/Keychains"))
-
-(allow file-write*
-       (home-regex   "/Library/Keychains/\.fl[0-9A-F]+$")          ; lock file ([0-9A-F]{8})
-       (home-literal "/Library/Keychains/lck~login.keychain-db")   ; network users
-       (home-prefix  "/Library/Keychains/login.keychain-db")
-       (home-regex   "/Library/Keychains/~[-A-Za-z0-9_]{16}$"))    ; network users
 
 ;;; Security.framework
 ; mds: mds.lock, mdsDirectory.db, mdsObject.db
@@ -144,6 +138,7 @@
        (global-name "com.apple.networkd_privileged")
        (global-name "com.apple.ocspd")
        (global-name "com.apple.passd.in-app-payment")
+       (global-name "com.apple.rtcreportingd")
        (global-name "com.apple.securityd.xpc")
        (global-name "com.apple.usernoted.daemon_client")
        (global-name "com.apple.videoconference.camera")

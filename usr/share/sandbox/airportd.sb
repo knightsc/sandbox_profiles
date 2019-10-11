@@ -67,7 +67,7 @@
     (literal "/private/var/db/DetachedSignatures")
     (literal "/dev/random")
     (literal "/Library/Caches/com.apple.DiagnosticReporting.HasBeenAppleInternal")
-	(literal "/Library/MessageTracer/SubmitDiagInfo.default.domains.searchtree")
+	(literal "/System/Library/MessageTracer/SubmitDiagInfo.default.domains.searchtree")
 	(literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
     (literal "/private/var/root/Library/Preferences/com.apple.airport.airportd.plist")
 )

@@ -155,6 +155,7 @@
 	(global-name "com.apple.bluetooth.nsxpc")
 	(global-name "com.apple.server.bluetooth.le.pipe.xpc")
 	(global-name "com.apple.server.bluetooth.le.att.xpc")
+    (global-name "com.apple.corespeech.corespeechd.activation.xpc")
 )
 
 (allow iokit-open

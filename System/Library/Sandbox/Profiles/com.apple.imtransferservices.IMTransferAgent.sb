@@ -6,9 +6,8 @@
 ;;;
 (version 1)
 
-(allow (with report) default)
-(allow (with report) file-map-executable process-info* nvram*)
-(allow (with report) dynamic-code-generation)
+(deny default)
+(deny file-map-executable process-info* nvram*)
 
 (import "com.apple.iMessage.shared.sb")
 
@@ -50,6 +49,7 @@
     (global-name "com.apple.cookied")
     (global-name "com.apple.lsd.mapdb")
     (global-name "com.apple.nehelper")
+    (global-name "com.apple.AppSSO.service-xpc")
     )
 
 (allow network-outbound)
@@ -59,13 +59,13 @@
     (subpath temp-directory)
     (subpath temp-directory)
     (home-regex #"/Library/Messages/.*")
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.imagent/.*")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.imagent/.*")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.identityservicesd/.*")
 )
 
 (allow file-read*
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.imagent/.*")
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.identityservicesd/.*")
-    (regex #"^/private/var/tmp/com.apple.identityservicesd/.*")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.imagent/.*")
+    (regex #"^/private/var/tmp/com\.apple\.identityservicesd/.*")
     (regex #"^/private/etc/services/.*")
     (subpath "/Library/Keychains/System.keychain")
     (home-regex #"/.*")
@@ -73,9 +73,9 @@
 
 (allow load-unsigned-code
     (subpath temp-directory)
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.imagent/.*")
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.identityservicesd/.*")
-    (regex #"^/private/var/tmp/com.apple.identityservicesd/.*")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.imagent/.*")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.identityservicesd/.*")
+    (regex #"^/private/var/tmp/com\.apple\.identityservicesd/.*")
     (home-regex #"/Library/Messages/.*")
     )
 

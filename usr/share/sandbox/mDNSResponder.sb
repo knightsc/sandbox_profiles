@@ -1,6 +1,5 @@
-; -*- Mode: Scheme; tab-width: 4 -*-
 ;
-; Copyright (c) 2012-2018 Apple Inc. All rights reserved.
+; Copyright (c) 2012-2019 Apple Inc. All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without 
 ; modification, are permitted provided that the following conditions are met:
@@ -64,6 +63,7 @@
        (global-name "com.apple.SystemConfiguration.NetworkInformation")
        (global-name "com.apple.system.notification_center")
        (global-name "com.apple.system.logger")
+       (global-name "com.apple.trustd")
        (global-name "com.apple.usymptomsd")
        (global-name "com.apple.webcontentfilter.dns")
        (global-name "com.apple.server.bluetooth")

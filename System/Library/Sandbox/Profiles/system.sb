@@ -35,6 +35,9 @@
        (literal "/var")
        (literal "/private/etc/localtime"))
 
+;; Always allow stat'ing of path components of firmlink targets.
+(allow file-read-metadata (path-ancestors "/System/Volumes/Data/private"))
+
 ;;; Allow processes to get their current working directory.
 ;;; Every process inherits their cwd from launchd, which uses "/".
 (allow file-read* (literal "/"))

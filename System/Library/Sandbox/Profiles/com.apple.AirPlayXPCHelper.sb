@@ -127,6 +127,8 @@
 	
 	(global-name "com.apple.distributed_notifications@1v3")
 	(global-name "com.apple.distributed_notifications@Uv3")
+
+	(global-name "com.apple.runningboard")
 )
 
 ;;

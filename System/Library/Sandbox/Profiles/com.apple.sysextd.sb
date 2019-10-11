@@ -6,9 +6,13 @@
 ;;;
 (version 1)
 
-(allow (with report) default)
-(allow (with report) file-map-executable process-info* nvram*)
+(deny default)
+(deny file-map-executable process-info* nvram*)
 (deny dynamic-code-generation)
+(deny file-write*)
+
+;; rdar://problem/50446564
+(allow process-exec*)
 
 (import "system.sb")
 (import "com.apple.corefoundation.sb")
@@ -62,19 +66,32 @@
 ;; Read and write our SIP-protected filesystem area
 (allow file-read* file-write* (subpath "/Library/SystemExtensions"))
 
+;; Read and write the SIP-protected filesystem area for driver extensions
+(allow file-read* file-write* (subpath "/Library/DriverExtensions"))
+
 ;; Read the bundles of apps, anywhere
 (allow file-read*)
 
 ;; Talking to our friend daemons that start and manage the various kinds of extensions
 (allow mach-lookup
-  (global-name "com.apple.nesessionmanager.system-extensions")
-  (global-name "com.apple.endpointsecurity.system-extensions")
+    (global-name "com.apple.nesessionmanager.system-extensions")
+    (global-name "com.apple.endpointsecurity.system-extensions")
+    (global-name "com.apple.KernelExtensionServer")
 )
 
 ;; Receiving AuthRefs (in order to check them) from clients
 (allow authorization-right-obtain
- ;;TODO: we should use a different right than this one
- (right-name "com.apple.ServiceManagement.daemons.modify"))
+    (right-name "com.apple.system-extensions.admin"))
+
+;; We need to use the system-wide MDS database or Security gets very very sad
+(allow file-read* file-write* (subpath "/private/var/db/mds/system"))
+(allow ipc-posix-shm (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+;; Check AMFITrustedKeys for validating "anchor apple" signatures
+;; Copied from Security's framework.sb (why don't we get it automatically?)
+;; On internal builds, allow clients to read the AMFITrustedKeys NVRAM variable
+(with-filter (system-attribute apple-internal)
+    (allow nvram-get (nvram-variable "AMFITrustedKeys")))
 
 ;; Various daemons needed to do our job
 (allow mach-lookup (global-name
@@ -83,4 +100,5 @@
 		    "com.apple.coreservices.quarantine-resolver"
 		    "com.apple.lsd.mapdb"
 		    "com.apple.UNCUserNotification"
+		    "com.apple.security.syspolicy"
 		   ))

@@ -60,7 +60,6 @@
        (subpath (param "DARWIN_CACHE_DIR")))
 
 ;; XPC connections
-;; TODO : CHECK com.apple.PowerManagement.control
 (allow mach-lookup
     (global-name "com.apple.nfrestore")
     (global-name "com.apple.awdd")
@@ -81,16 +80,13 @@
 ;; Process info lookup
 (allow process-info-pidinfo)
 
-;; Not sure about this one. Is this our XPC server ?
-;; TODO : CHECK WHY
 (allow mach-priv-host-port)
 
-;; IOKIT ??
 (allow iokit-open
     (iokit-user-client-class "RootDomainUserClient")
     (iokit-user-client-class "AppleCredentialManagerUserClient")
     (iokit-user-client-class "AppleSSEUserClient")
-    (iokit-user-client-class "AppleKeyStoreUserClient")) ;; <rdar://problem/47733233> [Yukon] macOSJazz: Extend nfcd sandbox profile to allow use of DeviceIdentity framework by AppleSSE
+    (iokit-user-client-class "AppleKeyStoreUserClient")) ;; <rdar://problem/47733233>
 
 (allow authorization-right-obtain
     (right-name "default")

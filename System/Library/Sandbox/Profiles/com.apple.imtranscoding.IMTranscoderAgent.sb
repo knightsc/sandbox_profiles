@@ -6,9 +6,8 @@
 ;;;
 (version 1)
 
-(allow (with report) default)
-(allow (with report) file-map-executable process-info* nvram*)
-(allow (with report) dynamic-code-generation)
+(deny default)
+(deny file-map-executable process-info* nvram*)
 
 (import "com.apple.iMessage.shared.sb")
 
@@ -22,13 +21,14 @@
 
 ;; allow reading files sent to us by imagent which are in imagent's temp folder
 (allow file-read*
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.imagent/.*")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.imagent/.*")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.iChat/.*")
     (regex #"^/Library/Video/Plug-Ins/.*")
     (regex #"^/Library/Audio/Plug-Ins/.*")
     )
 
 (allow file-write*
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.identityservicesd/.*")
+    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.identityservicesd/.*")
     )
 
 (allow user-preference-read

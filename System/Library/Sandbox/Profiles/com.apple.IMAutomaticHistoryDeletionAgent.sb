@@ -8,9 +8,8 @@
 
 ;;; (trace "/tmp/com.apple.IMAutomaticHistoryDeletionAgentTrace.sb")
 
-(allow (with report) default)
-(allow (with report) file-map-executable process-info* nvram*)
-(allow (with report) dynamic-code-generation)
+(deny default)
+(deny file-map-executable process-info* nvram*)
 
 (import "com.apple.iMessage.shared.sb")
 

@@ -24,6 +24,7 @@
 (literal "/Library/Preferences/SystemConfiguration/com.apple.PowerManagement.plist")
 (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
 (literal "/Library/Preferences/com.apple.loginwindow.plist")
+(literal "/private/var/db/nsurlstoraged/dafsaData.bin")
 (literal "/private/var/db/PreviousSystemVersion.plist")
 (subpath "/Applications")
 (subpath "/Library/Documentation/Help/MacHelp.help")
@@ -137,6 +138,7 @@
 (global-name "com.apple.ManagedClient.agent")
 (global-name "com.apple.cfnetwork.AuthBrokerAgent")
 (global-name "com.apple.cfnetwork.cfnetworkagent")
+(global-name "com.apple.storagekitd")
 (global-name "com.apple.pasteboard.1"))
 
 (allow authorization-right-obtain

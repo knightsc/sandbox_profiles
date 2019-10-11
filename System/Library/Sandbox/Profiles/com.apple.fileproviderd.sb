@@ -4,6 +4,10 @@
 ;;; Apple System Private Interface and are subject to change at any time and
 ;;; without notice.
 ;;;
+
+;;; build with:
+;;; sbutil compile -D HOME=${HOME} -D TMPDIR=${TMPDIR} DARWIN_CACHE_DIR=${HOME}/Library/Caches com.apple.fileproviderd.sb
+
 (version 1)
 
 (deny default)
@@ -29,6 +33,55 @@
 
 (allow process-info* (target self))
 
+;; UUID pattern matching stolen from AppSandbox/application.sb
+
+;;; <rdar://problem/15673466>
+;;; UUID of the form: XXXXXXXX-XXXX-XXXX--XXXX-XXXXXXXXXXXX
+;;; That's 8X-4X-4X-4X-12X; where X = "[0-9A-F]", length(X) = 8
+;;; Return a regex string which matches capital hex digit patterns
+;;; pattern descriptor is an list of integers where the element specifies the repeat
+;;; count of the hex digit; 0 means insert a dash
+;;; You can paste these functions into: https://repl.it/languages/Scheme
+(define (HEX-pattern-match-generator pattern-descriptor)
+    (letrec ((pattern-string ""))
+        (for-each  (lambda (repeat-count)
+            (if (zero? repeat-count)
+                (set! pattern-string (string-append  pattern-string "-"))
+                (let appender ((count repeat-count))
+                    (if (> count 0)
+                        (begin
+                            (set! pattern-string (string-append  pattern-string "[0-9A-F]"))
+                            (appender (- count 1)))))))
+        pattern-descriptor)
+    pattern-string)
+)
+
+;; return a regex pattern matching string for 8-4-4-4-12 UUIDs:
+(define (uuid-HEX-pattern-match-string)
+(HEX-pattern-match-generator '(8 0 4 0 4 0 4 0 12)))
+
+;; global to hold the computed UUID matching pattern.
+(define *uuid-pattern* "")
+
+(define (uuid-regex-string)
+       (if (zero? (string-length *uuid-pattern*))
+              (set! *uuid-pattern* (uuid-HEX-pattern-match-string)))
+       *uuid-pattern*
+)
+
+;; root when running in enterprise persona context
+(define (enterprise-context-root)
+       (regex (string-append "^/Volumes/" (uuid-regex-string) "(/|$)"))
+)
+
+(define (enterprise-context-tmp)
+       (regex (string-append "^/Volumes/" (uuid-regex-string) #"/tmp/com.apple.fileproviderd(/|$)"))
+)
+
+(define (enterprise-context-library)
+       (regex (string-append "^/Volumes/" (uuid-regex-string) #"/Library/Application Support/FileProvider(/|$)"))
+)
+
 ;; For resolving symlinks, realpath(3), and equivalents.
 (allow file-read-metadata)
 
@@ -37,8 +90,10 @@
 
 ;; Read/write access to a temporary directory.
 (allow file-read* file-write*
+       (enterprise-context-tmp)
        (subpath (param "TMPDIR"))
        (subpath (param "DARWIN_CACHE_DIR"))
+       (subpath (param "DARWIN_TEMP_DIR"))
        (extension "com.apple.app-sandbox.read-write")
 )
 
@@ -84,6 +139,12 @@
     (global-name "com.apple.coreservices.launchservicesd")
     (global-name "com.apple.iconservices")
     (global-name "com.apple.analyticsd")
+    (global-name "com.apple.sandboxd")
+    (global-name "com.apple.cloudd")
+    (global-name "com.apple.mobile.keybagd.xpc")
+    (global-name "com.apple.dock.fullscreen")
+    (global-name "com.apple.CoreDisplay.master")
+    (global-name "com.apple.fonts")
 )
 
 (allow process-info-dirtycontrol
@@ -103,6 +164,7 @@
 (allow file-read* file-write*
     ;; We need to be able to create items in the home folder
     (home-subpath "/")
+    (enterprise-context-root)
 )
 
 (define home-path-blacklist
@@ -130,6 +192,8 @@
     (home-subpath "/Library/Mobile Documents")
     (home-subpath "/Desktop")
     (home-subpath "/Documents")
+
+    (enterprise-context-library)
 )
 
 (allow file-issue-extension
@@ -180,46 +244,22 @@
 (allow file-read-data
     (home-literal "/Library")
     (literal (param "HOME"))
-    (literal "/Users"))
-
-;; HFSIOC_TRANSFER_DOCUMENT_ID used in fpfs_transfer_document_id
-(allow system-fsctl
-    (fsctl-command (_IO "h" 32))
+    (literal "/Users")
+    (literal "/Volumes")
 )
 
-;; APFSIOC_MAINTAIN_DIR_STATS
 (allow system-fsctl
-    (fsctl-command (_IO "J" 2))
-)
-
-;; APFSIOC_GET_DIR_STATS_EXT
-(allow system-fsctl
-    (fsctl-command (_IO "J" 32))
-)
-
-;; APFSIOC_MAKE_OBJECT_DATALESS
-(allow system-fsctl
-    (fsctl-command (_IO "J" 57))
-)
-
-;; FSIOC_CAS_BSDFLAGS
-(allow system-fsctl
-    (fsctl-command (_IO "A" 20))
-)
-
-;; APFSIOC_MARK_PURGEABLE
-(allow system-fsctl
-    (fsctl-command (_IO "J" 68))
-)
-
-;; APFSIOC_GET_PURGEABLE_FILE_FLAGS
-(allow system-fsctl
-    (fsctl-command (_IO "J" 71))
-)
-
-;; APFSIOC_SYNC_ROOT_GET_FLAG / APFSIOC_SYNC_ROOT_SET_FLAG
-(allow system-fsctl
-    (fsctl-command (_IO "J" 72))
+    (fsctl-command
+        APFSIOC_GET_DIR_STATS_EXT
+        APFSIOC_GET_PURGEABLE_FILE_FLAGS
+        APFSIOC_MAINTAIN_DIR_STATS
+        APFSIOC_MAKE_OBJECT_DATALESS
+        APFSIOC_MARK_PURGEABLE
+        APFSIOC_SYNC_ROOT_GET_FLAG
+        APFSIOC_SYNC_ROOT_SET_FLAG
+        FSIOC_CAS_BSDFLAGS
+        HFSIOC_TRANSFER_DOCUMENT_ID  ;; used in fpfs_transfer_document_id
+    )
 )
 
 ;; Package detection
@@ -238,3 +278,6 @@
 ;; secure LS preferences
 (allow file-read-data
     (home-literal "/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist"))
+
+;; reading the CoreStorage encrypted status
+(allow iokit-get-properties (iokit-registry-entry-class "CoreStorageLogical"))

@@ -79,7 +79,7 @@
 ;; for messagetracer. Should remove in the future
 (allow file-read*
     (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
-    (literal "/Library/MessageTracer/SubmitDiagInfo.default.domains.searchtree"))
+    (literal "/System/Library/MessageTracer/SubmitDiagInfo.default.domains.searchtree"))
 
 ;; for kernel events
 (allow iokit-open

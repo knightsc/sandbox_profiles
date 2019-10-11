@@ -112,4 +112,5 @@
     (literal "/Library/Preferences/com.apple.ViewBridge.plist")
     (home-literal "/.CFUserTextEncoding")
     (path "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
-    (subpath "/Library/MessageTracer"))
+    (subpath "/Library/MessageTracer")
+    (subpath "/System/Library/MessageTracer"))

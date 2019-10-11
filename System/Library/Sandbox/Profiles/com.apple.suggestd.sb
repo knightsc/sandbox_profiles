@@ -1,8 +1,10 @@
 ;; THIS IS THE MACOS SANDBOX FILE
-;; To make iOS sandbox changes, please file a radar requesting the change in the Sandbox_profiles radar component.
 
 (version 1)
 (import "system.sb")
+
+(import "com.apple.corefoundation.sb")
+(corefoundation)
 
 (define (home-subpath home-relative-subpath)
         (subpath (string-append (param "_HOME") home-relative-subpath)))
@@ -25,7 +27,7 @@
     (mount-relative-regex "^/\\.TemporaryItems(/|$)") ;; NSData atomic write
     (home-subpath "/Library/Calendars") ;; EventKit
     (home-subpath "/Library/Application Support/AddressBook") ;; this needs to be r/w even if we only read: <rdar://problem/20454859>
-    (home-subpath "/Library/Caches/com.apple.parsecd/CustomFeedback/") ;; Parsec feedback (Trystero uploads) <rdar://problem/33038387> Sandbox exception for Parsec feedback (macOS)
+    (home-subpath "/Library/Caches/com.apple.parsecd/CustomFeedback/") ;; Parsec feedback (Trystero uploads) <rdar://problem/33038387>
     (home-subpath "/Library/Caches/com.apple.proactive.eventtracker") ;; PET 2.0
 
 )
@@ -53,7 +55,7 @@
     (literal "/private/var/db/mds/system/mds.lock") ;; Security.framework
 )
 
-;; <rdar://problem/31989235> Lobo: SGOrigin app name unlocalized - need sandbox rule for InfoPlist.strings
+;; <rdar://problem/31989235>
 (allow file-read* (home-literal "/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist"))
 (allow file-read* (regex #"\.app$"))
 (allow file-read* (regex #"\.app/Contents$"))
@@ -63,6 +65,7 @@
 (allow file-read* (regex #"\.lproj$"))
 
 (allow mach-lookup
+    (global-name "com.apple.awdd") ;; Trystero training sessions and stats (AWD)
     (global-name "com.apple.accountsd.accountmanager") ;; EventKit
     (global-name "com.apple.apsd") ;; SGDCloudKitSync (APNS)
     (global-name "com.apple.CalendarAgent")
@@ -70,6 +73,7 @@
     (global-name "com.apple.CalendarAgent.proxy")
     (global-name "com.apple.ContactsAgent.general")
     (global-name "com.apple.cloudd") ;; SGDCloudKitSync (CloudKit)
+    (global-name "com.apple.contacts.donation.agent") ;; <rdar://problem/47520172>
     (global-name "com.apple.coreduetd") ;; SGDPowerBudget
     (global-name "com.apple.coreduetd.knowledge.user") ;; PersonalizationPortrait
     (global-name "com.apple.coreduetd.context") ;; SGDPowerBudget
@@ -79,10 +83,13 @@
     (global-name "com.apple.spotlight.IndexAgent")
     (global-name "com.apple.DiskArbitration.diskarbitrationd") ;; NSData atomic write
     (global-name "com.apple.distributed_notifications@Uv3")
+    (global-name "com.apple.locationd.desktop.registration") ;; rdar://52199820
+    (global-name "com.apple.locationd.desktop.synchronous") ;; rdar://52199820
     (global-name "com.apple.lsd.mapdb") ;; apparently needed by -[NSURL getResourceValue:forKey:error:]
     (global-name "com.apple.lsd.modifydb") ;; same, see <rdar://problem/21302822>
     (global-name "com.apple.metadata.mds") ;; <rdar://problem/28957199>
     (global-name "com.apple.mobileassetd") ;; SGAsset
+    (global-name "com.apple.mobileassetd.v2") ;; SGAsset
     (global-name "com.apple.reversetemplated")
     (global-name "com.apple.rtcreportingd")
     (global-name "com.apple.securityd.xpc") ;; SecItemCopyMatching
@@ -93,9 +100,10 @@
     (global-name "com.apple.SystemConfiguration.configd") ;; SGDCloudKitSync (APNS)
     (global-name "com.apple.tccd")
     (global-name "com.apple.windowserver.active") ;; AGDCloudKitSync (APNS)
-    (global-name "com.apple.awdd") ;; Trystero training sessions and stats (AWD)
     (global-name "com.apple.FileCoordination") ;; MailServices for reimport
-    (global-name "com.apple.duetactivityscheduler")) ;; Duet activityStartedWithParameters:/activityStoppedWithParameters
+    (global-name "com.apple.duetactivityscheduler") ;; Duet activityStartedWithParameters:/activityStoppedWithParameters
+    (global-name "com.apple.remindd") ;; Reminders found in Apps
+    (global-name "com.apple.routined.registration")) ;; LocationsOfInterest via CoreRoutine
 
 (allow file-read-metadata
     (literal "/Library/Caches/com.apple.DiagnosticReporting.HasBeenAppleInternal"))
@@ -104,6 +112,7 @@
 ;; We can't use shared-preferences-read as it's only defined in application.sb
 (allow user-preference-read (preference-domain "com.apple.iCal"))
 (allow user-preference-read user-preference-write (preference-domain "com.apple.suggestions"))
+(allow user-preference-read user-preference-write (preference-domain "com.apple.suggestd"))
 (allow user-preference-read user-preference-write (preference-domain "com.apple.corespotlightui"))
 (allow user-preference-read (preference-domain "com.apple.security"))
 (allow file-read* (home-literal "/Library/Preferences/com.apple.security.plist"))
@@ -111,6 +120,8 @@
 (allow user-preference-read (preference-domain "com.apple.security.revocation"))
 (allow file-read* (home-literal "/Library/Preferences/com.apple.security.revocation.plist"))
 (allow file-read* (literal "/Library/Preferences/com.apple.security.revocation.plist"))
+(allow file-read* (subpath "/Library/Managed Preferences")) ;; <rdar://problem/53906543>
+(allow managed-preference-read (preference-domain "kCFPreferencesAnyApplication")) ;; <rdar://problem/53906543>
 
 ;; CrashReporter support
 (allow file-read-metadata file-read-xattr
@@ -123,7 +134,7 @@
 (allow file-read* (home-literal "/.CFUserTextEncoding"))
 
 
-(allow file-read-metadata) ;; :-( see <rdar://problem/18320786>
+(allow file-read-metadata) ;; <rdar://problem/18320786>
 
 (allow ipc-posix-shm-read* ipc-posix-shm-write-data
     (ipc-posix-name "com.apple.AppleDatabaseChanged") ;; Security.framework
@@ -138,7 +149,7 @@
     (fsctl-command (_IO "z" 23)) ; afpfsByteRangeLock2FSCTL
 )
 
-;; <rdar://problem/22190886> suggestd(2678) deny file-read-data /Users/kvv/Library/Caches/GeoServices/networkDefaults.plist
+;; <rdar://problem/22190886>
 (allow file-read* (home-subpath "/Library/Caches/GeoServices"))
 
 ;; SGAsset
@@ -151,8 +162,8 @@
 
 ;; PersonalizationPortrait rdar://problem/33593450
 (allow user-preference-read (preference-domain "com.apple.assistant.support"))
-;; PersonalizationPortrait <rdar://problem/41010496> suggestd: Couldn't read values in CFPrefsPlistSource<0x7f8809d0de30> (Domain: com.apple.proactive.PersonalizationPortrait
-(allow user-preference-read (preference-domain "com.apple.proactive.PersonalizationPortrait"))
+;; PersonalizationPortrait <rdar://problem/41010496>
+(allow user-preference-read user-preference-write (preference-domain "com.apple.proactive.PersonalizationPortrait"))
 
 ;; Address book
 ;; Copied and pasted from application.sb,
@@ -179,7 +190,7 @@
 (allow sysctl-read
     (sysctl-name "kern.bootsessionuuid"))
 
-;; <rdar://problem/45164692> PPContactStore: Use PeopleSuggster.fw for scoring
+;; <rdar://problem/45164692>
 (allow mach-lookup
     (global-name "com.apple.coreduetd.people"))
 (allow file-read*

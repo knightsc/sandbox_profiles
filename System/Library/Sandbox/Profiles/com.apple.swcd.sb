@@ -38,6 +38,7 @@
 	(global-name "com.apple.metadata.mds")
 	(global-name "com.apple.networkd")
 	(global-name "com.apple.nsurlstorage-cache")
+	(global-name "com.apple.nsurlsessiond")
 	(global-name "com.apple.ocspd")
 	(global-name "com.apple.securityd.xpc")
 	(global-name "com.apple.SecurityServer")

@@ -30,6 +30,10 @@
 
 (allow mach-lookup (global-name "com.apple.audio.AudioComponentRegistrar"))
 
+;;copied from iTunesLibrary framework.sb - iTunesLibrary classes nil without these
+(allow mach-lookup (global-name "com.apple.amp.library.framework"))
+(allow mach-lookup (global-name "com.apple.amp.artworkd"))
+
 ;; Movie
 (allow file-read* (home-subpath "/Library/Video/Plug-Ins"))
 

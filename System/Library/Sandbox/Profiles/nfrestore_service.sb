@@ -57,6 +57,3 @@
 ;; Process info lookup
 (allow process-info-pidinfo)
 
-;; Not sure about this one. Is this our XPC server ?
-;; TODO : CHECK WHY
-;(allow mach-priv-host-port)

@@ -15,6 +15,11 @@
 
 (allow file-read*
         (path "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains"))
+(allow file-read* (regex #"\.app$"))
+(allow file-read* (regex #"\.app/Contents$"))
+(allow file-read* (regex #"/Info.plist$"))
+(allow file-read* (regex #"\.appex$"))
+(allow file-read* (regex #"\.appex/Contents$"))
 
 (allow file-read-metadata)
 
@@ -38,3 +43,6 @@
     (preference-domain "com.apple.security.smartcard")
     (preference-domain "com.apple.security.ctkd-db")
 )
+
+(allow system-audit)
+
