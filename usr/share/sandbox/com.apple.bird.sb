@@ -244,6 +244,10 @@
 
 ;; from application.sb
 (allow system-fsctl
+
+       (fsctl-command (_IO "J" 2)) ;; APFSIOC_MAINTAIN_DIR_STATS
+       (fsctl-command (_IO "J" 32)) ;; APFSIOC_GET_DIR_STATS_EXT
+
        (fsctl-command (_IO "h" 24))
        (fsctl-command (_IO "h" 30))
        (fsctl-command (_IO "h" 31))

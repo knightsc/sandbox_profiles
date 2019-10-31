@@ -5,10 +5,18 @@
 (import "com.apple.corefoundation.sb")
 (corefoundation)
 
+ (define (home-subpath home-relative-subpath)
+        (subpath (string-append (param "_HOME") home-relative-subpath)))
+ (define (home-literal home-relative-literal)
+        (literal (string-append (param "_HOME") home-relative-literal)))
+ (define (home-regex home-relative-regex)
+        (regex (string-append "^" (regex-quote (param "_HOME")) home-relative-regex)))
+
 (allow mach-register
     (global-name "com.apple.aps.appstoreagent")
     (global-name "com.apple.appstoreagent.legacy")
     (global-name "com.apple.appstoreagent.xpc")
+    (global-name "com.apple.appstored.xpc.in-game-analytics")
     (global-name "com.apple.storekitservice"))
 
 (allow mach-lookup
@@ -83,20 +91,16 @@
     (literal "/Applications")
     (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
     (literal "/private/etc/services")
-    (literal "/private/var/db/mds/system/mdsDirectory.db")
-    (literal "/private/var/db/mds/system/mdsObject.db")
     (literal "/private/var/db/nsurlstoraged/dafsaData.bin")
     (literal "/Library/Application Support/CrashReporter/DiagnosticMessagesHistory.plist")
-    (subpath "/Applications/App Store.app")
-    (subpath "/Applications/Xcode.app")
+    (subpath "/System/Applications/App Store.app")
     (subpath "/Users/Shared")
     (regex #"\.app(/|$)")
     (regex #"/Library/Caches/com\.apple\.AppleMediaServices")
     (regex #"/Library/Preferences/.GlobalPreferences.plist$")
     (regex #"/Library/Preferences/ByHost/\.GlobalPreferences\..*\.plist$")
     (regex #"/Library/Preferences/com\.apple\.LaunchServices/com\.apple\.launchservices\.secure\.plist$")
-    (regex #"/Library/Preferences/com\.apple\.security\.plist")
-    (regex "/private/var/db/mds/messages/([A-Za-z0-9]+/)?se_SecurityMessages"))
+    (regex #"/Library/Preferences/com\.apple\.security\.plist"))
 
 (allow file-read* file-write*
     (subpath "/private/var/folders")
@@ -117,7 +121,7 @@
 (allow ipc-posix-shm-read-data
     (ipc-posix-name "/com.apple.AppSSO.version")
     (ipc-posix-name "FNetwork.defaultStorageSession")
-    (ipc-posix-name-regex #"^/tmp/com.apple.csseed.[0-9]+$"))
+    (ipc-posix-name-prefix "/tmp/com.apple.csseed."))
 
 (allow ipc-posix-shm-read* ipc-posix-shm-write*
     (ipc-posix-name "com.apple.AppleDatabaseChanged"))
@@ -133,10 +137,7 @@
     (right-name "system.install.software.iap")
     (right-name "system.install.software.mdm-provided"))
 
-(allow iokit-open
-    (iokit-user-client-class "AppleAPFSUserClient")
-    (iokit-user-client-class "IOSurfaceRootUserClient")
-    (iokit-user-client-class-regex #"AccelDevice$"))
+(allow iokit-open)
 
 (allow sysctl-read sysctl-write
     (sysctl-name "kern.tcsm_enable"))
@@ -145,6 +146,22 @@
 (allow lsopen)
 (allow network-outbound)
 (allow system-socket)
+
+;; mds: mds.lock, mdsDirectory.db, mdsObject.db
+;; 1. extension "appstoreagent:mds"
+;;    uid == 0: r+w /private/var/db/mds/system
+;;    uid  > 0: r+w <_DARWIN_USER_CACHE_DIR>/mds
+;; 2. /private/var/db/mds/system/{mdsDirectory.db,mdsObject.db}
+;;    uid == 0: r+w (already covered by (extension "appstoreagent:mds"))
+;;    uid  > 0: r
+(allow file-read* file-write* (extension "appstoreagent:mds"))
+(allow file-read*
+    (literal "/private/var/db/mds/system/mdsDirectory.db")
+    (literal "/private/var/db/mds/system/mdsObject.db"))
+;; 3. se_SecurityMessages:
+;;    uid  < 500: /private/var/db/mds/messages/se_SecurityMessages
+;;    uid >= 500: /private/var/db/mds/messages/<uid>/se_SecurityMessages
+(allow file-read* (extension "appstoreagent:mdsmessages"))
 
 ;;
 ;; FairPlay DLL Support. See rdar://problem/54211948
@@ -163,4 +180,4 @@
     (subpath "/usr/lib")
     (subpath "/var/log")
     (subpath "/var/run")
-    (subpath "/Users"))
+    (subpath (param "_HOME")))

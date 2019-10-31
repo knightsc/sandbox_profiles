@@ -35,21 +35,21 @@
       cache-path-filter)))
 
 (allow mach-lookup
-    (global-name "com.apple.AssetCacheLocatorService")
-    (global-name "com.apple.SecurityServer")
-    (global-name "com.apple.SystemConfiguration.configd")
     (global-name "com.apple.analyticsd")
+    (global-name "com.apple.AppSSO.service-xpc")
     (global-name "com.apple.apsd")
+    (global-name "com.apple.AssetCacheLocatorService")
     (global-name "com.apple.awdd")
     (global-name "com.apple.backupd.xpc")
+    (global-name "com.apple.cookied")
     (global-name "com.apple.identityservicesd.desktop.auth")
     (global-name "com.apple.logind")
-    (global-name "com.apple.usymptomsd")
-    (global-name "com.apple.windowserver.active")
-    (global-name "com.apple.cookied")
     (global-name "com.apple.lsd.mapdb")
     (global-name "com.apple.nehelper")
-    (global-name "com.apple.AppSSO.service-xpc")
+    (global-name "com.apple.SecurityServer")
+    (global-name "com.apple.SystemConfiguration.configd")
+    (global-name "com.apple.usymptomsd")
+    (global-name "com.apple.windowserver.active")
     )
 
 (allow network-outbound)
@@ -57,28 +57,19 @@
 
 (allow file*
     (subpath temp-directory)
-    (subpath temp-directory)
-    (home-regex #"/Library/Messages/.*")
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.imagent/.*")
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.identityservicesd/.*")
+    (home-subpath "/Library/Messages")
+    (darwin-user-root-subpath "/T/com.apple.imagent")
+    (darwin-user-root-subpath "/T/com.apple.identityservicesd")
 )
 
 (allow file-read*
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.imagent/.*")
-    (regex #"^/private/var/tmp/com\.apple\.identityservicesd/.*")
-    (regex #"^/private/etc/services/.*")
+    (darwin-user-root-subpath "/T/com.apple.imagent")
+    (subpath "/private/var/tmp/com.apple.identityservicesd")
+    (subpath "/private/etc/services")
     (subpath "/Library/Keychains/System.keychain")
-    (home-regex #"/.*")
+    (home-subpath "")
     )
 
-(allow load-unsigned-code
-    (subpath temp-directory)
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.imagent/.*")
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.identityservicesd/.*")
-    (regex #"^/private/var/tmp/com\.apple\.identityservicesd/.*")
-    (home-regex #"/Library/Messages/.*")
-    )
-
-(allow ipc-posix-shm-write-create
+(allow ipc-posix-shm-read-data ipc-posix-shm-write-create ipc-posix-shm-write-data
     (global-name "com.apple.AppleDatabaseChanged")
     )

@@ -22,6 +22,7 @@
 (define home-directory (param "HOME_DIR"))
 (define temp-directory (param "TEMP_DIR"))
 (define cache-directory (param "DARWIN_CACHE_DIR"))
+(define darwin-user-root-directory (param "DARWIN_USER_ROOT_DIR"))
 
 ;;; Homedir-relative path filters
 (define (home-regex home-relative-regex)
@@ -38,6 +39,23 @@
 
 (define (home-literal home-relative-literal)
     (literal (string-append home-directory home-relative-literal))
+    )
+    
+;;; User root dir-relative path filters
+(define (darwin-user-root-regex darwin-user-root-relative-regex)
+    (regex (string-append "^" (regex-quote darwin-user-root-directory) darwin-user-root-relative-regex))
+    )
+
+(define (darwin-user-root-subpath darwin-user-root-relative-subpath)
+    (subpath (string-append darwin-user-root-directory darwin-user-root-relative-subpath))
+    )
+
+(define (darwin-user-root-prefix darwin-user-root-relative-prefix)
+    (prefix (string-append darwin-user-root-directory darwin-user-root-relative-prefix))
+    )
+
+(define (darwin-user-root-literal darwin-user-root-relative-literal)
+    (literal (string-append darwin-user-root-directory darwin-user-root-relative-literal))
     )
 
 ;;;
@@ -64,6 +82,10 @@
     ;; not sure why we need read this
     (home-subpath "/Library/Application Support/CrashReporter/")
     (subpath "/Library/Application Support/CrashReporter")
+    
+    ;; TODO: For sharing from other apps via Messages, ensure they send us sandbox extensions instead of their suffixed darwin-user directories.
+    ;; Until then, allow read access for the current darwin user directory. See: rdar://problem/55724745
+    (darwin-user-root-subpath "")
     )
 
 ;; For resolving symlinks, realpath(3), and equivalents.

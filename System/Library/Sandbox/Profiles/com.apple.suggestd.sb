@@ -103,7 +103,9 @@
     (global-name "com.apple.FileCoordination") ;; MailServices for reimport
     (global-name "com.apple.duetactivityscheduler") ;; Duet activityStartedWithParameters:/activityStoppedWithParameters
     (global-name "com.apple.remindd") ;; Reminders found in Apps
-    (global-name "com.apple.routined.registration")) ;; LocationsOfInterest via CoreRoutine
+    (global-name "com.apple.routined.registration") ;; LocationsOfInterest via CoreRoutine
+    (global-name "com.apple.dprivacyd") ;; 55668594
+    (global-name "com.apple.dprivacyagentd")) ;; 55668594
 
 (allow file-read-metadata
     (literal "/Library/Caches/com.apple.DiagnosticReporting.HasBeenAppleInternal"))

@@ -21,92 +21,67 @@
       cache-path-filter)))
 
 (allow mach-lookup
+    (global-name "com.apple.accountsd.accountmanager")
+    (global-name "com.apple.AddressBook.abd")
+    (global-name "com.apple.analyticsd")
+    (global-name "com.apple.backupd.xpc")
     (global-name "com.apple.corerecents.recentsd")
+    (global-name "com.apple.coreservices.launchservicesd")
+    (global-name "com.apple.dock.server")
+    (global-name "com.apple.logind")
     (global-name "com.apple.lsd.mapdb")
+    (global-name "com.apple.lsd.modifydb")
+    (global-name "com.apple.metadata.mds")
+    (global-name "com.apple.metadata.mdwrite")
+    (global-name "com.apple.ocspd")
+    (global-name "com.apple.powerlog.plxpclogger.xpc")
+    (global-name "com.apple.SharingServices")
+    (global-name "com.apple.spotlight.IndexAgent")
+    (global-name "com.apple.suggestd.messages")
     (global-name "com.apple.suggestd.messages")
     (global-name "com.apple.system.opendirectoryd.api")
-    (global-name "com.apple.metadata.mds")
-    (global-name "com.apple.powerlog.plxpclogger.xpc")
-    (global-name "com.apple.suggestd.messages")
     (global-name "com.apple.tccd")
-    (global-name "com.apple.analyticsd")
-    (global-name "com.apple.coreservices.launchservicesd")
-    (global-name "com.apple.spotlight.IndexAgent")
-    (global-name "com.apple.ocspd")
-    (global-name "com.apple.backupd.xpc")
-    (global-name "com.apple.lsd.modifydb")
-    (global-name "com.apple.logind")
-    (global-name "com.apple.dock.server")
-    (global-name "com.apple.metadata.mdwrite")
-    (global-name "com.apple.AddressBook.abd")
-    (global-name "com.apple.SharingServices")
-    (global-name "com.apple.accountsd.accountmanager")
     (global-name "com.apple.usernotifications.usernotificationservice")
     )
 
 (allow file*
     (home-subpath "/Library/Logs/SMSMigrator")
     (subpath temp-directory)
-    (regex #"^/private/var/tmp/com.apple.messages/.*")
+    (subpath "/private/var/tmp/com.apple.messages")
     (regex #"^/Volumes/[^/]+/.TemporaryItems/.*")
     )
 
 (allow file-read*
-    (regex #"^/private/var/db/.*")
-    (regex #"^/private/var/containers/Shared/SystemGroup/.*")
-    (home-regex #"/.*")
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.imagent/.*")
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.iChat/.*")
+    (subpath "/private/var/db")
+    (subpath "/private/var/containers/Shared/SystemGroup")
+    (home-subpath "")
+    (darwin-user-root-subpath "/T/com.apple.imagent")
+    (darwin-user-root-subpath "/T/com.apple.iChat")
     )
 
-(allow file-write-data
-    (subpath "/")
-    )
-
-(allow user-preference-read
+    
+(allow user-preference-read user-preference-write
     (preference-domain "com.apple.imdpersistence.IMDPersistenceAgent")
     (preference-domain "com.apple.imdsmsrecordstore")
-    (preference-domain "com.apple.imagent")
     (preference-domain "com.apple.iChat")
+    )
+    
+(allow user-preference-read
+    (preference-domain "com.apple.imagent")
     (preference-domain "com.apple.Sharing")
     (preference-domain "com.apple.messages")
     (preference-domain "com.apple.messages.statistics")
     )
 
-(allow user-preference-write
-    (preference-domain "com.apple.imdpersistence.IMDPersistenceAgent")
-    (preference-domain "com.apple.imdsmsrecordstore")
-    (preference-domain "com.apple.iChat")
-    )
-
 (allow file-map-executable
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.imdpersistence.IMDPersistenceAgent/.*")
-    (regex #"^/System/Library/Messages/.*")
+    (darwin-user-root-subpath "/T/com.apple.imdpersistence.IMDPersistenceAgent")
+    (subpath "/System/Library/Messages")
     
-    (home-regex #"/Library/Application Support/AddressBook/.*")
-    )
-
-(allow load-unsigned-code
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.imdpersistence.IMDPersistenceAgent/.*")
-    )
-
-(allow network*
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.imdpersistence.IMDPersistenceAgent/.*")
-    )
-
-(allow mach-priv-task-port
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.imdpersistence.IMDPersistenceAgent/.*")
-    )
-
-(allow process-exec*
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com.apple.imdpersistence.IMDPersistenceAgent/.*")
+    (home-subpath "/Library/Application Support/AddressBook")
     )
 
 (allow system-audit)
 
-(allow ipc-posix-shm-write-create
+(allow ipc-posix-shm-read-data ipc-posix-shm-write-create ipc-posix-shm-write-data
     (global-name "com.apple.AppleDatabaseChanged")
     )
-
-
-

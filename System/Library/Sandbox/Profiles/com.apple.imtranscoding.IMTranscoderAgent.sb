@@ -21,14 +21,15 @@
 
 ;; allow reading files sent to us by imagent which are in imagent's temp folder
 (allow file-read*
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.imagent/.*")
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.iChat/.*")
-    (regex #"^/Library/Video/Plug-Ins/.*")
-    (regex #"^/Library/Audio/Plug-Ins/.*")
+    (darwin-user-root-subpath "/T/com.apple.imagent")
+    (darwin-user-root-subpath "/T/com.apple.iChat")
+    (subpath "/Library/Video/Plug-Ins")
+    (subpath "/Library/Audio/Plug-Ins")
+    (home-subpath "")
     )
 
 (allow file-write*
-    (regex #"^/private/var/folders/[^/]+/[^/]+/T/\com\.apple\.identityservicesd/.*")
+    (darwin-user-root-subpath "/T/com.apple.identityservicesd")
     )
 
 (allow user-preference-read
@@ -50,17 +51,17 @@
     )
 
 (allow mach-lookup
-    (global-name "com.apple.lsd.mapdb")
     (global-name "com.apple.audio.AudioComponentRegistrar")
-    (global-name "com.apple.ocspd")
     (global-name "com.apple.audio.audiohald")
+    (global-name "com.apple.lsd.mapdb")
+    (global-name "com.apple.ocspd")
     )
 
 (allow file-map-executable
-    (regex #"^/System/Library/Components/.*")
-    (regex #"^/System/Library/Extensions/.*")
-    (regex #"^/System/Library/Video/Plug-Ins/.*")
-    (regex #"^/System/Library/Audio/Plug-Ins/.*")
+    (subpath "/System/Library/Components")
+    (subpath "/System/Library/Extensions")
+    (subpath "/System/Library/Video/Plug-Ins")
+    (subpath "/System/Library/Audio/Plug-Ins")
     )
 
 (allow iokit-open

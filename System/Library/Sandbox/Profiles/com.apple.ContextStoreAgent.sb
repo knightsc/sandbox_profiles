@@ -46,8 +46,8 @@
     (literal (param "_HOME")))
 
 (allow file-read*
-    (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")              ; for CrashReporter
-    (literal "/Library/MessageTracer/SubmitDiagInfo.default.domains.searchtree"))              ; for MessageTracer
+    (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")           ; for CrashReporter
+    (literal "/System/Library/MessageTracer/SubmitDiagInfo.default.domains.searchtree"))    ; for MessageTracer
 
 (when (param "EXEC_DIR")
     (allow file-read*

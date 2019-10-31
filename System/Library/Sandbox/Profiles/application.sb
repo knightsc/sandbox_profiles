@@ -1045,7 +1045,9 @@
 (shared-preferences-read "com.apple.Accessibility" "com.apple.AdLib")
 (allow file-read*
        (home-literal
-         "/Library/Preferences/com.apple.LaunchServices/com.apple.LaunchServices.plist"))
+         "/Library/Preferences/com.apple.LaunchServices/com.apple.LaunchServices.plist")
+       (home-literal "/Library/Preferences/com.apple.security_common.plist")
+       (home-literal "/Library/Preferences/com.apple.security.plist"))
 (read-only-and-issue-extensions
   (require-any
     (home-subpath "/Library/Sounds")
