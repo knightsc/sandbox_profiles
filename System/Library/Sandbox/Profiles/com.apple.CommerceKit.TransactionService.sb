@@ -94,6 +94,7 @@
        (ipc-posix-name "com.apple.AppleDatabaseChanged"))
 
 (allow mach-lookup
+       (global-name "com.apple.accountsd.accountmanager")
        (global-name "com.apple.adid")
        (global-name "com.apple.fpsd")
        (global-name "com.apple.UNCUserNotification")

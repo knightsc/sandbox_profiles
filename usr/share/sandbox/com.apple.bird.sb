@@ -189,6 +189,7 @@
        (global-name "com.apple.coreservices.quarantine-resolver")
        (global-name "com.apple.DiskArbitration.diskarbitrationd")
        (global-name "com.apple.cache_delete")
+       (global-name "com.apple.analyticsd")
 ;; IOPMConnectionGetSystemCapabilities
        (global-name "com.apple.PowerManagement.control")
 ;; CloudKit

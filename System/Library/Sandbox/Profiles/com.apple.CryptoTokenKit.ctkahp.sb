@@ -91,3 +91,4 @@
 
 (allow network-outbound (subpath "/private/var/run"))
 
+(allow mach-priv-host-port)

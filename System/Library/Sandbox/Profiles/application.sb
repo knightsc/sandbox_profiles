@@ -1009,6 +1009,7 @@
   "com.apple.AdLib"
   "com.apple.AppleMultitouchTrackpad"
   "com.apple.airplay"
+  "com.apple.assistant.support"
   "com.apple.avfoundation"
   "com.apple.cmio"
   "com.apple.coreanimation"

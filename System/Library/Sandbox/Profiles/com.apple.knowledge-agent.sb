@@ -28,7 +28,8 @@
     (global-name "com.apple.SystemConfiguration.configd")
     (global-name "com.apple.windowserver")
     (global-name "com.apple.windowserver.active")
-    (global-name "com.apple.ScreenTimeAgent"))
+    (global-name "com.apple.ScreenTimeAgent")
+    (global-name "com.apple.ScreenTimeAgent.private"))
 
 (allow mach-register
     (global-name "com.apple.coreduet.knowledge.sync.push"))

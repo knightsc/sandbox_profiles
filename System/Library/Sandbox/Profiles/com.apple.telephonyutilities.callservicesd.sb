@@ -122,6 +122,7 @@
     (global-name "com.apple.videoconference.camera")
     (global-name "com.apple.photos.service")
     (global-name "com.apple.ScreenTimeAgent")
+    (global-name "com.apple.ScreenTimeAgent.private")
     (global-name "com.apple.dmd.policy")
     (global-name "com.apple.dmd.emergency-mode")
 )

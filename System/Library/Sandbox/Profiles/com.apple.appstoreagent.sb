@@ -33,6 +33,7 @@
     (global-name "com.apple.AssetCacheLocatorService")
     (global-name "com.apple.bird")
     (global-name "com.apple.cache_delete")
+    (global-name "com.apple.cfnetwork.cfnetworkagent")
     (global-name "com.apple.commerce")
     (global-name "com.apple.cookied")
     (global-name "com.apple.CoreAuthentication.agent")

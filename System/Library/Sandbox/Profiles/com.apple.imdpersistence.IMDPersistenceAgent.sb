@@ -42,6 +42,10 @@
     (global-name "com.apple.system.opendirectoryd.api")
     (global-name "com.apple.tccd")
     (global-name "com.apple.usernotifications.usernotificationservice")
+    (global-name "com.apple.dmd.policy")
+    (global-name "com.apple.ScreenTimeAgent")
+    (global-name "com.apple.ScreenTimeAgent.private")
+    (global-name "com.apple.dmd.emergency-mode") 
     )
 
 (allow file*

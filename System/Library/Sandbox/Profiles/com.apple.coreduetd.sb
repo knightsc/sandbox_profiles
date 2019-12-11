@@ -15,6 +15,12 @@
         (subpath (param "DARWIN_CACHE_DIR"))
         (literal "/private/var/root/Library/Preferences/com.apple.coreduetd.plist")
         (subpath "/private/var/db/CoreDuet"))
+        
+(allow file-write-create
+        (subpath "/Library/Logs/DiagnosticReports"))
+        
+(allow file-write-unlink
+        (subpath "/Library/Logs/DiagnosticReports"))
 
 (allow file-read*
         (subpath "/usr/share/CoreDuetDaemonConfig.bundle")
@@ -30,7 +36,8 @@
         (subpath "/System/Library/Preferences/Logging")
         (subpath "/AppleInternal/Library/Preferences/Logging")
         (subpath "/Library/Preferences/Logging")
-        (literal "/Library/Preferences/com.apple.timezone.auto.plist"))
+        (literal "/Library/Preferences/com.apple.timezone.auto.plist")
+        (subpath "/Library/Logs/DiagnosticReports"))
 
 (allow file-read-metadata
     (subpath "/usr"))
@@ -64,7 +71,8 @@
         (global-name "com.apple.locationd.desktop.synchronous")
         (global-name "com.apple.SharingServices")
         (global-name "com.apple.statskit")
-        (global-name "com.apple.SystemConfiguration.configd"))
+        (global-name "com.apple.SystemConfiguration.configd")
+        (global-name "com.apple.CrashReporterSupportHelper"))
 
 (allow mach-register
         (global-name "com.apple.coreduet.knowledge.sync.push"))

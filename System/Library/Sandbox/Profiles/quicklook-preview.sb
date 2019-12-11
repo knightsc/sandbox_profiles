@@ -473,6 +473,7 @@
 (shared-preferences-read
   ".GlobalPreferences"
   "com.apple.AppleMultitouchTrackpad"
+  "com.apple.assistant.support"
   "com.apple.ATS"
   "com.apple.CoreGraphics"
   "com.apple.coremedia"

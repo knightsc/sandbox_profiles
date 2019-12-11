@@ -122,6 +122,7 @@
     (global-name "com.apple.lsd.modifydb")
     (global-name "com.apple.lsd.xpc")
     (global-name "com.apple.pluginkit.pkd")
+    (global-name "com.apple.runningboard")
     (global-name "com.apple.revisiond")
     (global-name "com.apple.spotlight.IndexAgent")
     (global-name "com.apple.spotlight.SearchAgent")

@@ -18,7 +18,9 @@
     (global-name "com.apple.iokit.powerdxpc")
     (global-name "com.apple.PowerManagement.control")
     (global-name "com.apple.coreduetd.context")
-    (global-name "com.apple.ScreenTimeAgent"))
+    (global-name "com.apple.ScreenTimeAgent")
+    (global-name "com.apple.ScreenTimeAgent.private")
+    (global-name "com.apple.mediaremoted.xpc"))
        
 (allow file*
        (subpath (param "_USER_TEMP_DIR"))
